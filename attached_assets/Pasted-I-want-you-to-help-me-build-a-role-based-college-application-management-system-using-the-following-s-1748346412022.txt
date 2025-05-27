@@ -1,0 +1,84 @@
+I want you to help me build a role-based college application management system using the following stack:
+- Frontend: Next.js (React)
+- Backend: Python (FastAPI)
+- Database: MongoDB
+- Auth: JWT-based authentication
+- Roles: Student, Faculty, Admin (each with separate dashboards)
+- No need for a public landing website.
+
+## GENERAL REQUIREMENTS
+- Each user type (Student, Faculty, Admin) must have a login system.
+- Each user should be redirected to their respective dashboard after login.
+- Use role-based access control across both frontend and backend.
+- Protect routes with auth guards on frontend and middleware on backend.
+- Use RESTful APIs between frontend and backend.
+- Use MongoDB for storing users, attendance, announcements, and other records.
+
+## FRONTEND (Next.js)
+Build a frontend with these pages/modules:
+
+### STUDENT PANEL
+1. **Login/Register**
+2. **Dashboard** (shows events & announcements)
+3. **Profile page** (View/Update personal and contact details)
+4. **Attendance page** (view subject-wise attendance)
+
+### FACULTY PANEL
+1. **Login**
+2. **Dashboard**
+3. **Attendance Management**: mark attendance, edit past attendance
+
+### ADMIN PANEL
+1. **Login**
+2. **Dashboard**
+3. **Attendance Dashboard**: overview of student attendance data
+4. **User Management**: add/edit/delete students and faculty
+5. **Course & Content Management**
+6. **Banner Upload**
+7. **Event & Announcement Posting**
+8. **Student Feedback Management**
+9. **Admission Enquiry Dashboard**
+10. **AICTE & JNTU Notification Management**
+
+- Use Tailwind CSS or Chakra UI for UI
+- Use dynamic routes and API integration with FastAPI
+
+## BACKEND (FastAPI)
+Build APIs with:
+- JWT auth with role-based claims
+- Separate routes for students, faculty, and admin
+- CRUD APIs for:
+  - Users (students, faculty)
+  - Attendance
+  - Events & Announcements
+  - Courses and content
+  - Feedback
+  - Banners
+  - Enquiry forms
+  - Notifications (AICTE, JNTU)
+
+## DATABASE SCHEMA (MongoDB)
+Design collections for:
+- Users (with roles and profile info)
+- Attendance
+- Events
+- Courses
+- Feedback
+- Enquiries
+- Notifications
+- Banners
+
+Use best practices: 
+- Modular code structure
+- Use routers in FastAPI
+- Protect endpoints with role-based permissions
+- Secure API tokens
+- Use async DB operations
+
+## NON-FUNCTIONAL REQUIREMENTS
+- Build a responsive, fast UI
+- Ensure code is clean and modular
+- Use ENV files for config
+- Prepare separate `.env.development` and `.env.production` templates
+
+Your job is to help me write, debug, and guide the implementation of this complete project in multiple steps.
