@@ -5,7 +5,7 @@ from flask import render_template, request, redirect, url_for, flash, jsonify, a
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
-from sqlalchemy import func, and_, or_
+from sqlalchemy import func, and_, or_, case
 from app import app, db
 from models import *
 from forms import *
@@ -340,7 +340,7 @@ def admin_dashboard():
     attendance_stats = db.session.query(
         func.date(Attendance.date).label('date'),
         func.count(Attendance.id).label('total_records'),
-        func.sum(func.case([(Attendance.status == 'present', 1)], else_=0)).label('present_count')
+        func.sum(case((Attendance.status == 'present', 1), else_=0)).label('present_count')
     ).filter(
         Attendance.date >= thirty_days_ago
     ).group_by(func.date(Attendance.date)).order_by(Attendance.date.desc()).limit(10).all()

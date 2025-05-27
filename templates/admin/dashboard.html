@@ -16,7 +16,7 @@
                     <p class="text-muted mb-0">System overview and management</p>
                 </div>
                 <div class="text-end">
-                    <small class="text-muted">Last login: {{ moment().format('MMM DD, YYYY HH:mm') }}</small><br>
+                    <small class="text-muted">Last login: {{ current_user.created_at.strftime('%b %d, %Y %H:%M') if current_user.created_at else 'N/A' }}</small><br>
                     <small class="text-muted">Role: System Administrator</small>
                 </div>
             </div>
