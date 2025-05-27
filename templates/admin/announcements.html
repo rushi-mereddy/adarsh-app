@@ -1,0 +1,306 @@
+{% extends "base.html" %}
+
+{% block title %}Announcement Management - Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-0">
+                        <i class="fas fa-bullhorn text-primary me-2"></i>
+                        Announcement Management
+                    </h1>
+                    <p class="text-muted mb-0">Create and manage announcements for students and faculty</p>
+                </div>
+                <div>
+                    <a href="{{ url_for('admin_add_announcement') }}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>New Announcement
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% if action == 'add' %}
+    <!-- Add Announcement Form -->
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-plus-circle me-2"></i>
+                        Create New Announcement
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" class="needs-validation" novalidate>
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="mb-3">
+                            {{ form.title.label(class="form-label fw-semibold") }}
+                            {{ form.title(class="form-control form-control-lg", placeholder="Enter announcement title") }}
+                            <div class="invalid-feedback">
+                                Please provide a title for the announcement.
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.content.label(class="form-label fw-semibold") }}
+                            {{ form.content(class="form-control", rows="6", placeholder="Enter announcement content") }}
+                            <div class="invalid-feedback">
+                                Please provide content for the announcement.
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                {{ form.category.label(class="form-label fw-semibold") }}
+                                {{ form.category(class="form-select") }}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                {{ form.target_audience.label(class="form-label fw-semibold") }}
+                                {{ form.target_audience(class="form-select") }}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                {{ form.expires_at.label(class="form-label fw-semibold") }}
+                                {{ form.expires_at(class="form-control", type="datetime-local") }}
+                                <small class="text-muted">Leave blank for no expiration</small>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <div class="form-check form-switch">
+                                {{ form.is_pinned(class="form-check-input") }}
+                                {{ form.is_pinned.label(class="form-check-label fw-semibold") }}
+                                <small class="text-muted d-block">Pinned announcements appear at the top</small>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-bullhorn me-2"></i>Publish Announcement
+                            </button>
+                            <a href="{{ url_for('admin_announcements') }}" class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% else %}
+    <!-- Announcements List -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list me-2"></i>
+                        Announcements List
+                    </h5>
+                    <div>
+                        <span class="text-muted">Total: {{ announcements|length }} announcements</span>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    {% if announcements %}
+                    <div class="list-group list-group-flush">
+                        {% for announcement in announcements %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <div class="me-3">
+                                            {% if announcement.category == 'urgent' %}
+                                                <div class="bg-danger bg-opacity-10 rounded-circle p-2 d-inline-flex">
+                                                    <i class="fas fa-exclamation-triangle text-danger"></i>
+                                                </div>
+                                            {% elif announcement.category == 'academic' %}
+                                                <div class="bg-primary bg-opacity-10 rounded-circle p-2 d-inline-flex">
+                                                    <i class="fas fa-graduation-cap text-primary"></i>
+                                                </div>
+                                            {% elif announcement.category == 'event' %}
+                                                <div class="bg-success bg-opacity-10 rounded-circle p-2 d-inline-flex">
+                                                    <i class="fas fa-calendar text-success"></i>
+                                                </div>
+                                            {% else %}
+                                                <div class="bg-info bg-opacity-10 rounded-circle p-2 d-inline-flex">
+                                                    <i class="fas fa-info-circle text-info"></i>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-1 d-flex align-items-center">
+                                                {{ announcement.title }}
+                                                {% if announcement.is_pinned %}
+                                                    <i class="fas fa-thumbtack text-warning ms-2" title="Pinned"></i>
+                                                {% endif %}
+                                            </h6>
+                                            <div class="d-flex gap-2 flex-wrap">
+                                                <span class="badge bg-{{ 'danger' if announcement.category == 'urgent' else 'primary' if announcement.category == 'academic' else 'success' if announcement.category == 'event' else 'secondary' }}">
+                                                    {{ announcement.category.title() }}
+                                                </span>
+                                                <span class="badge bg-light text-dark">
+                                                    {{ announcement.target_audience.title() }}
+                                                </span>
+                                                {% if announcement.expires_at %}
+                                                <span class="badge bg-warning">
+                                                    Expires: {{ announcement.expires_at.strftime('%b %d, %Y') }}
+                                                </span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <p class="mb-2 text-muted">{{ announcement.content[:200] }}{% if announcement.content|length > 200 %}...{% endif %}</p>
+                                    
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">
+                                            <i class="fas fa-user me-1"></i>
+                                            by {{ announcement.creator.get_full_name() }} • 
+                                            <i class="fas fa-clock me-1"></i>
+                                            {{ announcement.created_at.strftime('%b %d, %Y at %I:%M %p') }}
+                                        </small>
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <button class="btn btn-outline-info" title="View Details" 
+                                                    onclick="showAnnouncementDetails({{ loop.index0 }})">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn btn-outline-primary" title="Edit" 
+                                                    onclick="showToast('Announcement editing feature coming soon', 'info')">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-outline-danger" title="Delete" 
+                                                    onclick="showToast('Announcement deletion feature coming soon', 'info')">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-bullhorn fa-3x text-muted mb-3"></i>
+                        <h5>No Announcements Found</h5>
+                        <p class="text-muted">No announcements have been created yet. Create your first announcement to get started.</p>
+                        <a href="{{ url_for('admin_add_announcement') }}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Create First Announcement
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Announcement Details Modal -->
+<div class="modal fade" id="announcementDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Announcement Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="announcementDetailsContent">
+                    <!-- Content will be populated by JavaScript -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="showToast('Edit feature coming soon', 'info')">
+                    <i class="fas fa-edit me-2"></i>Edit
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Store announcements data for modal display
+const announcementsData = [
+    {% for announcement in announcements %}
+    {
+        title: {{ announcement.title|tojson }},
+        content: {{ announcement.content|tojson }},
+        category: {{ announcement.category|tojson }},
+        target_audience: {{ announcement.target_audience|tojson }},
+        is_pinned: {{ announcement.is_pinned|tojson }},
+        created_at: {{ announcement.created_at.strftime('%B %d, %Y at %I:%M %p')|tojson }},
+        creator: {{ announcement.creator.get_full_name()|tojson }},
+        expires_at: {{ (announcement.expires_at.strftime('%B %d, %Y at %I:%M %p') if announcement.expires_at else None)|tojson }}
+    }{% if not loop.last %},{% endif %}
+    {% endfor %}
+];
+
+function showAnnouncementDetails(index) {
+    const announcement = announcementsData[index];
+    if (!announcement) return;
+    
+    const content = `
+        <div class="mb-3">
+            <h4 class="mb-2">${announcement.title} ${announcement.is_pinned ? '<i class="fas fa-thumbtack text-warning ms-2"></i>' : ''}</h4>
+            <div class="d-flex gap-2 mb-3">
+                <span class="badge bg-${announcement.category === 'urgent' ? 'danger' : announcement.category === 'academic' ? 'primary' : announcement.category === 'event' ? 'success' : 'secondary'}">
+                    ${announcement.category.charAt(0).toUpperCase() + announcement.category.slice(1)}
+                </span>
+                <span class="badge bg-light text-dark">
+                    Target: ${announcement.target_audience.charAt(0).toUpperCase() + announcement.target_audience.slice(1)}
+                </span>
+                ${announcement.expires_at ? `<span class="badge bg-warning">Expires: ${announcement.expires_at}</span>` : ''}
+            </div>
+        </div>
+        
+        <div class="mb-3">
+            <h6>Content</h6>
+            <div class="bg-light p-3 rounded">${announcement.content.replace(/\n/g, '<br>')}</div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <h6>Created By</h6>
+                <p class="text-muted">${announcement.creator}</p>
+            </div>
+            <div class="col-md-6">
+                <h6>Created On</h6>
+                <p class="text-muted">${announcement.created_at}</p>
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('announcementDetailsContent').innerHTML = content;
+    
+    const modal = new bootstrap.Modal(document.getElementById('announcementDetailsModal'));
+    modal.show();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Focus first input in forms
+    const firstInput = document.querySelector('form input:not([type="hidden"])');
+    if (firstInput) {
+        firstInput.focus();
+    }
+    
+    // Set minimum datetime for expires_at to current time
+    const expiresInput = document.getElementById('expires_at');
+    if (expiresInput) {
+        const now = new Date();
+        const offset = now.getTimezoneOffset() * 60000;
+        const localTime = new Date(now.getTime() - offset);
+        expiresInput.min = localTime.toISOString().slice(0, 16);
+    }
+});
+</script>
+{% endblock %}

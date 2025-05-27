@@ -1,0 +1,423 @@
+:root {
+    /* Color scheme variables */
+    --primary-color: 230 81% 60%;     /* #6366F1 - Indigo */
+    --secondary-color: 191 65% 47%;   /* #3B82F6 - Blue */
+    --success-color: 150 84% 44%;     /* #10B981 - Emerald */
+    --warning-color: 43 96% 56%;      /* #F59E0B - Amber */
+    --danger-color: 0 84% 60%;        /* #EF4444 - Red */
+    --info-color: 200 98% 39%;        /* #0EA5E9 - Sky */
+    
+    /* Student theme */
+    --student-primary: 217 91% 60%;   /* #3B82F6 - Blue */
+    --student-secondary: 142 76% 36%; /* #059669 - Emerald */
+    
+    /* Faculty theme */
+    --faculty-primary: 262 83% 58%;   /* #7C3AED - Violet */
+    --faculty-secondary: 217 91% 60%; /* #3B82F6 - Blue */
+    
+    /* Admin theme */
+    --admin-primary: 0 84% 60%;       /* #EF4444 - Red */
+    --admin-secondary: 217 33% 17%;   /* #374151 - Gray */
+    
+    /* Neutral colors */
+    --gray-50: 210 40% 98%;           /* #F9FAFB */
+    --gray-100: 220 14% 96%;          /* #F3F4F6 */
+    --gray-200: 220 13% 91%;          /* #E5E7EB */
+    --gray-300: 216 12% 84%;          /* #D1D5DB */
+    --gray-400: 218 11% 65%;          /* #9CA3AF */
+    --gray-500: 220 9% 46%;           /* #6B7280 */
+    --gray-600: 215 14% 34%;          /* #4B5563 */
+    --gray-700: 217 19% 27%;          /* #374151 */
+    --gray-800: 215 28% 17%;          /* #1F2937 */
+    --gray-900: 222 84% 5%;           /* #111827 */
+    
+    /* Layout */
+    --border-radius: 0.5rem;
+    --box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    --box-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Base styles */
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: hsl(var(--gray-50));
+    color: hsl(var(--gray-900));
+    line-height: 1.6;
+}
+
+/* Role-based navbar themes */
+.navbar.student-theme {
+    background: linear-gradient(135deg, hsl(var(--student-primary)), hsl(var(--student-secondary))) !important;
+}
+
+.navbar.faculty-theme {
+    background: linear-gradient(135deg, hsl(var(--faculty-primary)), hsl(var(--faculty-secondary))) !important;
+}
+
+.navbar.admin-theme {
+    background: linear-gradient(135deg, hsl(var(--admin-primary)), hsl(var(--admin-secondary))) !important;
+}
+
+/* Custom navbar styling */
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: white !important;
+}
+
+.navbar-nav .nav-link {
+    color: rgba(255, 255, 255, 0.9) !important;
+    font-weight: 500;
+    padding: 0.5rem 1rem !important;
+    border-radius: var(--border-radius);
+    transition: all 0.3s ease;
+}
+
+.navbar-nav .nav-link:hover {
+    color: white !important;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Card enhancements */
+.card {
+    border: 1px solid hsl(var(--gray-200));
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: var(--box-shadow-lg);
+    transform: translateY(-2px);
+}
+
+.card-header {
+    background-color: hsl(var(--gray-50));
+    border-bottom: 1px solid hsl(var(--gray-200));
+    font-weight: 600;
+}
+
+/* Button enhancements */
+.btn {
+    border-radius: var(--border-radius);
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--secondary-color)));
+    color: white;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, hsl(var(--secondary-color)), hsl(var(--primary-color)));
+    transform: translateY(-1px);
+    box-shadow: var(--box-shadow-lg);
+}
+
+.btn-success {
+    background-color: hsl(var(--success-color));
+    color: white;
+}
+
+.btn-warning {
+    background-color: hsl(var(--warning-color));
+    color: white;
+}
+
+.btn-danger {
+    background-color: hsl(var(--danger-color));
+    color: white;
+}
+
+.btn-info {
+    background-color: hsl(var(--info-color));
+    color: white;
+}
+
+/* Role-specific button themes */
+.student-theme .btn-primary {
+    background: linear-gradient(135deg, hsl(var(--student-primary)), hsl(var(--student-secondary)));
+}
+
+.faculty-theme .btn-primary {
+    background: linear-gradient(135deg, hsl(var(--faculty-primary)), hsl(var(--faculty-secondary)));
+}
+
+.admin-theme .btn-primary {
+    background: linear-gradient(135deg, hsl(var(--admin-primary)), hsl(var(--admin-secondary)));
+}
+
+/* Form enhancements */
+.form-control, .form-select {
+    border: 1px solid hsl(var(--gray-300));
+    border-radius: var(--border-radius);
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: hsl(var(--primary-color));
+    box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.25);
+}
+
+.form-label {
+    font-weight: 600;
+    color: hsl(var(--gray-700));
+    margin-bottom: 0.5rem;
+}
+
+/* Table enhancements */
+.table {
+    background-color: white;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    box-shadow: var(--box-shadow);
+}
+
+.table thead th {
+    background-color: hsl(var(--gray-50));
+    border-bottom: 2px solid hsl(var(--gray-200));
+    font-weight: 600;
+    color: hsl(var(--gray-700));
+}
+
+.table tbody tr:hover {
+    background-color: hsl(var(--gray-50));
+}
+
+/* Alert enhancements */
+.alert {
+    border-radius: var(--border-radius);
+    border: none;
+    font-weight: 500;
+}
+
+.alert-success {
+    background-color: hsl(var(--success-color) / 0.1);
+    color: hsl(var(--success-color));
+    border-left: 4px solid hsl(var(--success-color));
+}
+
+.alert-danger {
+    background-color: hsl(var(--danger-color) / 0.1);
+    color: hsl(var(--danger-color));
+    border-left: 4px solid hsl(var(--danger-color));
+}
+
+.alert-warning {
+    background-color: hsl(var(--warning-color) / 0.1);
+    color: hsl(var(--warning-color));
+    border-left: 4px solid hsl(var(--warning-color));
+}
+
+.alert-info {
+    background-color: hsl(var(--info-color) / 0.1);
+    color: hsl(var(--info-color));
+    border-left: 4px solid hsl(var(--info-color));
+}
+
+/* Dashboard stats cards */
+.stat-card {
+    background: white;
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    box-shadow: var(--box-shadow);
+    border-left: 4px solid hsl(var(--primary-color));
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    box-shadow: var(--box-shadow-lg);
+    transform: translateY(-2px);
+}
+
+.stat-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: hsl(var(--primary-color));
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: hsl(var(--gray-600));
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Attendance status badges */
+.attendance-status {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.attendance-present {
+    background-color: hsl(var(--success-color) / 0.1);
+    color: hsl(var(--success-color));
+}
+
+.attendance-absent {
+    background-color: hsl(var(--danger-color) / 0.1);
+    color: hsl(var(--danger-color));
+}
+
+.attendance-late {
+    background-color: hsl(var(--warning-color) / 0.1);
+    color: hsl(var(--warning-color));
+}
+
+/* Progress bars */
+.progress {
+    height: 0.75rem;
+    border-radius: 9999px;
+    background-color: hsl(var(--gray-200));
+}
+
+.progress-bar {
+    border-radius: 9999px;
+    transition: width 0.6s ease;
+}
+
+/* Sidebar for admin panel */
+.sidebar {
+    background: linear-gradient(180deg, hsl(var(--gray-800)), hsl(var(--gray-900)));
+    min-height: 100vh;
+    padding: 1rem 0;
+}
+
+.sidebar .nav-link {
+    color: rgba(255, 255, 255, 0.8);
+    padding: 0.75rem 1.5rem;
+    transition: all 0.3s ease;
+    border-radius: 0 25px 25px 0;
+    margin: 0.25rem 0 0.25rem 1rem;
+}
+
+.sidebar .nav-link:hover,
+.sidebar .nav-link.active {
+    color: white;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar .nav-link i {
+    width: 20px;
+    margin-right: 0.75rem;
+}
+
+/* File upload area */
+.file-upload-area {
+    border: 2px dashed hsl(var(--gray-300));
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.file-upload-area:hover {
+    border-color: hsl(var(--primary-color));
+    background-color: hsl(var(--primary-color) / 0.05);
+}
+
+.file-upload-area.dragover {
+    border-color: hsl(var(--primary-color));
+    background-color: hsl(var(--primary-color) / 0.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        position: fixed;
+        z-index: 1000;
+        width: 250px;
+    }
+    
+    .sidebar.show {
+        transform: translateX(0);
+    }
+    
+    .stat-card {
+        margin-bottom: 1rem;
+    }
+    
+    .stat-value {
+        font-size: 2rem;
+    }
+}
+
+/* Loading spinner */
+.spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: hsl(var(--gray-100));
+}
+
+::-webkit-scrollbar-thumb {
+    background: hsl(var(--gray-400));
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--gray-500));
+}
+
+/* Animation utilities */
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.slide-in {
+    animation: slideIn 0.5s ease-out;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(0); }
+}
+
+/* Print styles */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    .card {
+        box-shadow: none;
+        border: 1px solid hsl(var(--gray-300));
+    }
+    
+    .btn {
+        display: none;
+    }
+}

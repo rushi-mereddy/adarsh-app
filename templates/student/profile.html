@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - Student Dashboard{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-0">
+                        <i class="fas fa-user text-primary me-2"></i>
+                        My Profile
+                    </h1>
+                    <p class="text-muted mb-0">Manage your personal information and settings</p>
+                </div>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="{{ url_for('student_dashboard') }}">Dashboard</a></li>
+                        <li class="breadcrumb-item active">Profile</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Profile Information Form -->
+        <div class="col-lg-8 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-edit me-2"></i>
+                        Edit Profile Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+                        {{ form.hidden_tag() }}
+                        
+                        <!-- Profile Image Upload -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">Profile Picture</label>
+                            <div class="d-flex align-items-center">
+                                <div class="me-3">
+                                    {% if current_user.profile_image %}
+                                        <img src="{{ url_for('static', filename='uploads/' + current_user.profile_image) }}" 
+                                             alt="Profile Picture" class="rounded-circle" width="80" height="80" style="object-fit: cover;">
+                                    {% else %}
+                                        <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" 
+                                             style="width: 80px; height: 80px;">
+                                            <i class="fas fa-user fa-2x text-primary"></i>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="file-upload-container">
+                                    {{ form.profile_image(class="form-control") }}
+                                </div>
+                            </div>
+                            <small class="text-muted">Upload a new profile picture (JPG, PNG only, max 5MB)</small>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form.first_name.label(class="form-label fw-semibold") }}
+                                {{ form.first_name(class="form-control", placeholder="Enter your first name") }}
+                                <div class="invalid-feedback">
+                                    Please provide your first name.
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                {{ form.last_name.label(class="form-label fw-semibold") }}
+                                {{ form.last_name(class="form-control", placeholder="Enter your last name") }}
+                                <div class="invalid-feedback">
+                                    Please provide your last name.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form.phone.label(class="form-label fw-semibold") }}
+                                {{ form.phone(class="form-control", placeholder="Enter your phone number") }}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                {{ form.date_of_birth.label(class="form-label fw-semibold") }}
+                                {{ form.date_of_birth(class="form-control") }}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.department.label(class="form-label fw-semibold") }}
+                            {{ form.department(class="form-control", placeholder="Enter your department") }}
+                        </div>
+                        
+                        <div class="mb-4">
+                            {{ form.address.label(class="form-label fw-semibold") }}
+                            {{ form.address(class="form-control", rows="3", placeholder="Enter your complete address") }}
+                        </div>
+                        
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Save Changes
+                            </button>
+                            <a href="{{ url_for('student_dashboard') }}" class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Profile Summary Card -->
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-id-card me-2"></i>
+                        Profile Summary
+                    </h5>
+                </div>
+                <div class="card-body text-center">
+                    {% if current_user.profile_image %}
+                        <img src="{{ url_for('static', filename='uploads/' + current_user.profile_image) }}" 
+                             alt="Profile Picture" class="rounded-circle mb-3" width="120" height="120" style="object-fit: cover;">
+                    {% else %}
+                        <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" 
+                             style="width: 120px; height: 120px;">
+                            <i class="fas fa-user fa-3x text-primary"></i>
+                        </div>
+                    {% endif %}
+                    
+                    <h5 class="mb-1">{{ current_user.get_full_name() }}</h5>
+                    <p class="text-muted mb-3">{{ current_user.role.title() }}</p>
+                    
+                    <div class="row text-start">
+                        <div class="col-12 mb-2">
+                            <small class="text-muted">Student ID:</small><br>
+                            <strong>{{ current_user.student_id or 'Not set' }}</strong>
+                        </div>
+                        <div class="col-12 mb-2">
+                            <small class="text-muted">Email:</small><br>
+                            <strong>{{ current_user.email }}</strong>
+                        </div>
+                        <div class="col-12 mb-2">
+                            <small class="text-muted">Department:</small><br>
+                            <strong>{{ current_user.department or 'Not set' }}</strong>
+                        </div>
+                        <div class="col-12 mb-2">
+                            <small class="text-muted">Phone:</small><br>
+                            <strong>{{ current_user.phone or 'Not set' }}</strong>
+                        </div>
+                        <div class="col-12">
+                            <small class="text-muted">Member Since:</small><br>
+                            <strong>{{ current_user.created_at.strftime('%B %Y') }}</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Account Security -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-shield-alt me-2"></i>
+                        Account Security
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <strong>Password</strong><br>
+                            <small class="text-muted">Last updated: Recently</small>
+                        </div>
+                        <button class="btn btn-outline-primary btn-sm" onclick="showToast('Password change feature will be available soon', 'info')">
+                            Change
+                        </button>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Account Status</strong><br>
+                            <small class="text-muted">Your account is active</small>
+                        </div>
+                        <span class="badge bg-success">Active</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Focus first input
+    const firstNameField = document.getElementById('first_name');
+    if (firstNameField) {
+        firstNameField.focus();
+    }
+    
+    // Date picker restrictions
+    const dobField = document.getElementById('date_of_birth');
+    if (dobField) {
+        // Set max date to 18 years ago
+        const eighteenYearsAgo = new Date();
+        eighteenYearsAgo.setFullYear(eighteenYearsAgo.getFullYear() - 18);
+        dobField.max = eighteenYearsAgo.toISOString().split('T')[0];
+        
+        // Set min date to 60 years ago
+        const sixtyYearsAgo = new Date();
+        sixtyYearsAgo.setFullYear(sixtyYearsAgo.getFullYear() - 60);
+        dobField.min = sixtyYearsAgo.toISOString().split('T')[0];
+    }
+});
+</script>
+{% endblock %}

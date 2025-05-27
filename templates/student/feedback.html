@@ -1,0 +1,275 @@
+{% extends "base.html" %}
+
+{% block title %}Submit Feedback - Student Dashboard{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-0">
+                        <i class="fas fa-comment text-primary me-2"></i>
+                        Student Feedback
+                    </h1>
+                    <p class="text-muted mb-0">Share your thoughts and help us improve</p>
+                </div>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="{{ url_for('student_dashboard') }}">Dashboard</a></li>
+                        <li class="breadcrumb-item active">Feedback</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Feedback Form -->
+        <div class="col-lg-8 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-edit me-2"></i>
+                        Submit New Feedback
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" class="needs-validation" novalidate>
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form.category.label(class="form-label fw-semibold") }}
+                                {{ form.category(class="form-select") }}
+                                <div class="invalid-feedback">
+                                    Please select a feedback category.
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ form.course_id.label(class="form-label fw-semibold") }}
+                                {{ form.course_id(class="form-select") }}
+                                <small class="text-muted">Select a course if your feedback is course-specific</small>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.subject.label(class="form-label fw-semibold") }}
+                            {{ form.subject(class="form-control", placeholder="Enter a descriptive subject for your feedback") }}
+                            <div class="invalid-feedback">
+                                Please provide a subject for your feedback.
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.message.label(class="form-label fw-semibold") }}
+                            {{ form.message(class="form-control", rows="6", placeholder="Please provide detailed feedback. Your input helps us improve our services.") }}
+                            <div class="invalid-feedback">
+                                Please provide your feedback message.
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            {{ form.rating.label(class="form-label fw-semibold") }}
+                            {{ form.rating(class="form-select") }}
+                            <small class="text-muted">Rate your experience (optional)</small>
+                        </div>
+                        
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane me-2"></i>Submit Feedback
+                            </button>
+                            <button type="reset" class="btn btn-secondary">
+                                <i class="fas fa-undo me-2"></i>Reset Form
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Feedback Guidelines -->
+        <div class="col-lg-4 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-lightbulb me-2"></i>
+                        Feedback Guidelines
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info" role="alert">
+                        <h6 class="alert-heading">Tips for Effective Feedback</h6>
+                        <ul class="mb-0 small">
+                            <li>Be specific and constructive</li>
+                            <li>Focus on facts rather than emotions</li>
+                            <li>Suggest improvements where possible</li>
+                            <li>Use respectful language</li>
+                        </ul>
+                    </div>
+                    
+                    <h6>Feedback Categories:</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <i class="fas fa-book text-primary me-2"></i>
+                            <strong>Course:</strong> Teaching quality, content, assignments
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-chalkboard-teacher text-success me-2"></i>
+                            <strong>Faculty:</strong> Teaching methods, availability, support
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-building text-info me-2"></i>
+                            <strong>Infrastructure:</strong> Facilities, equipment, campus
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-cogs text-warning me-2"></i>
+                            <strong>General:</strong> Overall experience, services, suggestions
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Previous Feedback -->
+    {% if previous_feedback %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-history me-2"></i>
+                        Your Previous Feedback
+                    </h5>
+                    <span class="text-muted">Last {{ previous_feedback|length }} submissions</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for feedback in previous_feedback %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <h6 class="mb-0">{{ feedback.subject }}</h6>
+                                        <span class="badge bg-{{ 'success' if feedback.status == 'resolved' else 'warning' if feedback.status == 'reviewed' else 'secondary' }}">
+                                            {{ feedback.status.title() }}
+                                        </span>
+                                    </div>
+                                    <p class="mb-2 text-muted">{{ feedback.message[:150] }}{% if feedback.message|length > 150 %}...{% endif %}</p>
+                                    
+                                    {% if feedback.response %}
+                                    <div class="alert alert-success alert-sm" role="alert">
+                                        <strong>Response:</strong> {{ feedback.response[:100] }}{% if feedback.response|length > 100 %}...{% endif %}
+                                        <br><small class="text-muted">Responded on {{ feedback.responded_at.strftime('%b %d, %Y') }}</small>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div class="d-flex gap-2">
+                                            <span class="badge bg-light text-dark">{{ feedback.category.title() }}</span>
+                                            {% if feedback.rating %}
+                                            <span class="badge bg-{{ 'success' if feedback.rating >= 4 else 'warning' if feedback.rating >= 3 else 'danger' }}">
+                                                {{ feedback.rating }}/5 ⭐
+                                            </span>
+                                            {% endif %}
+                                            {% if feedback.course %}
+                                            <span class="badge bg-info">{{ feedback.course.code }}</span>
+                                            {% endif %}
+                                        </div>
+                                        <small class="text-muted">
+                                            <i class="fas fa-clock me-1"></i>
+                                            {{ feedback.created_at.strftime('%b %d, %Y') }}
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Focus first input
+    const categorySelect = document.getElementById('category');
+    if (categorySelect) {
+        categorySelect.focus();
+    }
+    
+    // Character counter for message field
+    const messageField = document.getElementById('message');
+    if (messageField) {
+        const maxLength = 1000;
+        
+        // Add character counter
+        const counterDiv = document.createElement('div');
+        counterDiv.className = 'text-end text-muted small mt-1';
+        counterDiv.id = 'messageCounter';
+        messageField.parentNode.appendChild(counterDiv);
+        
+        function updateCounter() {
+            const remaining = maxLength - messageField.value.length;
+            counterDiv.textContent = `${messageField.value.length}/${maxLength} characters`;
+            
+            if (remaining < 50) {
+                counterDiv.className = 'text-end text-warning small mt-1';
+            } else if (remaining < 0) {
+                counterDiv.className = 'text-end text-danger small mt-1';
+            } else {
+                counterDiv.className = 'text-end text-muted small mt-1';
+            }
+        }
+        
+        messageField.addEventListener('input', updateCounter);
+        messageField.maxLength = maxLength;
+        updateCounter();
+    }
+    
+    // Form submission confirmation
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const message = document.getElementById('message').value.trim();
+            if (message.length < 10) {
+                e.preventDefault();
+                showToast('Please provide more detailed feedback (at least 10 characters)', 'warning');
+                return false;
+            }
+            
+            // Show loading state
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                showLoading(submitBtn);
+            }
+        });
+    }
+    
+    // Category change handler
+    const categorySelect = document.getElementById('category');
+    const courseSelect = document.getElementById('course_id');
+    
+    if (categorySelect && courseSelect) {
+        categorySelect.addEventListener('change', function() {
+            if (this.value === 'course' || this.value === 'faculty') {
+                courseSelect.disabled = false;
+                courseSelect.required = true;
+                courseSelect.parentNode.querySelector('.text-muted').textContent = 'Please select the relevant course';
+            } else {
+                courseSelect.disabled = false; // Keep it optional for other categories
+                courseSelect.required = false;
+                courseSelect.parentNode.querySelector('.text-muted').textContent = 'Select a course if your feedback is course-specific';
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

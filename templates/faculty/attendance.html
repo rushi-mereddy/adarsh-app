@@ -1,0 +1,332 @@
+{% extends "base.html" %}
+
+{% block title %}Attendance Management - Faculty Dashboard{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-0">
+                        <i class="fas fa-calendar-check text-primary me-2"></i>
+                        Attendance Management
+                    </h1>
+                    <p class="text-muted mb-0">Mark and manage student attendance</p>
+                </div>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="{{ url_for('faculty_dashboard') }}">Dashboard</a></li>
+                        <li class="breadcrumb-item active">Attendance</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Course and Date Selection -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-filter me-2"></i>
+                        Select Course and Date
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row align-items-end">
+                        <div class="col-md-4 mb-3">
+                            <label for="course_id" class="form-label fw-semibold">Course</label>
+                            <select class="form-select" id="course_id" name="course_id" onchange="loadAttendanceView()">
+                                <option value="">Select a course</option>
+                                {% for course in courses %}
+                                    <option value="{{ course.id }}" {% if selected_course and selected_course.id == course.id %}selected{% endif %}>
+                                        {{ course.code }} - {{ course.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="date" class="form-label fw-semibold">Date</label>
+                            <input type="date" class="form-control" id="date" name="date" 
+                                   value="{{ selected_date or '' }}" onchange="loadAttendanceView()">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <button type="button" class="btn btn-primary" onclick="loadAttendanceView()">
+                                <i class="fas fa-search me-2"></i>Load Students
+                            </button>
+                            {% if selected_course and selected_date %}
+                            <button type="button" class="btn btn-secondary ms-2" onclick="clearSelection()">
+                                <i class="fas fa-times me-2"></i>Clear
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% if selected_course and students %}
+    <!-- Attendance Form -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="mb-0">
+                            <i class="fas fa-users me-2"></i>
+                            Student Attendance - {{ selected_course.name }}
+                        </h5>
+                        <small class="text-muted">
+                            {{ selected_course.code }} • {{ selected_date.strftime('%B %d, %Y') if selected_date else '' }} • {{ students|length }} students
+                        </small>
+                    </div>
+                    <div>
+                        <button type="button" class="btn btn-success btn-sm me-2" id="markAllPresent">
+                            <i class="fas fa-check-circle me-1"></i>Mark All Present
+                        </button>
+                        <button type="button" class="btn btn-danger btn-sm" id="markAllAbsent">
+                            <i class="fas fa-times-circle me-1"></i>Mark All Absent
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form method="POST" id="attendanceForm">
+                        {{ form.hidden_tag() }}
+                        {{ form.course_id(value=selected_course.id, style="display: none;") }}
+                        {{ form.date(value=selected_date, style="display: none;") }}
+                        {{ form.student_attendances(id="student_attendances", style="display: none;") }}
+                        
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="attendanceTable">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 60px;">#</th>
+                                        <th>Student Name</th>
+                                        <th>Student ID</th>
+                                        <th style="width: 200px;">Status</th>
+                                        <th style="width: 100px;">Quick Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for student in students %}
+                                    <tr data-student-id="{{ student.id }}">
+                                        <td>{{ loop.index }}</td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                {% if student.profile_image %}
+                                                    <img src="{{ url_for('static', filename='uploads/' + student.profile_image) }}" 
+                                                         alt="Profile" class="rounded-circle me-2" width="32" height="32" style="object-fit: cover;">
+                                                {% else %}
+                                                    <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-2" 
+                                                         style="width: 32px; height: 32px;">
+                                                        <i class="fas fa-user text-primary"></i>
+                                                    </div>
+                                                {% endif %}
+                                                <div>
+                                                    <div class="fw-semibold">{{ student.get_full_name() }}</div>
+                                                    <small class="text-muted">{{ student.department }}</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-light text-dark">{{ student.student_id }}</span>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <input type="radio" class="btn-check" name="student_{{ student.id }}" 
+                                                       id="present_{{ student.id }}" value="present"
+                                                       {% if existing_attendance.get(student.id|string) == 'present' %}checked{% endif %}>
+                                                <label class="btn btn-outline-success btn-sm" for="present_{{ student.id }}">
+                                                    <i class="fas fa-check me-1"></i>Present
+                                                </label>
+                                                
+                                                <input type="radio" class="btn-check" name="student_{{ student.id }}" 
+                                                       id="absent_{{ student.id }}" value="absent"
+                                                       {% if existing_attendance.get(student.id|string) == 'absent' %}checked{% endif %}>
+                                                <label class="btn btn-outline-danger btn-sm" for="absent_{{ student.id }}">
+                                                    <i class="fas fa-times me-1"></i>Absent
+                                                </label>
+                                                
+                                                <input type="radio" class="btn-check" name="student_{{ student.id }}" 
+                                                       id="late_{{ student.id }}" value="late"
+                                                       {% if existing_attendance.get(student.id|string) == 'late' %}checked{% endif %}>
+                                                <label class="btn btn-outline-warning btn-sm" for="late_{{ student.id }}">
+                                                    <i class="fas fa-clock me-1"></i>Late
+                                                </label>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group-vertical btn-group-sm" role="group">
+                                                <button type="button" class="btn btn-success btn-sm" 
+                                                        onclick="markStudent({{ student.id }}, 'present')">
+                                                    <i class="fas fa-check"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-danger btn-sm" 
+                                                        onclick="markStudent({{ student.id }}, 'absent')">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="row mt-4">
+                            <div class="col-md-8">
+                                <div class="alert alert-info" role="alert">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    <strong>Note:</strong> Select the attendance status for each student and click "Save Attendance" to record.
+                                    {% if existing_attendance %}
+                                    This date already has attendance marked - your changes will update the existing records.
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-4 text-end">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-save me-2"></i>Save Attendance
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% elif selected_course and not students %}
+    <!-- No Students Found -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-user-slash fa-3x text-muted mb-3"></i>
+                    <h5>No Students Enrolled</h5>
+                    <p class="text-muted">No students are enrolled in the selected course "{{ selected_course.name }}".</p>
+                    <button class="btn btn-primary" onclick="clearSelection()">
+                        <i class="fas fa-arrow-left me-2"></i>Select Different Course
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% else %}
+    <!-- Instructions -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-clipboard-list fa-3x text-primary mb-3"></i>
+                    <h5>Select Course and Date</h5>
+                    <p class="text-muted mb-4">
+                        Choose a course and date from the options above to view and mark student attendance.
+                    </p>
+                    <div class="row justify-content-center">
+                        <div class="col-md-6">
+                            <div class="text-start">
+                                <h6 class="fw-bold mb-2">Instructions:</h6>
+                                <ul class="list-unstyled">
+                                    <li class="mb-2">
+                                        <i class="fas fa-chevron-right text-primary me-2"></i>
+                                        Select a course you are teaching
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="fas fa-chevron-right text-primary me-2"></i>
+                                        Choose the date for attendance
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="fas fa-chevron-right text-primary me-2"></i>
+                                        Mark each student as Present, Absent, or Late
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="fas fa-chevron-right text-primary me-2"></i>
+                                        Save the attendance record
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Set default date to today
+    const dateInput = document.getElementById('date');
+    if (dateInput && !dateInput.value) {
+        const today = new Date().toISOString().split('T')[0];
+        dateInput.value = today;
+    }
+});
+
+function loadAttendanceView() {
+    const courseSelect = document.getElementById('course_id');
+    const dateInput = document.getElementById('date');
+    
+    const courseId = courseSelect.value;
+    const date = dateInput.value;
+    
+    if (courseId && date) {
+        const url = new URL(window.location.href);
+        url.search = ''; // Clear existing params
+        url.searchParams.set('course_id', courseId);
+        url.searchParams.set('date', date);
+        window.location.href = url.toString();
+    } else {
+        if (!courseId) {
+            showToast('Please select a course', 'warning');
+        }
+        if (!date) {
+            showToast('Please select a date', 'warning');
+        }
+    }
+}
+
+function clearSelection() {
+    const url = new URL(window.location.href);
+    url.search = ''; // Clear all params
+    window.location.href = url.toString();
+}
+
+function markStudent(studentId, status) {
+    const radio = document.getElementById(status + '_' + studentId);
+    if (radio) {
+        radio.checked = true;
+    }
+}
+
+// Mark all students present/absent
+document.addEventListener('DOMContentLoaded', function() {
+    const markAllPresent = document.getElementById('markAllPresent');
+    const markAllAbsent = document.getElementById('markAllAbsent');
+    
+    if (markAllPresent) {
+        markAllPresent.addEventListener('click', function() {
+            const presentRadios = document.querySelectorAll('input[value="present"]');
+            presentRadios.forEach(radio => radio.checked = true);
+            showToast('All students marked as present', 'success');
+        });
+    }
+    
+    if (markAllAbsent) {
+        markAllAbsent.addEventListener('click', function() {
+            const absentRadios = document.querySelectorAll('input[value="absent"]');
+            absentRadios.forEach(radio => radio.checked = true);
+            showToast('All students marked as absent', 'info');
+        });
+    }
+});
+</script>
+{% endblock %}

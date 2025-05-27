@@ -1,0 +1,298 @@
+{% extends "base.html" %}
+
+{% block title %}Course Management - Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-0">
+                        <i class="fas fa-book text-primary me-2"></i>
+                        Course Management
+                    </h1>
+                    <p class="text-muted mb-0">Manage academic courses and assignments</p>
+                </div>
+                <div>
+                    <a href="{{ url_for('admin_add_course') }}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Add New Course
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% if action == 'add' %}
+    <!-- Add Course Form -->
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-plus-circle me-2"></i>
+                        Add New Course
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" class="needs-validation" novalidate>
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="row">
+                            <div class="col-md-8 mb-3">
+                                {{ form.name.label(class="form-label fw-semibold") }}
+                                {{ form.name(class="form-control", placeholder="Enter course name") }}
+                                <div class="invalid-feedback">
+                                    Please provide a course name.
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                {{ form.code.label(class="form-label fw-semibold") }}
+                                {{ form.code(class="form-control", placeholder="e.g., CS101") }}
+                                <div class="invalid-feedback">
+                                    Please provide a unique course code.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.description.label(class="form-label fw-semibold") }}
+                            {{ form.description(class="form-control", rows="3", placeholder="Enter course description") }}
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                {{ form.credits.label(class="form-label fw-semibold") }}
+                                {{ form.credits(class="form-control", placeholder="e.g., 3") }}
+                                <div class="invalid-feedback">
+                                    Please provide number of credits (1-10).
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                {{ form.department.label(class="form-label fw-semibold") }}
+                                {{ form.department(class="form-control", placeholder="Enter department") }}
+                                <div class="invalid-feedback">
+                                    Please provide a department.
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                {{ form.semester.label(class="form-label fw-semibold") }}
+                                {{ form.semester(class="form-control", placeholder="e.g., Fall 2024") }}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            {{ form.faculty_id.label(class="form-label fw-semibold") }}
+                            {{ form.faculty_id(class="form-select") }}
+                            <small class="text-muted">Select a faculty member to assign this course</small>
+                        </div>
+                        
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Create Course
+                            </button>
+                            <a href="{{ url_for('admin_courses') }}" class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% else %}
+    <!-- Courses List -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list me-2"></i>
+                        Courses List
+                    </h5>
+                    <div>
+                        <span class="text-muted">Total: {{ courses|length }} courses</span>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    {% if courses %}
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width: 50px;">#</th>
+                                    <th>Course Details</th>
+                                    <th>Faculty</th>
+                                    <th>Department</th>
+                                    <th>Credits</th>
+                                    <th>Semester</th>
+                                    <th>Created</th>
+                                    <th style="width: 120px;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for course in courses %}
+                                <tr>
+                                    <td>{{ loop.index }}</td>
+                                    <td>
+                                        <div>
+                                            <div class="fw-semibold">{{ course.name }}</div>
+                                            <small class="text-muted">{{ course.code }}</small>
+                                            {% if course.description %}
+                                            <br><small class="text-muted">{{ course.description[:80] }}{% if course.description|length > 80 %}...{% endif %}</small>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if course.faculty %}
+                                            <div class="d-flex align-items-center">
+                                                <div class="bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-2" 
+                                                     style="width: 32px; height: 32px;">
+                                                    <i class="fas fa-chalkboard-teacher text-success"></i>
+                                                </div>
+                                                <div>
+                                                    <div class="fw-semibold">{{ course.faculty.get_full_name() }}</div>
+                                                    <small class="text-muted">{{ course.faculty.email }}</small>
+                                                </div>
+                                            </div>
+                                        {% else %}
+                                            <span class="badge bg-warning">Unassigned</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ course.department }}</td>
+                                    <td>
+                                        <span class="badge bg-primary">{{ course.credits }} Credits</span>
+                                    </td>
+                                    <td>{{ course.semester or '-' }}</td>
+                                    <td>
+                                        <small class="text-muted">{{ course.created_at.strftime('%b %d, %Y') }}</small>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <button class="btn btn-outline-info" title="View Details" 
+                                                    onclick="showCourseDetails({{ course.id }})">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn btn-outline-primary" title="Edit" 
+                                                    onclick="showToast('Course editing feature coming soon', 'info')">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-outline-danger" title="Delete" 
+                                                    onclick="showToast('Course deletion feature coming soon', 'info')">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-book fa-3x text-muted mb-3"></i>
+                        <h5>No Courses Found</h5>
+                        <p class="text-muted">No courses have been added yet. Create your first course to get started.</p>
+                        <a href="{{ url_for('admin_add_course') }}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Add First Course
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Course Details Modal -->
+<div class="modal fade" id="courseDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Course Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="courseDetailsContent">
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function showCourseDetails(courseId) {
+    // Find course data from the table
+    const courseRow = document.querySelector(`tr:has(td:first-child:contains("${courseId}"))`);
+    if (!courseRow) return;
+    
+    // Extract course information from the row
+    const courseName = courseRow.querySelector('td:nth-child(2) .fw-semibold').textContent;
+    const courseCode = courseRow.querySelector('td:nth-child(2) .text-muted').textContent;
+    const facultyName = courseRow.querySelector('td:nth-child(3) .fw-semibold')?.textContent || 'Unassigned';
+    const department = courseRow.querySelector('td:nth-child(4)').textContent;
+    const credits = courseRow.querySelector('td:nth-child(5)').textContent;
+    const semester = courseRow.querySelector('td:nth-child(6)').textContent;
+    
+    // Build modal content
+    const content = `
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label fw-semibold">Course Name</label>
+                <p class="form-control-plaintext">${courseName}</p>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label fw-semibold">Course Code</label>
+                <p class="form-control-plaintext">${courseCode}</p>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label fw-semibold">Faculty</label>
+                <p class="form-control-plaintext">${facultyName}</p>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label fw-semibold">Department</label>
+                <p class="form-control-plaintext">${department}</p>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label fw-semibold">Credits</label>
+                <p class="form-control-plaintext">${credits}</p>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label fw-semibold">Semester</label>
+                <p class="form-control-plaintext">${semester}</p>
+            </div>
+        </div>
+        <div class="alert alert-info" role="alert">
+            <i class="fas fa-info-circle me-2"></i>
+            Additional course management features like student enrollment, assignments, and grades will be available in future updates.
+        </div>
+    `;
+    
+    document.getElementById('courseDetailsContent').innerHTML = content;
+    
+    const modal = new bootstrap.Modal(document.getElementById('courseDetailsModal'));
+    modal.show();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Focus first input in forms
+    const firstInput = document.querySelector('form input:not([type="hidden"])');
+    if (firstInput) {
+        firstInput.focus();
+    }
+});
+</script>
+{% endblock %}

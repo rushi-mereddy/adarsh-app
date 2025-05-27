@@ -1,0 +1,295 @@
+{% extends "base.html" %}
+
+{% block title %}Attendance - Student Dashboard{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-0">
+                        <i class="fas fa-calendar-check text-primary me-2"></i>
+                        My Attendance
+                    </h1>
+                    <p class="text-muted mb-0">Track your attendance across all courses</p>
+                </div>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="{{ url_for('student_dashboard') }}">Dashboard</a></li>
+                        <li class="breadcrumb-item active">Attendance</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+    
+    {% if attendance_data %}
+        <!-- Overall Attendance Summary -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-chart-pie me-2"></i>
+                            Attendance Summary
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            {% set total_classes = attendance_data | sum(attribute='total_classes') %}
+                            {% set total_present = attendance_data | sum(attribute='present_classes') %}
+                            {% set overall_percentage = (total_present / total_classes * 100) if total_classes > 0 else 0 %}
+                            
+                            <div class="col-md-3 col-6 mb-3">
+                                <div class="stat-card text-center">
+                                    <div class="stat-value text-primary">{{ total_classes }}</div>
+                                    <div class="stat-label">Total Classes</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6 mb-3">
+                                <div class="stat-card text-center">
+                                    <div class="stat-value text-success">{{ total_present }}</div>
+                                    <div class="stat-label">Classes Attended</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6 mb-3">
+                                <div class="stat-card text-center">
+                                    <div class="stat-value text-danger">{{ total_classes - total_present }}</div>
+                                    <div class="stat-label">Classes Missed</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6 mb-3">
+                                <div class="stat-card text-center">
+                                    <div class="stat-value {% if overall_percentage >= 75 %}text-success{% elif overall_percentage >= 60 %}text-warning{% else %}text-danger{% endif %}">
+                                        {{ "%.1f"|format(overall_percentage) }}%
+                                    </div>
+                                    <div class="stat-label">Overall Attendance</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Course-wise Attendance -->
+        <div class="row">
+            {% for item in attendance_data %}
+            <div class="col-lg-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-0">{{ item.course.name }}</h6>
+                            <small class="text-muted">{{ item.course.code }} • {{ item.course.department }}</small>
+                        </div>
+                        <span class="badge fs-6 {% if item.percentage >= 75 %}bg-success{% elif item.percentage >= 60 %}bg-warning{% else %}bg-danger{% endif %}">
+                            {{ "%.1f"|format(item.percentage) }}%
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <!-- Progress Bar -->
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <small class="text-muted">Attendance Progress</small>
+                                <small class="text-muted">{{ item.present_classes }}/{{ item.total_classes }}</small>
+                            </div>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar {% if item.percentage >= 75 %}bg-success{% elif item.percentage >= 60 %}bg-warning{% else %}bg-danger{% endif %}" 
+                                     style="width: {{ item.percentage }}%"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Statistics -->
+                        <div class="row text-center">
+                            <div class="col-4">
+                                <div class="border-end">
+                                    <div class="fw-bold text-success">{{ item.present_classes }}</div>
+                                    <small class="text-muted">Present</small>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="border-end">
+                                    <div class="fw-bold text-danger">{{ item.total_classes - item.present_classes }}</div>
+                                    <small class="text-muted">Absent</small>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="fw-bold text-primary">{{ item.total_classes }}</div>
+                                <small class="text-muted">Total</small>
+                            </div>
+                        </div>
+                        
+                        {% if item.percentage < 75 %}
+                        <div class="alert alert-warning mt-3 mb-0" role="alert">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>Attendance Warning:</strong> 
+                            You need {{ ((75 * item.total_classes / 100) - item.present_classes) | round | int }} more present days to reach 75%.
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Recent Attendance Records -->
+                        {% if item.records %}
+                        <div class="mt-3">
+                            <button class="btn btn-outline-primary btn-sm w-100" type="button" data-bs-toggle="collapse" 
+                                    data-bs-target="#records-{{ loop.index }}" aria-expanded="false">
+                                <i class="fas fa-list me-2"></i>View Recent Records
+                            </button>
+                            
+                            <div class="collapse mt-3" id="records-{{ loop.index }}">
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Date</th>
+                                                <th>Status</th>
+                                                <th>Notes</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for record in item.records[:10] %}
+                                            <tr>
+                                                <td>{{ record.date.strftime('%b %d, %Y') }}</td>
+                                                <td>
+                                                    <span class="attendance-status attendance-{{ record.status }}">
+                                                        {{ record.status.title() }}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    {% if record.notes %}
+                                                        <small class="text-muted">{{ record.notes[:30] }}{% if record.notes|length > 30 %}...{% endif %}</small>
+                                                    {% else %}
+                                                        <small class="text-muted">-</small>
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                    {% if item.records|length > 10 %}
+                                    <small class="text-muted">Showing recent 10 records out of {{ item.records|length }} total</small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Attendance Guidelines -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Attendance Guidelines
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-success bg-opacity-10 rounded-circle p-2 me-3">
+                                        <i class="fas fa-check text-success"></i>
+                                    </div>
+                                    <div>
+                                        <strong class="text-success">75% and above</strong><br>
+                                        <small class="text-muted">Excellent attendance - eligible for all exams</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-warning bg-opacity-10 rounded-circle p-2 me-3">
+                                        <i class="fas fa-exclamation-triangle text-warning"></i>
+                                    </div>
+                                    <div>
+                                        <strong class="text-warning">60% - 74%</strong><br>
+                                        <small class="text-muted">Warning - improve attendance to avoid issues</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-danger bg-opacity-10 rounded-circle p-2 me-3">
+                                        <i class="fas fa-times text-danger"></i>
+                                    </div>
+                                    <div>
+                                        <strong class="text-danger">Below 60%</strong><br>
+                                        <small class="text-muted">Critical - may affect exam eligibility</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    {% else %}
+        <!-- No Attendance Data -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body text-center py-5">
+                        <i class="fas fa-calendar-times fa-4x text-muted mb-4"></i>
+                        <h4>No Attendance Records Found</h4>
+                        <p class="text-muted mb-4">
+                            You don't have any attendance records yet. This could be because:
+                        </p>
+                        <div class="row justify-content-center">
+                            <div class="col-md-6">
+                                <ul class="list-unstyled text-start">
+                                    <li class="mb-2">
+                                        <i class="fas fa-chevron-right text-primary me-2"></i>
+                                        You haven't been enrolled in any courses
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="fas fa-chevron-right text-primary me-2"></i>
+                                        Classes haven't started yet
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="fas fa-chevron-right text-primary me-2"></i>
+                                        Faculty hasn't marked attendance
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <a href="{{ url_for('student_dashboard') }}" class="btn btn-primary">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize tooltips for attendance status
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+    
+    // Animate progress bars
+    const progressBars = document.querySelectorAll('.progress-bar');
+    progressBars.forEach(function(bar) {
+        const width = bar.style.width;
+        bar.style.width = '0%';
+        setTimeout(function() {
+            bar.style.transition = 'width 1s ease-in-out';
+            bar.style.width = width;
+        }, 100);
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,455 @@
+{% extends "base.html" %}
+
+{% block title %}Attendance Overview - Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-0">
+                        <i class="fas fa-chart-bar text-primary me-2"></i>
+                        Attendance Overview
+                    </h1>
+                    <p class="text-muted mb-0">Monitor attendance statistics across all courses</p>
+                </div>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="{{ url_for('admin_dashboard') }}">Dashboard</a></li>
+                        <li class="breadcrumb-item active">Attendance Overview</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+    
+    {% if attendance_data %}
+    <!-- Summary Statistics -->
+    <div class="row mb-4">
+        {% set total_students = attendance_data | sum(attribute='enrolled_students') %}
+        {% set total_courses = attendance_data | length %}
+        {% set avg_attendance_all = (attendance_data | sum(attribute='avg_attendance')) / total_courses if total_courses > 0 else 0 %}
+        {% set courses_above_75 = attendance_data | selectattr('avg_attendance', 'ge', 75) | list | length %}
+        
+        <div class="col-md-3 col-6 mb-3">
+            <div class="stat-card text-center">
+                <div class="stat-value text-primary">{{ total_courses }}</div>
+                <div class="stat-label">Active Courses</div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 mb-3">
+            <div class="stat-card text-center">
+                <div class="stat-value text-info">{{ total_students }}</div>
+                <div class="stat-label">Total Students</div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 mb-3">
+            <div class="stat-card text-center">
+                <div class="stat-value text-success">{{ courses_above_75 }}</div>
+                <div class="stat-label">Courses >75%</div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 mb-3">
+            <div class="stat-card text-center">
+                <div class="stat-value {% if avg_attendance_all >= 75 %}text-success{% elif avg_attendance_all >= 60 %}text-warning{% else %}text-danger{% endif %}">
+                    {{ "%.1f"|format(avg_attendance_all) }}%
+                </div>
+                <div class="stat-label">Overall Average</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Attendance Data Table -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-table me-2"></i>
+                        Course-wise Attendance Statistics
+                    </h5>
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button class="btn btn-outline-primary" onclick="sortTable('course')">
+                            <i class="fas fa-sort-alpha-down me-1"></i>Sort by Course
+                        </button>
+                        <button class="btn btn-outline-success" onclick="sortTable('attendance')">
+                            <i class="fas fa-sort-numeric-down me-1"></i>Sort by Attendance
+                        </button>
+                        <button class="btn btn-outline-info" onclick="exportData()">
+                            <i class="fas fa-download me-1"></i>Export
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0" id="attendanceTable">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width: 50px;">#</th>
+                                    <th>Course Details</th>
+                                    <th>Faculty</th>
+                                    <th>Enrolled Students</th>
+                                    <th>Classes Conducted</th>
+                                    <th>Average Attendance</th>
+                                    <th>Progress</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in attendance_data %}
+                                <tr>
+                                    <td>{{ loop.index }}</td>
+                                    <td>
+                                        <div>
+                                            <div class="fw-semibold">{{ item.course.name }}</div>
+                                            <small class="text-muted">{{ item.course.code }} • {{ item.course.department }}</small>
+                                            {% if item.course.semester %}
+                                            <br><small class="text-muted">{{ item.course.semester }}</small>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if item.course.faculty %}
+                                            <div class="d-flex align-items-center">
+                                                <div class="bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-2" 
+                                                     style="width: 32px; height: 32px;">
+                                                    <i class="fas fa-chalkboard-teacher text-success"></i>
+                                                </div>
+                                                <div>
+                                                    <div class="fw-semibold">{{ item.course.faculty.get_full_name() }}</div>
+                                                    <small class="text-muted">{{ item.course.faculty.department or 'N/A' }}</small>
+                                                </div>
+                                            </div>
+                                        {% else %}
+                                            <span class="badge bg-warning">No Faculty Assigned</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="fs-5 fw-bold text-primary">{{ item.enrolled_students }}</span>
+                                        <br><small class="text-muted">students</small>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="fs-5 fw-bold text-info">{{ item.total_classes }}</span>
+                                        <br><small class="text-muted">classes</small>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="fs-4 fw-bold {% if item.avg_attendance >= 75 %}text-success{% elif item.avg_attendance >= 60 %}text-warning{% else %}text-danger{% endif %}">
+                                            {{ "%.1f"|format(item.avg_attendance) }}%
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="progress" style="height: 20px;">
+                                            <div class="progress-bar {% if item.avg_attendance >= 75 %}bg-success{% elif item.avg_attendance >= 60 %}bg-warning{% else %}bg-danger{% endif %}" 
+                                                 role="progressbar" 
+                                                 style="width: {{ item.avg_attendance }}%" 
+                                                 aria-valuenow="{{ item.avg_attendance }}" 
+                                                 aria-valuemin="0" 
+                                                 aria-valuemax="100">
+                                                {{ "%.0f"|format(item.avg_attendance) }}%
+                                            </div>
+                                        </div>
+                                        <small class="text-muted">Target: 75%</small>
+                                    </td>
+                                    <td>
+                                        {% if item.avg_attendance >= 75 %}
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-check-circle me-1"></i>Excellent
+                                            </span>
+                                        {% elif item.avg_attendance >= 60 %}
+                                            <span class="badge bg-warning">
+                                                <i class="fas fa-exclamation-triangle me-1"></i>Warning
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-danger">
+                                                <i class="fas fa-times-circle me-1"></i>Critical
+                                            </span>
+                                        {% endif %}
+                                        
+                                        {% if item.total_classes == 0 %}
+                                            <br><span class="badge bg-secondary mt-1">No Classes</span>
+                                        {% elif item.enrolled_students == 0 %}
+                                            <br><span class="badge bg-secondary mt-1">No Students</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Additional Insights -->
+    <div class="row mt-4">
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                        Courses Requiring Attention
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% set low_attendance_courses = attendance_data | selectattr('avg_attendance', 'lt', 75) | list %}
+                    {% if low_attendance_courses %}
+                        <div class="list-group list-group-flush">
+                            {% for course in low_attendance_courses[:5] %}
+                            <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                <div>
+                                    <div class="fw-semibold">{{ course.course.name }}</div>
+                                    <small class="text-muted">{{ course.course.code }} • {{ course.enrolled_students }} students</small>
+                                </div>
+                                <span class="badge bg-{% if course.avg_attendance >= 60 %}warning{% else %}danger{% endif %} fs-6">
+                                    {{ "%.1f"|format(course.avg_attendance) }}%
+                                </span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% if low_attendance_courses|length > 5 %}
+                        <small class="text-muted">{{ low_attendance_courses|length - 5 }} more courses need attention</small>
+                        {% endif %}
+                    {% else %}
+                        <div class="text-center py-3">
+                            <i class="fas fa-check-circle fa-3x text-success mb-2"></i>
+                            <h6>All Courses Performing Well!</h6>
+                            <p class="text-muted mb-0">All courses have attendance above 75%</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-trophy text-success me-2"></i>
+                        Top Performing Courses
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% set top_courses = attendance_data | sort(attribute='avg_attendance', reverse=true) %}
+                    {% if top_courses %}
+                        <div class="list-group list-group-flush">
+                            {% for course in top_courses[:5] %}
+                            <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                <div>
+                                    <div class="fw-semibold">{{ course.course.name }}</div>
+                                    <small class="text-muted">{{ course.course.code }} • {{ course.enrolled_students }} students</small>
+                                </div>
+                                <span class="badge bg-success fs-6">
+                                    {{ "%.1f"|format(course.avg_attendance) }}%
+                                </span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-3">
+                            <i class="fas fa-chart-bar fa-3x text-muted mb-2"></i>
+                            <h6>No Data Available</h6>
+                            <p class="text-muted mb-0">Attendance data will appear here once classes begin</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Attendance Guidelines -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Attendance Guidelines & Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-success bg-opacity-10 rounded-circle p-3 me-3">
+                                    <i class="fas fa-check-circle text-success"></i>
+                                </div>
+                                <div>
+                                    <strong class="text-success">75% and above</strong><br>
+                                    <small class="text-muted">Excellent - Continue current practices</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-warning bg-opacity-10 rounded-circle p-3 me-3">
+                                    <i class="fas fa-exclamation-triangle text-warning"></i>
+                                </div>
+                                <div>
+                                    <strong class="text-warning">60% - 74%</strong><br>
+                                    <small class="text-muted">Warning - Implement improvement strategies</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-danger bg-opacity-10 rounded-circle p-3 me-3">
+                                    <i class="fas fa-times-circle text-danger"></i>
+                                </div>
+                                <div>
+                                    <strong class="text-danger">Below 60%</strong><br>
+                                    <small class="text-muted">Critical - Immediate intervention required</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% else %}
+    <!-- No Data State -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-chart-bar fa-4x text-muted mb-4"></i>
+                    <h4>No Attendance Data Available</h4>
+                    <p class="text-muted mb-4">
+                        Attendance overview will be available once:
+                    </p>
+                    <div class="row justify-content-center">
+                        <div class="col-md-6">
+                            <ul class="list-unstyled text-start">
+                                <li class="mb-2">
+                                    <i class="fas fa-chevron-right text-primary me-2"></i>
+                                    Courses are created and activated
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-chevron-right text-primary me-2"></i>
+                                    Students are enrolled in courses
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-chevron-right text-primary me-2"></i>
+                                    Faculty start marking attendance
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2 justify-content-center">
+                        <a href="{{ url_for('admin_courses') }}" class="btn btn-primary">
+                            <i class="fas fa-book me-2"></i>Manage Courses
+                        </a>
+                        <a href="{{ url_for('admin_users') }}" class="btn btn-success">
+                            <i class="fas fa-users me-2"></i>Manage Users
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function sortTable(criteria) {
+    const table = document.getElementById('attendanceTable');
+    const tbody = table.querySelector('tbody');
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    
+    rows.sort((a, b) => {
+        let aValue, bValue;
+        
+        if (criteria === 'course') {
+            aValue = a.querySelector('td:nth-child(2) .fw-semibold').textContent.toLowerCase();
+            bValue = b.querySelector('td:nth-child(2) .fw-semibold').textContent.toLowerCase();
+            return aValue.localeCompare(bValue);
+        } else if (criteria === 'attendance') {
+            aValue = parseFloat(a.querySelector('td:nth-child(6) .fs-4').textContent.replace('%', ''));
+            bValue = parseFloat(b.querySelector('td:nth-child(6) .fs-4').textContent.replace('%', ''));
+            return bValue - aValue; // Descending order
+        }
+        
+        return 0;
+    });
+    
+    // Re-append sorted rows
+    rows.forEach((row, index) => {
+        row.querySelector('td:first-child').textContent = index + 1; // Update row numbers
+        tbody.appendChild(row);
+    });
+    
+    showToast(`Table sorted by ${criteria}`, 'success');
+}
+
+function exportData() {
+    // Simple CSV export functionality
+    const table = document.getElementById('attendanceTable');
+    const rows = table.querySelectorAll('tr');
+    
+    let csvContent = "data:text/csv;charset=utf-8,";
+    csvContent += "Course Name,Course Code,Department,Faculty,Enrolled Students,Classes Conducted,Average Attendance,Status\n";
+    
+    // Skip header row (index 0)
+    for (let i = 1; i < rows.length; i++) {
+        const cells = rows[i].querySelectorAll('td');
+        const courseName = cells[1].querySelector('.fw-semibold').textContent;
+        const courseCode = cells[1].textContent.split('•')[0].trim();
+        const department = cells[1].textContent.split('•')[1]?.trim() || '';
+        const faculty = cells[2].querySelector('.fw-semibold')?.textContent || 'Unassigned';
+        const enrolledStudents = cells[3].querySelector('.fw-bold').textContent;
+        const totalClasses = cells[4].querySelector('.fw-bold').textContent;
+        const avgAttendance = cells[5].querySelector('.fw-bold').textContent;
+        const status = cells[7].querySelector('.badge').textContent.trim();
+        
+        const row = `"${courseName}","${courseCode}","${department}","${faculty}","${enrolledStudents}","${totalClasses}","${avgAttendance}","${status}"`;
+        csvContent += row + "\n";
+    }
+    
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `attendance_overview_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    showToast('Attendance data exported successfully', 'success');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Animate progress bars
+    setTimeout(function() {
+        const progressBars = document.querySelectorAll('.progress-bar');
+        progressBars.forEach(function(bar) {
+            const width = bar.style.width;
+            bar.style.width = '0%';
+            bar.style.transition = 'width 1.5s ease-in-out';
+            setTimeout(function() {
+                bar.style.width = width;
+            }, 100);
+        });
+    }, 500);
+    
+    // Animate stat cards
+    const statCards = document.querySelectorAll('.stat-card');
+    statCards.forEach(function(card, index) {
+        setTimeout(function() {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'all 0.6s ease';
+            
+            setTimeout(function() {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, 50);
+        }, index * 150);
+    });
+});
+</script>
+{% endblock %}

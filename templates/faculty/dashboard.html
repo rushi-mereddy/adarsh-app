@@ -1,0 +1,277 @@
+{% extends "base.html" %}
+
+{% block title %}Faculty Dashboard - College Management System{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-0">Welcome, Prof. {{ current_user.first_name }}!</h1>
+                    <p class="text-muted mb-0">Manage your courses and track student progress</p>
+                </div>
+                <div class="text-end">
+                    <small class="text-muted">Faculty ID: {{ current_user.faculty_id or 'Not set' }}</small><br>
+                    <small class="text-muted">Department: {{ current_user.department }}</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Course Statistics -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h4 class="mb-3">
+                <i class="fas fa-chalkboard-teacher text-primary me-2"></i>
+                My Courses Overview
+            </h4>
+        </div>
+        
+        {% if course_stats %}
+            {% for item in course_stats %}
+            <div class="col-lg-4 col-md-6 mb-3">
+                <div class="stat-card">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h6 class="fw-bold mb-1">{{ item.course.name }}</h6>
+                            <small class="text-muted">{{ item.course.code }} • {{ item.course.credits }} Credits</small>
+                        </div>
+                        <span class="badge bg-primary">{{ item.course.semester or 'N/A' }}</span>
+                    </div>
+                    
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <div class="border-end">
+                                <div class="stat-value text-primary">{{ item.total_students }}</div>
+                                <div class="stat-label">Students</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="stat-value text-success">{{ item.recent_classes }}</div>
+                            <div class="stat-label">Classes This Month</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-3">
+                        <a href="{{ url_for('faculty_attendance') }}?course_id={{ item.course.id }}" 
+                           class="btn btn-outline-primary btn-sm me-2">
+                            <i class="fas fa-calendar-check me-1"></i>Mark Attendance
+                        </a>
+                        <button class="btn btn-outline-success btn-sm" 
+                                onclick="showToast('Course management features coming soon', 'info')">
+                            <i class="fas fa-cog me-1"></i>Manage
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body text-center py-5">
+                        <i class="fas fa-chalkboard fa-3x text-muted mb-3"></i>
+                        <h5>No Courses Assigned</h5>
+                        <p class="text-muted">You don't have any courses assigned yet. Contact the administrator to get courses assigned.</p>
+                        <button class="btn btn-primary" onclick="showToast('Please contact the administrator for course assignment', 'info')">
+                            <i class="fas fa-plus me-2"></i>Request Course Assignment
+                        </button>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    
+    <div class="row">
+        <!-- Recent Announcements -->
+        <div class="col-lg-8 mb-4">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-bullhorn text-primary me-2"></i>
+                        Recent Announcements
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if announcements %}
+                        {% for announcement in announcements %}
+                        <div class="d-flex mb-3 {% if not loop.last %}border-bottom pb-3{% endif %}">
+                            <div class="flex-shrink-0 me-3">
+                                <div class="bg-primary bg-opacity-10 rounded-circle p-2 d-inline-flex">
+                                    {% if announcement.category == 'urgent' %}
+                                        <i class="fas fa-exclamation-triangle text-danger"></i>
+                                    {% elif announcement.category == 'academic' %}
+                                        <i class="fas fa-graduation-cap text-primary"></i>
+                                    {% elif announcement.category == 'event' %}
+                                        <i class="fas fa-calendar text-success"></i>
+                                    {% else %}
+                                        <i class="fas fa-info-circle text-info"></i>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-start mb-1">
+                                    <h6 class="mb-0">{{ announcement.title }}</h6>
+                                    {% if announcement.is_pinned %}
+                                        <i class="fas fa-thumbtack text-warning" title="Pinned"></i>
+                                    {% endif %}
+                                </div>
+                                <p class="text-muted mb-2 small">{{ announcement.content[:150] }}{% if announcement.content|length > 150 %}...{% endif %}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">
+                                        <i class="fas fa-clock me-1"></i>
+                                        {{ announcement.created_at.strftime('%b %d, %Y') }}
+                                    </small>
+                                    <span class="badge bg-secondary bg-opacity-25 text-dark">
+                                        {{ announcement.category.title() }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-bullhorn fa-3x text-muted mb-3"></i>
+                            <h6>No Announcements</h6>
+                            <p class="text-muted mb-0">No recent announcements available.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Upcoming Events & Quick Actions -->
+        <div class="col-lg-4">
+            <!-- Upcoming Events -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-calendar-alt text-success me-2"></i>
+                        Upcoming Events
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if events %}
+                        {% for event in events %}
+                        <div class="d-flex mb-3 {% if not loop.last %}border-bottom pb-3{% endif %}">
+                            <div class="flex-shrink-0 me-3">
+                                <div class="text-center bg-success bg-opacity-10 rounded p-2" style="min-width: 50px;">
+                                    <div class="fw-bold text-success">{{ event.event_date.strftime('%d') }}</div>
+                                    <small class="text-muted">{{ event.event_date.strftime('%b') }}</small>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">{{ event.title }}</h6>
+                                {% if event.location %}
+                                <p class="text-muted mb-1 small">
+                                    <i class="fas fa-map-marker-alt me-1"></i>
+                                    {{ event.location }}
+                                </p>
+                                {% endif %}
+                                <small class="text-muted">
+                                    <i class="fas fa-clock me-1"></i>
+                                    {{ event.event_date.strftime('%I:%M %p') }}
+                                </small>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-3">
+                            <i class="fas fa-calendar-alt fa-2x text-muted mb-2"></i>
+                            <p class="text-muted mb-0 small">No upcoming events</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-bolt text-warning me-2"></i>
+                        Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('faculty_attendance') }}" class="btn btn-primary">
+                            <i class="fas fa-calendar-check me-2"></i>Mark Attendance
+                        </a>
+                        <button class="btn btn-outline-success" onclick="showToast('Grade management coming soon', 'info')">
+                            <i class="fas fa-graduation-cap me-2"></i>Manage Grades
+                        </button>
+                        <button class="btn btn-outline-info" onclick="showToast('Student reports coming soon', 'info')">
+                            <i class="fas fa-chart-bar me-2"></i>View Reports
+                        </button>
+                        <button class="btn btn-outline-warning" onclick="showToast('Course materials coming soon', 'info')">
+                            <i class="fas fa-book me-2"></i>Course Materials
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Statistics Row -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <h4 class="mb-3">
+                <i class="fas fa-chart-line text-primary me-2"></i>
+                Quick Stats
+            </h4>
+        </div>
+        
+        <div class="col-md-3 col-6 mb-3">
+            <div class="stat-card text-center">
+                <div class="stat-value text-primary">{{ course_stats|length }}</div>
+                <div class="stat-label">Courses Teaching</div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 col-6 mb-3">
+            <div class="stat-card text-center">
+                {% set total_students = course_stats | sum(attribute='total_students') %}
+                <div class="stat-value text-success">{{ total_students }}</div>
+                <div class="stat-label">Total Students</div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 col-6 mb-3">
+            <div class="stat-card text-center">
+                {% set total_classes = course_stats | sum(attribute='recent_classes') %}
+                <div class="stat-value text-info">{{ total_classes }}</div>
+                <div class="stat-label">Classes This Month</div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 col-6 mb-3">
+            <div class="stat-card text-center">
+                <div class="stat-value text-warning">{{ announcements|length }}</div>
+                <div class="stat-label">New Announcements</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animate stat cards
+    const statCards = document.querySelectorAll('.stat-card');
+    statCards.forEach(function(card, index) {
+        setTimeout(function() {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'all 0.5s ease';
+            
+            setTimeout(function() {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, 50);
+        }, index * 100);
+    });
+});
+</script>
+{% endblock %}

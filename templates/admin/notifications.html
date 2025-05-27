@@ -1,0 +1,412 @@
+{% extends "base.html" %}
+
+{% block title %}Notification Management - Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-0">
+                        <i class="fas fa-bell text-primary me-2"></i>
+                        Notification Management
+                    </h1>
+                    <p class="text-muted mb-0">Manage AICTE, JNTU, and other official notifications</p>
+                </div>
+                <div>
+                    <a href="{{ url_for('admin_add_notification') }}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Add Notification
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% if action == 'add' %}
+    <!-- Add Notification Form -->
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-plus-circle me-2"></i>
+                        Add New Notification
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" class="needs-validation" novalidate>
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="mb-3">
+                            {{ form.title.label(class="form-label fw-semibold") }}
+                            {{ form.title(class="form-control form-control-lg", placeholder="Enter notification title") }}
+                            <div class="invalid-feedback">
+                                Please provide a title for the notification.
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.content.label(class="form-label fw-semibold") }}
+                            {{ form.content(class="form-control", rows="6", placeholder="Enter notification content") }}
+                            <div class="invalid-feedback">
+                                Please provide content for the notification.
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form.notification_type.label(class="form-label fw-semibold") }}
+                                {{ form.notification_type(class="form-select") }}
+                                <div class="invalid-feedback">
+                                    Please select a notification type.
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ form.issue_date.label(class="form-label fw-semibold") }}
+                                {{ form.issue_date(class="form-control") }}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form.reference_number.label(class="form-label fw-semibold") }}
+                                {{ form.reference_number(class="form-control", placeholder="e.g., AICTE/2024/001") }}
+                                <small class="text-muted">Optional reference number for tracking</small>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ form.document_url.label(class="form-label fw-semibold") }}
+                                {{ form.document_url(class="form-control", placeholder="https://example.com/document.pdf") }}
+                                <small class="text-muted">Link to official document (optional)</small>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <div class="form-check form-switch">
+                                {{ form.is_important(class="form-check-input") }}
+                                {{ form.is_important.label(class="form-check-label fw-semibold") }}
+                                <small class="text-muted d-block">Important notifications are highlighted and shown at the top</small>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-bell me-2"></i>Publish Notification
+                            </button>
+                            <a href="{{ url_for('admin_notifications') }}" class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% else %}
+    <!-- Notifications List -->
+    
+    <!-- Filter Bar -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row align-items-end">
+                        <div class="col-md-4 mb-2">
+                            <label class="form-label fw-semibold">Filter by Type</label>
+                            <select class="form-select" onchange="filterNotifications(this.value)">
+                                <option value="all">All Types</option>
+                                <option value="aicte">AICTE</option>
+                                <option value="jntu">JNTU</option>
+                                <option value="university">University</option>
+                                <option value="government">Government</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <label class="form-label fw-semibold">Filter by Priority</label>
+                            <select class="form-select" onchange="filterByImportance(this.value)">
+                                <option value="all">All Priorities</option>
+                                <option value="important">Important Only</option>
+                                <option value="regular">Regular Only</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <button class="btn btn-secondary w-100" onclick="clearFilters()">
+                                <i class="fas fa-times me-1"></i>Clear Filters
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list me-2"></i>
+                        Official Notifications
+                    </h5>
+                    <div>
+                        <span class="text-muted">Total: {{ notifications|length }} notifications</span>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    {% if notifications %}
+                    <div class="list-group list-group-flush" id="notificationsList">
+                        {% for notification in notifications %}
+                        <div class="list-group-item notification-item {% if notification.is_important %}border-start border-danger border-4{% endif %}" 
+                             data-type="{{ notification.notification_type }}" 
+                             data-important="{{ notification.is_important|lower }}">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <div class="me-3">
+                                            {% if notification.notification_type == 'aicte' %}
+                                                <div class="bg-primary bg-opacity-10 rounded-circle p-2 d-inline-flex">
+                                                    <i class="fas fa-university text-primary"></i>
+                                                </div>
+                                            {% elif notification.notification_type == 'jntu' %}
+                                                <div class="bg-success bg-opacity-10 rounded-circle p-2 d-inline-flex">
+                                                    <i class="fas fa-graduation-cap text-success"></i>
+                                                </div>
+                                            {% elif notification.notification_type == 'university' %}
+                                                <div class="bg-info bg-opacity-10 rounded-circle p-2 d-inline-flex">
+                                                    <i class="fas fa-school text-info"></i>
+                                                </div>
+                                            {% else %}
+                                                <div class="bg-warning bg-opacity-10 rounded-circle p-2 d-inline-flex">
+                                                    <i class="fas fa-building text-warning"></i>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-1 d-flex align-items-center">
+                                                {{ notification.title }}
+                                                {% if notification.is_important %}
+                                                    <i class="fas fa-star text-danger ms-2" title="Important"></i>
+                                                {% endif %}
+                                            </h6>
+                                            <div class="d-flex gap-2 flex-wrap">
+                                                <span class="badge bg-{{ 'primary' if notification.notification_type == 'aicte' else 'success' if notification.notification_type == 'jntu' else 'info' if notification.notification_type == 'university' else 'warning' }}">
+                                                    {{ notification.notification_type.upper() }}
+                                                </span>
+                                                {% if notification.reference_number %}
+                                                <span class="badge bg-light text-dark">
+                                                    Ref: {{ notification.reference_number }}
+                                                </span>
+                                                {% endif %}
+                                                {% if notification.issue_date %}
+                                                <span class="badge bg-secondary">
+                                                    {{ notification.issue_date.strftime('%b %d, %Y') }}
+                                                </span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <p class="mb-2 text-muted">{{ notification.content[:200] }}{% if notification.content|length > 200 %}...{% endif %}</p>
+                                    
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">
+                                            <i class="fas fa-user me-1"></i>
+                                            by {{ notification.creator.get_full_name() }} • 
+                                            <i class="fas fa-clock me-1"></i>
+                                            {{ notification.created_at.strftime('%b %d, %Y at %I:%M %p') }}
+                                        </small>
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <button class="btn btn-outline-info" title="View Details" 
+                                                    onclick="showNotificationDetails({{ loop.index0 }})">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            {% if notification.document_url %}
+                                            <a href="{{ notification.document_url }}" target="_blank" 
+                                               class="btn btn-outline-success" title="View Document">
+                                                <i class="fas fa-file-alt"></i>
+                                            </a>
+                                            {% endif %}
+                                            <button class="btn btn-outline-primary" title="Edit" 
+                                                    onclick="showToast('Notification editing feature coming soon', 'info')">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-outline-danger" title="Delete" 
+                                                    onclick="showToast('Notification deletion feature coming soon', 'info')">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-bell fa-3x text-muted mb-3"></i>
+                        <h5>No Notifications Found</h5>
+                        <p class="text-muted">No official notifications have been added yet. Create your first notification to get started.</p>
+                        <a href="{{ url_for('admin_add_notification') }}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Add First Notification
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Notification Details Modal -->
+<div class="modal fade" id="notificationDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Notification Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="notificationDetailsContent">
+                    <!-- Content will be populated by JavaScript -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="showToast('Edit feature coming soon', 'info')">
+                    <i class="fas fa-edit me-2"></i>Edit
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Store notifications data for modal display
+const notificationsData = [
+    {% for notification in notifications %}
+    {
+        title: {{ notification.title|tojson }},
+        content: {{ notification.content|tojson }},
+        notification_type: {{ notification.notification_type|tojson }},
+        reference_number: {{ notification.reference_number|tojson }},
+        issue_date: {{ notification.issue_date.strftime('%B %d, %Y') if notification.issue_date else None|tojson }},
+        document_url: {{ notification.document_url|tojson }},
+        is_important: {{ notification.is_important|tojson }},
+        created_at: {{ notification.created_at.strftime('%B %d, %Y at %I:%M %p')|tojson }},
+        creator: {{ notification.creator.get_full_name()|tojson }}
+    }{% if not loop.last %},{% endif %}
+    {% endfor %}
+];
+
+function showNotificationDetails(index) {
+    const notification = notificationsData[index];
+    if (!notification) return;
+    
+    const typeColors = {
+        'aicte': 'primary',
+        'jntu': 'success', 
+        'university': 'info',
+        'government': 'warning'
+    };
+    
+    const content = `
+        <div class="mb-3">
+            <h4 class="mb-2 d-flex align-items-center">
+                ${notification.title} 
+                ${notification.is_important ? '<i class="fas fa-star text-danger ms-2"></i>' : ''}
+            </h4>
+            <div class="d-flex gap-2 mb-3">
+                <span class="badge bg-${typeColors[notification.notification_type]} fs-6">
+                    ${notification.notification_type.toUpperCase()}
+                </span>
+                ${notification.reference_number ? `<span class="badge bg-light text-dark">Ref: ${notification.reference_number}</span>` : ''}
+                ${notification.issue_date ? `<span class="badge bg-secondary">Issue Date: ${notification.issue_date}</span>` : ''}
+                ${notification.is_important ? '<span class="badge bg-danger">Important</span>' : ''}
+            </div>
+        </div>
+        
+        <div class="mb-3">
+            <h6>Content</h6>
+            <div class="bg-light p-3 rounded">${notification.content.replace(/\n/g, '<br>')}</div>
+        </div>
+        
+        ${notification.document_url ? `
+        <div class="mb-3">
+            <h6>Document</h6>
+            <a href="${notification.document_url}" target="_blank" class="btn btn-outline-primary">
+                <i class="fas fa-external-link-alt me-2"></i>View Official Document
+            </a>
+        </div>` : ''}
+        
+        <div class="row">
+            <div class="col-md-6">
+                <h6>Published By</h6>
+                <p class="text-muted">${notification.creator}</p>
+            </div>
+            <div class="col-md-6">
+                <h6>Published On</h6>
+                <p class="text-muted">${notification.created_at}</p>
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('notificationDetailsContent').innerHTML = content;
+    
+    const modal = new bootstrap.Modal(document.getElementById('notificationDetailsModal'));
+    modal.show();
+}
+
+function filterNotifications(type) {
+    const items = document.querySelectorAll('.notification-item');
+    items.forEach(item => {
+        if (type === 'all' || item.dataset.type === type) {
+            item.style.display = 'block';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+}
+
+function filterByImportance(importance) {
+    const items = document.querySelectorAll('.notification-item');
+    items.forEach(item => {
+        const isImportant = item.dataset.important === 'true';
+        if (importance === 'all' || 
+            (importance === 'important' && isImportant) || 
+            (importance === 'regular' && !isImportant)) {
+            item.style.display = 'block';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+}
+
+function clearFilters() {
+    const selects = document.querySelectorAll('.card-body select');
+    selects.forEach(select => select.value = 'all');
+    
+    const items = document.querySelectorAll('.notification-item');
+    items.forEach(item => item.style.display = 'block');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Focus first input in forms
+    const firstInput = document.querySelector('form input:not([type="hidden"])');
+    if (firstInput) {
+        firstInput.focus();
+    }
+    
+    // Set default issue date to today
+    const issueDateInput = document.getElementById('issue_date');
+    if (issueDateInput && !issueDateInput.value) {
+        const today = new Date().toISOString().split('T')[0];
+        issueDateInput.value = today;
+    }
+});
+</script>
+{% endblock %}

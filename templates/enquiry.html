@@ -1,0 +1,290 @@
+{% extends "base.html" %}
+
+{% block title %}Admission Enquiry - College Management System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="fade-in">
+                <!-- Page Header -->
+                <div class="text-center mb-5">
+                    <i class="fas fa-graduation-cap fa-3x text-primary mb-3"></i>
+                    <h1 class="h2 mb-3">Admission Enquiry</h1>
+                    <p class="lead text-muted">
+                        Interested in joining our college? Submit your enquiry and our admission team will get back to you.
+                    </p>
+                </div>
+                
+                <!-- Enquiry Form -->
+                <div class="card shadow-lg border-0">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-question-circle me-2"></i>
+                            Submit Your Enquiry
+                        </h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <form method="POST" class="needs-validation" novalidate>
+                            {{ form.hidden_tag() }}
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    {{ form.name.label(class="form-label fw-semibold") }}
+                                    {{ form.name(class="form-control", placeholder="Enter your full name") }}
+                                    <div class="invalid-feedback">
+                                        Please provide your full name.
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    {{ form.email.label(class="form-label fw-semibold") }}
+                                    {{ form.email(class="form-control", placeholder="Enter your email address") }}
+                                    <div class="invalid-feedback">
+                                        Please provide a valid email address.
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    {{ form.phone.label(class="form-label fw-semibold") }}
+                                    {{ form.phone(class="form-control", placeholder="Enter your phone number") }}
+                                    <small class="text-muted">Optional - but helps us contact you faster</small>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    {{ form.course_interested.label(class="form-label fw-semibold") }}
+                                    {{ form.course_interested(class="form-control", placeholder="e.g., Computer Science Engineering") }}
+                                    <small class="text-muted">Optional - specify your area of interest</small>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                {{ form.message.label(class="form-label fw-semibold") }}
+                                {{ form.message(class="form-control", rows="5", placeholder="Please describe your enquiry in detail. Include any specific questions about admissions, courses, fees, or facilities.") }}
+                                <div class="invalid-feedback">
+                                    Please provide your enquiry details.
+                                </div>
+                                <div class="text-end text-muted small mt-1" id="messageCounter">0/500 characters</div>
+                            </div>
+                            
+                            <div class="alert alert-info" role="alert">
+                                <div class="d-flex">
+                                    <i class="fas fa-info-circle me-2 mt-1"></i>
+                                    <div>
+                                        <strong>What happens next?</strong>
+                                        <ul class="mb-0 mt-2">
+                                            <li>Our admission team will review your enquiry</li>
+                                            <li>We'll contact you within 24-48 hours</li>
+                                            <li>You'll receive detailed information about courses and admission process</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-paper-plane me-2"></i>Submit Enquiry
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Contact Information -->
+                <div class="row mt-5">
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100 text-center">
+                            <div class="card-body">
+                                <i class="fas fa-phone fa-2x text-primary mb-3"></i>
+                                <h6>Call Us</h6>
+                                <p class="text-muted mb-0">
+                                    +91 (XXX) XXX-XXXX<br>
+                                    Mon-Fri 9:00 AM - 5:00 PM
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100 text-center">
+                            <div class="card-body">
+                                <i class="fas fa-envelope fa-2x text-primary mb-3"></i>
+                                <h6>Email Us</h6>
+                                <p class="text-muted mb-0">
+                                    admissions@college.edu<br>
+                                    We'll respond within 24 hours
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100 text-center">
+                            <div class="card-body">
+                                <i class="fas fa-map-marker-alt fa-2x text-primary mb-3"></i>
+                                <h6>Visit Us</h6>
+                                <p class="text-muted mb-0">
+                                    College Campus<br>
+                                    City, State - 000000
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- FAQs -->
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-question-circle me-2"></i>
+                            Frequently Asked Questions
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="accordion" id="faqAccordion">
+                            <div class="accordion-item">
+                                <h6 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                                        What courses are available?
+                                    </button>
+                                </h6>
+                                <div id="faq1" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body">
+                                        We offer undergraduate and postgraduate programs in Engineering, Science, Arts, and Management. 
+                                        Contact us for detailed course information and eligibility criteria.
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="accordion-item">
+                                <h6 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                                        What is the admission process?
+                                    </button>
+                                </h6>
+                                <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body">
+                                        Admissions are based on merit and entrance examinations. The process includes application submission, 
+                                        document verification, and counseling. Specific requirements vary by course.
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="accordion-item">
+                                <h6 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                                        Are scholarships available?
+                                    </button>
+                                </h6>
+                                <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body">
+                                        Yes, we offer merit-based scholarships, need-based financial aid, and government scholarships. 
+                                        Details about eligibility and application process will be provided during admission counseling.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Focus first input
+    const nameField = document.getElementById('name');
+    if (nameField) {
+        nameField.focus();
+    }
+    
+    // Character counter for message field
+    const messageField = document.getElementById('message');
+    if (messageField) {
+        const maxLength = 500;
+        messageField.maxLength = maxLength;
+        
+        function updateCounter() {
+            const remaining = maxLength - messageField.value.length;
+            const counter = document.getElementById('messageCounter');
+            counter.textContent = `${messageField.value.length}/${maxLength} characters`;
+            
+            if (remaining < 50) {
+                counter.className = 'text-end text-warning small mt-1';
+            } else if (remaining < 0) {
+                counter.className = 'text-end text-danger small mt-1';
+            } else {
+                counter.className = 'text-end text-muted small mt-1';
+            }
+        }
+        
+        messageField.addEventListener('input', updateCounter);
+        updateCounter();
+    }
+    
+    // Form submission handling
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const message = document.getElementById('message').value.trim();
+            if (message.length < 20) {
+                e.preventDefault();
+                showToast('Please provide more details about your enquiry (at least 20 characters)', 'warning');
+                return false;
+            }
+            
+            // Show loading state
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                showLoading(submitBtn);
+            }
+        });
+    }
+    
+    // Phone number formatting
+    const phoneField = document.getElementById('phone');
+    if (phoneField) {
+        phoneField.addEventListener('input', function() {
+            // Remove all non-digits
+            let value = this.value.replace(/\D/g, '');
+            
+            // Limit to 10 digits
+            if (value.length > 10) {
+                value = value.slice(0, 10);
+            }
+            
+            // Format as XXX-XXX-XXXX if length is 10
+            if (value.length === 10) {
+                value = value.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
+            }
+            
+            this.value = value;
+        });
+    }
+    
+    // Email validation enhancement
+    const emailField = document.getElementById('email');
+    if (emailField) {
+        emailField.addEventListener('blur', function() {
+            const email = this.value.trim();
+            if (email && !isValidEmail(email)) {
+                this.setCustomValidity('Please enter a valid email address');
+                this.classList.add('is-invalid');
+            } else {
+                this.setCustomValidity('');
+                this.classList.remove('is-invalid');
+                if (email) {
+                    this.classList.add('is-valid');
+                }
+            }
+        });
+    }
+});
+
+function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
+</script>
+{% endblock %}

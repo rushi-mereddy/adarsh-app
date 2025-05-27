@@ -1,0 +1,249 @@
+{% extends "base.html" %}
+
+{% block title %}Banner Management - Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-0">
+                        <i class="fas fa-image text-primary me-2"></i>
+                        Banner Management
+                    </h1>
+                    <p class="text-muted mb-0">Upload and manage website banners</p>
+                </div>
+                <div>
+                    <a href="{{ url_for('admin_add_banner') }}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Upload Banner
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% if action == 'add' %}
+    <!-- Add Banner Form -->
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-upload me-2"></i>
+                        Upload New Banner
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="mb-3">
+                            {{ form.title.label(class="form-label fw-semibold") }}
+                            {{ form.title(class="form-control", placeholder="Enter banner title") }}
+                            <div class="invalid-feedback">
+                                Please provide a title for the banner.
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.image.label(class="form-label fw-semibold") }}
+                            <div class="file-upload-container">
+                                {{ form.image(class="form-control", accept="image/*") }}
+                            </div>
+                            <div class="invalid-feedback">
+                                Please select an image file (JPG, PNG, JPEG only).
+                            </div>
+                            <small class="text-muted">Recommended size: 1200x400 pixels for optimal display</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.link_url.label(class="form-label fw-semibold") }}
+                            {{ form.link_url(class="form-control", placeholder="https://example.com (optional)") }}
+                            <small class="text-muted">URL to redirect when banner is clicked (optional)</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.description.label(class="form-label fw-semibold") }}
+                            {{ form.description(class="form-control", rows="3", placeholder="Enter banner description") }}
+                        </div>
+                        
+                        <div class="mb-4">
+                            {{ form.display_order.label(class="form-label fw-semibold") }}
+                            {{ form.display_order(class="form-control", placeholder="0", value="0") }}
+                            <small class="text-muted">Lower numbers appear first (0 = highest priority)</small>
+                        </div>
+                        
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-upload me-2"></i>Upload Banner
+                            </button>
+                            <a href="{{ url_for('admin_banners') }}" class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% else %}
+    <!-- Banners List -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list me-2"></i>
+                        Uploaded Banners
+                    </h5>
+                    <div>
+                        <span class="text-muted">Total: {{ banners|length }} banners</span>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    {% if banners %}
+                    <div class="row g-4 p-4">
+                        {% for banner in banners %}
+                        <div class="col-lg-6 col-xl-4">
+                            <div class="card h-100">
+                                <div class="position-relative">
+                                    <img src="{{ url_for('static', filename='uploads/' + banner.image_path) }}" 
+                                         class="card-img-top" alt="{{ banner.title }}" 
+                                         style="height: 200px; object-fit: cover;">
+                                    <div class="position-absolute top-0 end-0 m-2">
+                                        <span class="badge bg-primary">Order: {{ banner.display_order }}</span>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <h6 class="card-title">{{ banner.title }}</h6>
+                                    {% if banner.description %}
+                                    <p class="card-text text-muted small">{{ banner.description[:100] }}{% if banner.description|length > 100 %}...{% endif %}</p>
+                                    {% endif %}
+                                    {% if banner.link_url %}
+                                    <p class="card-text">
+                                        <small class="text-muted">
+                                            <i class="fas fa-link me-1"></i>
+                                            <a href="{{ banner.link_url }}" target="_blank" class="text-decoration-none">
+                                                {{ banner.link_url[:40] }}{% if banner.link_url|length > 40 %}...{% endif %}
+                                            </a>
+                                        </small>
+                                    </p>
+                                    {% endif %}
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">
+                                            <i class="fas fa-clock me-1"></i>
+                                            {{ banner.created_at.strftime('%b %d, %Y') }}
+                                        </small>
+                                        <small class="text-muted">
+                                            by {{ banner.creator.get_full_name() }}
+                                        </small>
+                                    </div>
+                                </div>
+                                <div class="card-footer bg-transparent">
+                                    <div class="btn-group w-100" role="group">
+                                        {% if banner.link_url %}
+                                        <a href="{{ banner.link_url }}" target="_blank" class="btn btn-outline-success btn-sm">
+                                            <i class="fas fa-external-link-alt"></i>
+                                        </a>
+                                        {% endif %}
+                                        <button class="btn btn-outline-primary btn-sm" title="Edit" 
+                                                onclick="showToast('Banner editing feature coming soon', 'info')">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-outline-info btn-sm" title="Preview" 
+                                                onclick="previewBanner('{{ url_for('static', filename='uploads/' + banner.image_path) }}', '{{ banner.title }}')">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn btn-outline-danger btn-sm" title="Delete" 
+                                                onclick="showToast('Banner deletion feature coming soon', 'info')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-image fa-3x text-muted mb-3"></i>
+                        <h5>No Banners Found</h5>
+                        <p class="text-muted">No banners have been uploaded yet. Upload your first banner to get started.</p>
+                        <a href="{{ url_for('admin_add_banner') }}" class="btn btn-primary">
+                            <i class="fas fa-upload me-2"></i>Upload First Banner
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Banner Preview Modal -->
+<div class="modal fade" id="bannerPreviewModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Banner Preview</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="previewImage" src="" alt="Banner Preview" class="img-fluid rounded">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function previewBanner(imageUrl, title) {
+    document.getElementById('previewImage').src = imageUrl;
+    document.getElementById('previewImage').alt = title;
+    document.querySelector('#bannerPreviewModal .modal-title').textContent = 'Preview: ' + title;
+    
+    const modal = new bootstrap.Modal(document.getElementById('bannerPreviewModal'));
+    modal.show();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Focus first input in forms
+    const firstInput = document.querySelector('form input:not([type="hidden"])');
+    if (firstInput) {
+        firstInput.focus();
+    }
+    
+    // Validate file input
+    const imageInput = document.getElementById('image');
+    if (imageInput) {
+        imageInput.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                // Check file size (max 5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    showToast('File size should be less than 5MB', 'warning');
+                    this.value = '';
+                    return;
+                }
+                
+                // Check file type
+                const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+                if (!allowedTypes.includes(file.type)) {
+                    showToast('Please select a valid image file (JPG, PNG)', 'warning');
+                    this.value = '';
+                    return;
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,351 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - College Management System{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-0">
+                        <i class="fas fa-tachometer-alt text-primary me-2"></i>
+                        Admin Dashboard
+                    </h1>
+                    <p class="text-muted mb-0">System overview and management</p>
+                </div>
+                <div class="text-end">
+                    <small class="text-muted">Last login: {{ moment().format('MMM DD, YYYY HH:mm') }}</small><br>
+                    <small class="text-muted">Role: System Administrator</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Key Statistics -->
+    <div class="row mb-4">
+        <div class="col-md-3 col-6 mb-3">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="stat-value text-primary">{{ total_students }}</div>
+                        <div class="stat-label">Total Students</div>
+                    </div>
+                    <div class="bg-primary bg-opacity-10 rounded-circle p-3">
+                        <i class="fas fa-user-graduate fa-2x text-primary"></i>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <a href="{{ url_for('admin_users') }}?role=student" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-eye me-1"></i>View All
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 col-6 mb-3">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="stat-value text-success">{{ total_faculty }}</div>
+                        <div class="stat-label">Faculty Members</div>
+                    </div>
+                    <div class="bg-success bg-opacity-10 rounded-circle p-3">
+                        <i class="fas fa-chalkboard-teacher fa-2x text-success"></i>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <a href="{{ url_for('admin_users') }}?role=faculty" class="btn btn-outline-success btn-sm">
+                        <i class="fas fa-eye me-1"></i>View All
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 col-6 mb-3">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="stat-value text-info">{{ total_courses }}</div>
+                        <div class="stat-label">Active Courses</div>
+                    </div>
+                    <div class="bg-info bg-opacity-10 rounded-circle p-3">
+                        <i class="fas fa-book fa-2x text-info"></i>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <a href="{{ url_for('admin_courses') }}" class="btn btn-outline-info btn-sm">
+                        <i class="fas fa-eye me-1"></i>Manage
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 col-6 mb-3">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="stat-value text-warning">{{ recent_enquiries|length }}</div>
+                        <div class="stat-label">New Enquiries</div>
+                    </div>
+                    <div class="bg-warning bg-opacity-10 rounded-circle p-3">
+                        <i class="fas fa-question-circle fa-2x text-warning"></i>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <a href="{{ url_for('admin_enquiries') }}" class="btn btn-outline-warning btn-sm">
+                        <i class="fas fa-eye me-1"></i>Review
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Recent Announcements -->
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-bullhorn text-primary me-2"></i>
+                        Recent Announcements
+                    </h5>
+                    <a href="{{ url_for('admin_announcements') }}" class="btn btn-sm btn-primary">
+                        <i class="fas fa-plus me-1"></i>Add New
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if recent_announcements %}
+                        {% for announcement in recent_announcements %}
+                        <div class="d-flex justify-content-between align-items-start mb-3 {% if not loop.last %}border-bottom pb-3{% endif %}">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">{{ announcement.title }}</h6>
+                                <p class="text-muted mb-1 small">{{ announcement.content[:100] }}{% if announcement.content|length > 100 %}...{% endif %}</p>
+                                <div class="d-flex gap-2">
+                                    <span class="badge bg-{{ 'danger' if announcement.category == 'urgent' else 'primary' if announcement.category == 'academic' else 'success' if announcement.category == 'event' else 'secondary' }}">
+                                        {{ announcement.category.title() }}
+                                    </span>
+                                    <small class="text-muted">{{ announcement.created_at.strftime('%b %d') }}</small>
+                                </div>
+                            </div>
+                            {% if announcement.is_pinned %}
+                                <i class="fas fa-thumbtack text-warning ms-2"></i>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                        
+                        <div class="text-center mt-3">
+                            <a href="{{ url_for('admin_announcements') }}" class="btn btn-outline-primary btn-sm">
+                                View All Announcements
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-bullhorn fa-3x text-muted mb-3"></i>
+                            <h6>No Announcements</h6>
+                            <p class="text-muted mb-3">Create your first announcement</p>
+                            <a href="{{ url_for('admin_add_announcement') }}" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>Create Announcement
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Enquiries -->
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-question-circle text-warning me-2"></i>
+                        Recent Enquiries
+                    </h5>
+                    <a href="{{ url_for('admin_enquiries') }}" class="btn btn-sm btn-warning">
+                        <i class="fas fa-eye me-1"></i>View All
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if recent_enquiries %}
+                        {% for enquiry in recent_enquiries %}
+                        <div class="d-flex justify-content-between align-items-start mb-3 {% if not loop.last %}border-bottom pb-3{% endif %}">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">{{ enquiry.name }}</h6>
+                                <p class="text-muted mb-1 small">
+                                    <i class="fas fa-envelope me-1"></i>{{ enquiry.email }}
+                                </p>
+                                {% if enquiry.course_interested %}
+                                <p class="text-muted mb-1 small">
+                                    <i class="fas fa-book me-1"></i>{{ enquiry.course_interested }}
+                                </p>
+                                {% endif %}
+                                <small class="text-muted">{{ enquiry.created_at.strftime('%b %d, %Y') }}</small>
+                            </div>
+                            <span class="badge bg-{{ 'primary' if enquiry.status == 'new' else 'info' if enquiry.status == 'contacted' else 'success' if enquiry.status == 'converted' else 'secondary' }}">
+                                {{ enquiry.status.title() }}
+                            </span>
+                        </div>
+                        {% endfor %}
+                        
+                        <div class="text-center mt-3">
+                            <a href="{{ url_for('admin_enquiries') }}" class="btn btn-outline-warning btn-sm">
+                                Manage All Enquiries
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-question-circle fa-3x text-muted mb-3"></i>
+                            <h6>No New Enquiries</h6>
+                            <p class="text-muted mb-0">All enquiries have been processed</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Attendance Overview -->
+    {% if attendance_stats %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-bar text-info me-2"></i>
+                        Attendance Overview (Last 10 Days)
+                    </h5>
+                    <a href="{{ url_for('admin_attendance_overview') }}" class="btn btn-sm btn-info">
+                        <i class="fas fa-chart-line me-1"></i>Detailed View
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Total Records</th>
+                                    <th>Present</th>
+                                    <th>Attendance %</th>
+                                    <th>Progress</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for stat in attendance_stats %}
+                                {% set percentage = (stat.present_count / stat.total_records * 100) if stat.total_records > 0 else 0 %}
+                                <tr>
+                                    <td>{{ stat.date.strftime('%b %d, %Y') }}</td>
+                                    <td>{{ stat.total_records }}</td>
+                                    <td>{{ stat.present_count }}</td>
+                                    <td>
+                                        <span class="fw-bold {% if percentage >= 75 %}text-success{% elif percentage >= 60 %}text-warning{% else %}text-danger{% endif %}">
+                                            {{ "%.1f"|format(percentage) }}%
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="progress" style="height: 20px; width: 100px;">
+                                            <div class="progress-bar {% if percentage >= 75 %}bg-success{% elif percentage >= 60 %}bg-warning{% else %}bg-danger{% endif %}" 
+                                                 style="width: {{ percentage }}%"></div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Quick Actions -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-bolt text-warning me-2"></i>
+                        Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-lg-2 col-md-3 col-6 mb-3">
+                            <a href="{{ url_for('admin_add_user') }}" class="btn btn-outline-primary w-100 h-100 d-flex flex-column justify-content-center align-items-center py-3">
+                                <i class="fas fa-user-plus fa-2x mb-2"></i>
+                                <span>Add User</span>
+                            </a>
+                        </div>
+                        <div class="col-lg-2 col-md-3 col-6 mb-3">
+                            <a href="{{ url_for('admin_add_course') }}" class="btn btn-outline-success w-100 h-100 d-flex flex-column justify-content-center align-items-center py-3">
+                                <i class="fas fa-book-open fa-2x mb-2"></i>
+                                <span>Add Course</span>
+                            </a>
+                        </div>
+                        <div class="col-lg-2 col-md-3 col-6 mb-3">
+                            <a href="{{ url_for('admin_add_announcement') }}" class="btn btn-outline-info w-100 h-100 d-flex flex-column justify-content-center align-items-center py-3">
+                                <i class="fas fa-bullhorn fa-2x mb-2"></i>
+                                <span>Announce</span>
+                            </a>
+                        </div>
+                        <div class="col-lg-2 col-md-3 col-6 mb-3">
+                            <a href="{{ url_for('admin_add_banner') }}" class="btn btn-outline-warning w-100 h-100 d-flex flex-column justify-content-center align-items-center py-3">
+                                <i class="fas fa-image fa-2x mb-2"></i>
+                                <span>Add Banner</span>
+                            </a>
+                        </div>
+                        <div class="col-lg-2 col-md-3 col-6 mb-3">
+                            <a href="{{ url_for('admin_feedback') }}" class="btn btn-outline-danger w-100 h-100 d-flex flex-column justify-content-center align-items-center py-3">
+                                <i class="fas fa-comments fa-2x mb-2"></i>
+                                <span>Feedback</span>
+                            </a>
+                        </div>
+                        <div class="col-lg-2 col-md-3 col-6 mb-3">
+                            <a href="{{ url_for('admin_add_notification') }}" class="btn btn-outline-secondary w-100 h-100 d-flex flex-column justify-content-center align-items-center py-3">
+                                <i class="fas fa-bell fa-2x mb-2"></i>
+                                <span>Notify</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animate statistics cards
+    const statCards = document.querySelectorAll('.stat-card');
+    statCards.forEach(function(card, index) {
+        setTimeout(function() {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'all 0.6s ease';
+            
+            setTimeout(function() {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, 50);
+        }, index * 150);
+    });
+    
+    // Animate progress bars
+    setTimeout(function() {
+        const progressBars = document.querySelectorAll('.progress-bar');
+        progressBars.forEach(function(bar) {
+            const width = bar.style.width;
+            bar.style.width = '0%';
+            bar.style.transition = 'width 1.5s ease-in-out';
+            setTimeout(function() {
+                bar.style.width = width;
+            }, 100);
+        });
+    }, 1000);
+});
+</script>
+{% endblock %}

@@ -1,0 +1,421 @@
+{% extends "base.html" %}
+
+{% block title %}Feedback Management - Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-0">
+                        <i class="fas fa-comments text-primary me-2"></i>
+                        Feedback Management
+                    </h1>
+                    <p class="text-muted mb-0">Review and respond to student feedback</p>
+                </div>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="{{ url_for('admin_dashboard') }}">Dashboard</a></li>
+                        <li class="breadcrumb-item active">Feedback</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+    
+    {% if action == 'respond' %}
+    <!-- Respond to Feedback -->
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-reply me-2"></i>
+                        Respond to Feedback
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- Original Feedback -->
+                    <div class="alert alert-light" role="alert">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h6 class="mb-1">Original Feedback</h6>
+                            <span class="badge bg-{{ 'success' if feedback.rating and feedback.rating >= 4 else 'warning' if feedback.rating and feedback.rating >= 3 else 'danger' if feedback.rating else 'secondary' }}">
+                                {% if feedback.rating %}
+                                    {{ feedback.rating }}/5 Rating
+                                {% else %}
+                                    No Rating
+                                {% endif %}
+                            </span>
+                        </div>
+                        <h6 class="fw-bold">{{ feedback.subject }}</h6>
+                        <p class="mb-2">{{ feedback.message }}</p>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <small class="text-muted">
+                                    <i class="fas fa-user me-1"></i>
+                                    by {{ feedback.student.get_full_name() }}
+                                </small>
+                            </div>
+                            <div class="col-md-6 text-end">
+                                <small class="text-muted">
+                                    <i class="fas fa-clock me-1"></i>
+                                    {{ feedback.created_at.strftime('%B %d, %Y at %I:%M %p') }}
+                                </small>
+                            </div>
+                        </div>
+                        {% if feedback.course %}
+                        <div class="mt-2">
+                            <span class="badge bg-primary">{{ feedback.course.code }} - {{ feedback.course.name }}</span>
+                        </div>
+                        {% endif %}
+                        <div class="mt-2">
+                            <span class="badge bg-secondary">{{ feedback.category.title() }} Feedback</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Response Form -->
+                    <form method="POST" class="needs-validation" novalidate>
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="mb-3">
+                            {{ form.response.label(class="form-label fw-semibold") }}
+                            {{ form.response(class="form-control", rows="6", placeholder="Enter your response to this feedback") }}
+                            <div class="invalid-feedback">
+                                Please provide a response to the feedback.
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            {{ form.status.label(class="form-label fw-semibold") }}
+                            {{ form.status(class="form-select") }}
+                        </div>
+                        
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-reply me-2"></i>Submit Response
+                            </button>
+                            <a href="{{ url_for('admin_feedback') }}" class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% else %}
+    <!-- Feedback List -->
+    
+    <!-- Filter Bar -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row align-items-end">
+                        <div class="col-md-3 mb-2">
+                            <label class="form-label fw-semibold">Filter by Status</label>
+                            <select class="form-select" onchange="filterFeedback(this.value)">
+                                <option value="all">All Status</option>
+                                <option value="pending">Pending</option>
+                                <option value="reviewed">Reviewed</option>
+                                <option value="resolved">Resolved</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <label class="form-label fw-semibold">Filter by Category</label>
+                            <select class="form-select" onchange="filterFeedbackByCategory(this.value)">
+                                <option value="all">All Categories</option>
+                                <option value="course">Course</option>
+                                <option value="faculty">Faculty</option>
+                                <option value="infrastructure">Infrastructure</option>
+                                <option value="general">General</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <label class="form-label fw-semibold">Filter by Rating</label>
+                            <select class="form-select" onchange="filterFeedbackByRating(this.value)">
+                                <option value="all">All Ratings</option>
+                                <option value="5">5 Stars</option>
+                                <option value="4">4 Stars</option>
+                                <option value="3">3 Stars</option>
+                                <option value="2">2 Stars</option>
+                                <option value="1">1 Star</option>
+                                <option value="none">No Rating</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <button class="btn btn-secondary w-100" onclick="clearFilters()">
+                                <i class="fas fa-times me-1"></i>Clear Filters
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list me-2"></i>
+                        Student Feedback
+                    </h5>
+                    <div>
+                        <span class="text-muted">Total: {{ feedback_list|length }} feedback entries</span>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    {% if feedback_list %}
+                    <div class="list-group list-group-flush" id="feedbackList">
+                        {% for feedback in feedback_list %}
+                        <div class="list-group-item feedback-item" 
+                             data-status="{{ feedback.status }}" 
+                             data-category="{{ feedback.category }}" 
+                             data-rating="{{ feedback.rating or 'none' }}">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <div class="me-3">
+                                            <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" 
+                                                 style="width: 40px; height: 40px;">
+                                                <i class="fas fa-user text-primary"></i>
+                                            </div>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-1">{{ feedback.subject }}</h6>
+                                            <div class="d-flex gap-2 flex-wrap">
+                                                <span class="badge bg-{{ 'success' if feedback.status == 'resolved' else 'warning' if feedback.status == 'reviewed' else 'secondary' }}">
+                                                    {{ feedback.status.title() }}
+                                                </span>
+                                                <span class="badge bg-light text-dark">
+                                                    {{ feedback.category.title() }}
+                                                </span>
+                                                {% if feedback.rating %}
+                                                <span class="badge bg-{{ 'success' if feedback.rating >= 4 else 'warning' if feedback.rating >= 3 else 'danger' }}">
+                                                    {{ feedback.rating }}/5 ⭐
+                                                </span>
+                                                {% endif %}
+                                                {% if feedback.course %}
+                                                <span class="badge bg-info">
+                                                    {{ feedback.course.code }}
+                                                </span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <p class="mb-2 text-muted">{{ feedback.message[:150] }}{% if feedback.message|length > 150 %}...{% endif %}</p>
+                                    
+                                    {% if feedback.response %}
+                                    <div class="alert alert-success alert-sm" role="alert">
+                                        <strong>Response:</strong> {{ feedback.response[:100] }}{% if feedback.response|length > 100 %}...{% endif %}
+                                        <br><small class="text-muted">
+                                            by {{ feedback.responder.get_full_name() }} on {{ feedback.responded_at.strftime('%b %d, %Y') }}
+                                        </small>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">
+                                            <i class="fas fa-user me-1"></i>
+                                            {{ feedback.student.get_full_name() }} • 
+                                            <i class="fas fa-clock me-1"></i>
+                                            {{ feedback.created_at.strftime('%b %d, %Y at %I:%M %p') }}
+                                        </small>
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <button class="btn btn-outline-info" title="View Details" 
+                                                    onclick="showFeedbackDetails({{ loop.index0 }})">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            {% if feedback.status != 'resolved' %}
+                                            <a href="{{ url_for('admin_respond_feedback', feedback_id=feedback.id) }}" 
+                                               class="btn btn-outline-primary" title="Respond">
+                                                <i class="fas fa-reply"></i>
+                                            </a>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-comments fa-3x text-muted mb-3"></i>
+                        <h5>No Feedback Found</h5>
+                        <p class="text-muted">No student feedback has been submitted yet.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Feedback Details Modal -->
+<div class="modal fade" id="feedbackDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Feedback Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="feedbackDetailsContent">
+                    <!-- Content will be populated by JavaScript -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="respondButton" onclick="">
+                    <i class="fas fa-reply me-2"></i>Respond
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Store feedback data for modal display
+const feedbackData = [
+    {% for feedback in feedback_list %}
+    {
+        id: {{ feedback.id }},
+        subject: {{ feedback.subject|tojson }},
+        message: {{ feedback.message|tojson }},
+        category: {{ feedback.category|tojson }},
+        rating: {{ feedback.rating|tojson }},
+        status: {{ feedback.status|tojson }},
+        student_name: {{ feedback.student.get_full_name()|tojson }},
+        student_email: {{ feedback.student.email|tojson }},
+        created_at: {{ feedback.created_at.strftime('%B %d, %Y at %I:%M %p')|tojson }},
+        course: {{ (feedback.course.code + ' - ' + feedback.course.name) if feedback.course else None|tojson }},
+        response: {{ feedback.response|tojson }},
+        responder: {{ feedback.responder.get_full_name() if feedback.responder else None|tojson }},
+        responded_at: {{ feedback.responded_at.strftime('%B %d, %Y at %I:%M %p') if feedback.responded_at else None|tojson }}
+    }{% if not loop.last %},{% endif %}
+    {% endfor %}
+];
+
+function showFeedbackDetails(index) {
+    const feedback = feedbackData[index];
+    if (!feedback) return;
+    
+    let content = `
+        <div class="row mb-3">
+            <div class="col-md-8">
+                <h5>${feedback.subject}</h5>
+            </div>
+            <div class="col-md-4 text-end">
+                <span class="badge bg-${feedback.status === 'resolved' ? 'success' : feedback.status === 'reviewed' ? 'warning' : 'secondary'} fs-6">
+                    ${feedback.status.charAt(0).toUpperCase() + feedback.status.slice(1)}
+                </span>
+            </div>
+        </div>
+        
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <strong>Student:</strong> ${feedback.student_name}<br>
+                <small class="text-muted">${feedback.student_email}</small>
+            </div>
+            <div class="col-md-6">
+                <strong>Category:</strong> ${feedback.category.charAt(0).toUpperCase() + feedback.category.slice(1)}<br>
+                <strong>Rating:</strong> ${feedback.rating ? feedback.rating + '/5 ⭐' : 'No rating provided'}
+            </div>
+        </div>
+        
+        ${feedback.course ? `<div class="mb-3"><strong>Course:</strong> ${feedback.course}</div>` : ''}
+        
+        <div class="mb-3">
+            <strong>Message:</strong>
+            <div class="bg-light p-3 rounded mt-2">${feedback.message.replace(/\n/g, '<br>')}</div>
+        </div>
+        
+        ${feedback.response ? `
+        <div class="mb-3">
+            <strong>Response:</strong>
+            <div class="bg-success bg-opacity-10 p-3 rounded mt-2 border-start border-success border-4">
+                ${feedback.response.replace(/\n/g, '<br>')}
+                <br><small class="text-muted">Responded by ${feedback.responder} on ${feedback.responded_at}</small>
+            </div>
+        </div>` : ''}
+        
+        <div class="text-muted">
+            <small>Submitted on ${feedback.created_at}</small>
+        </div>
+    `;
+    
+    document.getElementById('feedbackDetailsContent').innerHTML = content;
+    
+    // Update respond button
+    const respondButton = document.getElementById('respondButton');
+    if (feedback.status !== 'resolved') {
+        respondButton.style.display = 'inline-block';
+        respondButton.onclick = () => window.location.href = `/admin/feedback/${feedback.id}/respond`;
+    } else {
+        respondButton.style.display = 'none';
+    }
+    
+    const modal = new bootstrap.Modal(document.getElementById('feedbackDetailsModal'));
+    modal.show();
+}
+
+function filterFeedback(status) {
+    const items = document.querySelectorAll('.feedback-item');
+    items.forEach(item => {
+        if (status === 'all' || item.dataset.status === status) {
+            item.style.display = 'block';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+}
+
+function filterFeedbackByCategory(category) {
+    const items = document.querySelectorAll('.feedback-item');
+    items.forEach(item => {
+        if (category === 'all' || item.dataset.category === category) {
+            item.style.display = 'block';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+}
+
+function filterFeedbackByRating(rating) {
+    const items = document.querySelectorAll('.feedback-item');
+    items.forEach(item => {
+        if (rating === 'all' || item.dataset.rating === rating) {
+            item.style.display = 'block';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+}
+
+function clearFilters() {
+    const selects = document.querySelectorAll('.card-body select');
+    selects.forEach(select => select.value = 'all');
+    
+    const items = document.querySelectorAll('.feedback-item');
+    items.forEach(item => item.style.display = 'block');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Focus first input in forms
+    const firstInput = document.querySelector('form textarea:first-of-type');
+    if (firstInput) {
+        firstInput.focus();
+    }
+});
+</script>
+{% endblock %}
