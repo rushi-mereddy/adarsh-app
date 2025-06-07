@@ -75,8 +75,8 @@
                                     <i class="fas fa-chart-line"></i>Dashboard
                                 </a>
                             </li>
-                            <li class="nav-item-ultra dropdown-ultra">
-                                <a class="nav-link-ultra" href="#">
+                            <li class="nav-item-ultra dropdown-ultra" onclick="toggleMobileDropdown(this)">
+                                <a class="nav-link-ultra" href="#" onclick="event.preventDefault();">
                                     <i class="fas fa-cogs"></i>Management
                                     <i class="fas fa-chevron-down ms-1"></i>
                                 </a>
@@ -200,16 +200,45 @@
         // Mobile menu toggle
         function toggleMobileMenu() {
             const nav = document.getElementById('mainNav');
-            nav.classList.toggle('mobile-hidden');
+            const menuToggle = document.querySelector('.mobile-menu-toggle i');
+            
+            if (window.innerWidth <= 768) {
+                nav.classList.toggle('mobile-active');
+                nav.classList.remove('mobile-hidden');
+                
+                // Toggle hamburger icon
+                if (nav.classList.contains('mobile-active')) {
+                    menuToggle.className = 'fas fa-times';
+                } else {
+                    menuToggle.className = 'fas fa-bars';
+                }
+            }
+        }
+        
+        // Mobile dropdown toggle
+        function toggleMobileDropdown(element) {
+            if (window.innerWidth <= 768) {
+                element.classList.toggle('mobile-expanded');
+            }
         }
         
         // Handle responsive navigation
         function handleResize() {
             const nav = document.getElementById('mainNav');
+            const menuToggle = document.querySelector('.mobile-menu-toggle i');
+            
             if (window.innerWidth > 768) {
+                nav.classList.remove('mobile-hidden', 'mobile-active');
                 nav.classList.remove('mobile-hidden');
+                menuToggle.className = 'fas fa-bars';
+                
+                // Reset mobile dropdowns
+                document.querySelectorAll('.dropdown-ultra').forEach(dropdown => {
+                    dropdown.classList.remove('mobile-expanded');
+                });
             } else {
                 nav.classList.add('mobile-hidden');
+                nav.classList.remove('mobile-active');
             }
         }
         
