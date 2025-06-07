@@ -457,6 +457,13 @@ def admin_users():
         page=page, per_page=20, error_out=False
     )
     
+    # Debug logging - remove in production
+    print(f"Admin Users Debug: Total users found: {users.total}")
+    print(f"Admin Users Debug: Current page: {page}, Per page: 20")
+    print(f"Admin Users Debug: Filters - Role: {role_filter}, Dept: {department_filter}")
+    for user in users.items:
+        print(f"User: {user.username} - {user.first_name} {user.last_name} - {user.role}")
+    
     # Get filter options for dropdowns
     departments = db.session.query(User.department.distinct()).filter(User.department.isnot(None)).all()
     departments = [dept[0] for dept in departments if dept[0]]
