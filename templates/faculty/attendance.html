@@ -134,10 +134,7 @@
                 </div>
                 <div class="card-body">
                     <form method="POST" id="attendanceForm">
-                        {{ form.hidden_tag() }}
-                        {{ form.course_id(value=selected_course.id, style="display: none;") }}
-                        {{ form.date(value=selected_date, style="display: none;") }}
-                        {{ form.student_attendances(id="student_attendances", style="display: none;") }}
+                        <input type="hidden" name="date" value="{{ selected_date }}" />
                         
                         <div class="table-responsive">
                             <table class="table table-hover" id="attendanceTable">

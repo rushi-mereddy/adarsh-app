@@ -310,24 +310,17 @@ def faculty_attendance():
             
         students = student_query.order_by(User.first_name, User.last_name).all()
     
-    # Handle course selection and existing attendance
-    if course_id:
-        selected_course = Course.query.get(course_id)
-        if selected_course and selected_course.faculty_id == current_user.id:
-            form.course_id.data = course_id
-            
-            # Get existing attendance for the date
-            if attendance_date:
-                try:
-                    date_obj = datetime.strptime(attendance_date, '%Y-%m-%d').date()
-                    attendance_records = Attendance.query.filter_by(
-                        course_id=course_id,
-                        date=date_obj
-                    ).all()
-                    existing_attendance = {str(a.student_id): a.status for a in attendance_records}
-                    form.date.data = date_obj
-                except:
-                    pass
+    # Get existing attendance for the date if specified
+    if attendance_date:
+        try:
+            date_obj = datetime.strptime(attendance_date, '%Y-%m-%d').date()
+            attendance_records = Attendance.query.filter_by(
+                marked_by=current_user.id,
+                date=date_obj
+            ).all()
+            existing_attendance = {str(a.student_id): a.status for a in attendance_records}
+        except:
+            pass
     
     # Get available filter options
     departments = db.session.query(User.department).filter(User.role == 'student', User.department.isnot(None)).distinct().all()
@@ -336,9 +329,6 @@ def faculty_attendance():
     sections = db.session.query(User.section).filter(User.role == 'student', User.section.isnot(None)).distinct().order_by(User.section).all()
     
     return render_template('faculty/attendance.html',
-                         form=form,
-                         courses=courses,
-                         selected_course=selected_course,
                          students=students,
                          existing_attendance=existing_attendance,
                          selected_date=attendance_date,
