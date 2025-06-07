@@ -1284,6 +1284,9 @@ def admin_add_department():
         image_filename = None
         if form.image.data:
             image_filename = save_uploaded_file(form.image.data, 'departments')
+            # Ensure proper path format for web access
+            if image_filename and not image_filename.startswith('/static/'):
+                image_filename = f'/static/uploads/{image_filename}'
         
         department = Department(
             name=form.name.data,
