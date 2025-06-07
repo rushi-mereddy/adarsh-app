@@ -13,7 +13,7 @@
                         <i class="fas fa-calendar-check text-primary me-2"></i>
                         Attendance Management
                     </h1>
-                    <p class="text-muted mb-0">Mark and manage student attendance</p>
+                    <p class="text-muted mb-0">Filter students by classroom parameters and mark attendance</p>
                 </div>
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb mb-0">
@@ -25,7 +25,7 @@
         </div>
     </div>
     
-    <!-- Classroom Filters and Course Selection -->
+    <!-- Classroom Filters -->
     <div class="row mb-4">
         <div class="col-12">
             <div class="card">
@@ -38,9 +38,9 @@
                 <div class="card-body">
                     <form method="GET" id="filter-form">
                         <div class="row align-items-end">
-                            <div class="col-md-3 mb-3">
+                            <div class="col-md-2 mb-3">
                                 <label for="department" class="form-label fw-semibold">Department</label>
-                                <select class="form-select" id="department" name="department" onchange="applyFilters()">
+                                <select class="form-select" id="department" name="department">
                                     <option value="">All Departments</option>
                                     {% for dept in departments %}
                                         <option value="{{ dept }}" {% if filters.department == dept %}selected{% endif %}>
@@ -51,7 +51,7 @@
                             </div>
                             <div class="col-md-2 mb-3">
                                 <label for="year" class="form-label fw-semibold">Year</label>
-                                <select class="form-select" id="year" name="year" onchange="applyFilters()">
+                                <select class="form-select" id="year" name="year">
                                     <option value="">All Years</option>
                                     {% for yr in years %}
                                         <option value="{{ yr }}" {% if filters.year == yr %}selected{% endif %}>
@@ -62,7 +62,7 @@
                             </div>
                             <div class="col-md-2 mb-3">
                                 <label for="semester" class="form-label fw-semibold">Semester</label>
-                                <select class="form-select" id="semester" name="semester" onchange="applyFilters()">
+                                <select class="form-select" id="semester" name="semester">
                                     <option value="">All Semesters</option>
                                     {% for sem in semesters %}
                                         <option value="{{ sem }}" {% if filters.semester == sem %}selected{% endif %}>
@@ -73,7 +73,7 @@
                             </div>
                             <div class="col-md-2 mb-3">
                                 <label for="section" class="form-label fw-semibold">Section</label>
-                                <select class="form-select" id="section" name="section" onchange="applyFilters()">
+                                <select class="form-select" id="section" name="section">
                                     <option value="">All Sections</option>
                                     {% for sec in sections %}
                                         <option value="{{ sec }}" {% if filters.section == sec %}selected{% endif %}>
@@ -82,24 +82,29 @@
                                     {% endfor %}
                                 </select>
                             </div>
-                            <div class="col-md-3 mb-3">
+                            <div class="col-md-2 mb-3">
                                 <label for="course_id" class="form-label fw-semibold">Course</label>
-                                <select class="form-select" id="course_id" name="course_id" onchange="applyFilters()">
-                                    <option value="">Select a course</option>
+                                <select class="form-select" id="course_id" name="course_id">
+                                    <option value="">Select Course</option>
                                     {% for course in courses %}
                                         <option value="{{ course.id }}" {% if selected_course and selected_course.id == course.id %}selected{% endif %}>
-                                            {{ course.code }} - {{ course.name }}
+                                            {{ course.code }}
                                         </option>
                                     {% endfor %}
                                 </select>
                             </div>
+                            <div class="col-md-2 mb-3">
+                                <label for="date" class="form-label fw-semibold">Date</label>
+                                <input type="date" class="form-control" id="date" name="date" 
+                                       value="{{ selected_date or '' }}">
+                            </div>
                         </div>
                         
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="col-12">
                                 <div class="d-flex gap-2">
                                     <button type="button" class="btn btn-primary" onclick="applyFilters()">
-                                        <i class="fas fa-search me-2"></i>Filter Students
+                                        <i class="fas fa-search me-2"></i>Load Students
                                     </button>
                                     <button type="button" class="btn btn-secondary" onclick="clearFilters()">
                                         <i class="fas fa-times me-2"></i>Clear Filters
@@ -113,41 +118,7 @@
         </div>
     </div>
     
-    <!-- Date Selection for Attendance -->
-    {% if students %}
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">
-                        <i class="fas fa-calendar me-2"></i>
-                        Select Date for Attendance
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="row align-items-end">
-                        <div class="col-md-4 mb-3">
-                            <label for="date" class="form-label fw-semibold">Date</label>
-                            <input type="date" class="form-control" id="date" name="date" 
-                                   value="{{ selected_date or '' }}" onchange="loadAttendanceView()">
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <button type="button" class="btn btn-primary" onclick="loadAttendanceView()">
-                                <i class="fas fa-search me-2"></i>Load Students
-                            </button>
-                            {% if selected_course and selected_date %}
-                            <button type="button" class="btn btn-secondary ms-2" onclick="clearSelection()">
-                                <i class="fas fa-times me-2"></i>Clear
-                            </button>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    {% if selected_course and students %}
+    {% if students and selected_course %}
     <!-- Attendance Form -->
     <div class="row">
         <div class="col-12">
@@ -159,7 +130,7 @@
                             Student Attendance - {{ selected_course.name }}
                         </h5>
                         <small class="text-muted">
-                            {{ selected_course.code }} • {{ selected_date.strftime('%B %d, %Y') if selected_date else '' }} • {{ students|length }} students
+                            {{ selected_course.code }} • {{ students|length }} students
                         </small>
                     </div>
                     <div>
@@ -185,8 +156,9 @@
                                         <th style="width: 60px;">#</th>
                                         <th>Student Name</th>
                                         <th>Student ID</th>
+                                        <th>Department</th>
+                                        <th>Year/Sem/Sec</th>
                                         <th style="width: 200px;">Status</th>
-                                        <th style="width: 100px;">Quick Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -194,59 +166,33 @@
                                     <tr data-student-id="{{ student.id }}">
                                         <td>{{ loop.index }}</td>
                                         <td>
-                                            <div class="d-flex align-items-center">
-                                                {% if student.profile_image %}
-                                                    <img src="{{ url_for('static', filename='uploads/' + student.profile_image) }}" 
-                                                         alt="Profile" class="rounded-circle me-2" width="32" height="32" style="object-fit: cover;">
-                                                {% else %}
-                                                    <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-2" 
-                                                         style="width: 32px; height: 32px;">
-                                                        <i class="fas fa-user text-primary"></i>
-                                                    </div>
-                                                {% endif %}
-                                                <div>
-                                                    <div class="fw-semibold">{{ student.get_full_name() }}</div>
-                                                    <small class="text-muted">{{ student.department }}</small>
-                                                </div>
-                                            </div>
+                                            <div class="fw-semibold">{{ student.get_full_name() }}</div>
                                         </td>
+                                        <td>{{ student.student_id or '-' }}</td>
+                                        <td>{{ student.department or '-' }}</td>
+                                        <td>{{ student.year or '-' }}/{{ student.semester or '-' }}/{{ student.section or '-' }}</td>
                                         <td>
-                                            <span class="badge bg-light text-dark">{{ student.student_id }}</span>
-                                        </td>
-                                        <td>
-                                            <div class="btn-group" role="group">
-                                                <input type="radio" class="btn-check" name="student_{{ student.id }}" 
-                                                       id="present_{{ student.id }}" value="present"
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <input type="radio" class="btn-check" name="attendance_{{ student.id }}" 
+                                                       id="present_{{ student.id }}" value="present" 
                                                        {% if existing_attendance.get(student.id|string) == 'present' %}checked{% endif %}>
-                                                <label class="btn btn-outline-success btn-sm" for="present_{{ student.id }}">
+                                                <label class="btn btn-outline-success" for="present_{{ student.id }}">
                                                     <i class="fas fa-check me-1"></i>Present
                                                 </label>
                                                 
-                                                <input type="radio" class="btn-check" name="student_{{ student.id }}" 
-                                                       id="absent_{{ student.id }}" value="absent"
+                                                <input type="radio" class="btn-check" name="attendance_{{ student.id }}" 
+                                                       id="absent_{{ student.id }}" value="absent" 
                                                        {% if existing_attendance.get(student.id|string) == 'absent' %}checked{% endif %}>
-                                                <label class="btn btn-outline-danger btn-sm" for="absent_{{ student.id }}">
+                                                <label class="btn btn-outline-danger" for="absent_{{ student.id }}">
                                                     <i class="fas fa-times me-1"></i>Absent
                                                 </label>
                                                 
-                                                <input type="radio" class="btn-check" name="student_{{ student.id }}" 
-                                                       id="late_{{ student.id }}" value="late"
+                                                <input type="radio" class="btn-check" name="attendance_{{ student.id }}" 
+                                                       id="late_{{ student.id }}" value="late" 
                                                        {% if existing_attendance.get(student.id|string) == 'late' %}checked{% endif %}>
-                                                <label class="btn btn-outline-warning btn-sm" for="late_{{ student.id }}">
+                                                <label class="btn btn-outline-warning" for="late_{{ student.id }}">
                                                     <i class="fas fa-clock me-1"></i>Late
                                                 </label>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="btn-group-vertical btn-group-sm" role="group">
-                                                <button type="button" class="btn btn-success btn-sm" 
-                                                        onclick="markStudent({{ student.id }}, 'present')">
-                                                    <i class="fas fa-check"></i>
-                                                </button>
-                                                <button type="button" class="btn btn-danger btn-sm" 
-                                                        onclick="markStudent({{ student.id }}, 'absent')">
-                                                    <i class="fas fa-times"></i>
-                                                </button>
                                             </div>
                                         </td>
                                     </tr>
@@ -255,19 +201,16 @@
                             </table>
                         </div>
                         
-                        <div class="row mt-4">
-                            <div class="col-md-8">
-                                <div class="alert alert-info" role="alert">
-                                    <i class="fas fa-info-circle me-2"></i>
-                                    <strong>Note:</strong> Select the attendance status for each student and click "Save Attendance" to record.
-                                    {% if existing_attendance %}
-                                    This date already has attendance marked - your changes will update the existing records.
-                                    {% endif %}
-                                </div>
+                        <div class="d-flex justify-content-between align-items-center mt-4">
+                            <div class="text-muted">
+                                Total Students: {{ students|length }}
                             </div>
-                            <div class="col-md-4 text-end">
-                                <button type="submit" class="btn btn-primary btn-lg">
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-primary">
                                     <i class="fas fa-save me-2"></i>Save Attendance
+                                </button>
+                                <button type="button" class="btn btn-secondary" onclick="clearFilters()">
+                                    <i class="fas fa-arrow-left me-2"></i>Back to Filters
                                 </button>
                             </div>
                         </div>
@@ -276,40 +219,26 @@
             </div>
         </div>
     </div>
-    
-    {% elif selected_course and not students %}
-    <!-- No Students Found -->
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-body text-center py-5">
-                    <i class="fas fa-user-slash fa-3x text-muted mb-3"></i>
-                    <h5>No Students Enrolled</h5>
-                    <p class="text-muted">No students are enrolled in the selected course "{{ selected_course.name }}".</p>
-                    <button class="btn btn-primary" onclick="clearSelection()">
-                        <i class="fas fa-arrow-left me-2"></i>Select Different Course
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-    
     {% else %}
     <!-- Instructions -->
     <div class="row">
         <div class="col-12">
             <div class="card">
                 <div class="card-body text-center py-5">
-                    <i class="fas fa-clipboard-list fa-3x text-primary mb-3"></i>
-                    <h5>Select Course and Date</h5>
+                    <i class="fas fa-filter fa-3x text-primary mb-3"></i>
+                    <h5>Filter Students by Classroom</h5>
                     <p class="text-muted mb-4">
-                        Choose a course and date from the options above to view and mark student attendance.
+                        Use the filters above to select students by classroom parameters for attendance marking.
                     </p>
                     <div class="row justify-content-center">
                         <div class="col-md-6">
                             <div class="text-start">
-                                <h6 class="fw-bold mb-2">Instructions:</h6>
+                                <h6 class="fw-bold mb-2">New Classroom-Based Workflow:</h6>
                                 <ul class="list-unstyled">
+                                    <li class="mb-2">
+                                        <i class="fas fa-chevron-right text-primary me-2"></i>
+                                        Filter students by Department, Year, Semester, Section
+                                    </li>
                                     <li class="mb-2">
                                         <i class="fas fa-chevron-right text-primary me-2"></i>
                                         Select a course you are teaching
@@ -320,11 +249,7 @@
                                     </li>
                                     <li class="mb-2">
                                         <i class="fas fa-chevron-right text-primary me-2"></i>
-                                        Mark each student as Present, Absent, or Late
-                                    </li>
-                                    <li class="mb-2">
-                                        <i class="fas fa-chevron-right text-primary me-2"></i>
-                                        Save the attendance record
+                                        Mark attendance for filtered students
                                     </li>
                                 </ul>
                             </div>
@@ -347,6 +272,40 @@ document.addEventListener('DOMContentLoaded', function() {
         const today = new Date().toISOString().split('T')[0];
         dateInput.value = today;
     }
+    
+    // Mark all students present/absent
+    const markAllPresent = document.getElementById('markAllPresent');
+    const markAllAbsent = document.getElementById('markAllAbsent');
+    
+    if (markAllPresent) {
+        markAllPresent.addEventListener('click', function() {
+            const presentRadios = document.querySelectorAll('input[value="present"]');
+            presentRadios.forEach(radio => radio.checked = true);
+        });
+    }
+    
+    if (markAllAbsent) {
+        markAllAbsent.addEventListener('click', function() {
+            const absentRadios = document.querySelectorAll('input[value="absent"]');
+            absentRadios.forEach(radio => radio.checked = true);
+        });
+    }
+    
+    // Handle form submission
+    const attendanceForm = document.getElementById('attendanceForm');
+    if (attendanceForm) {
+        attendanceForm.addEventListener('submit', function(e) {
+            const attendanceData = {};
+            const radioButtons = document.querySelectorAll('input[type="radio"]:checked');
+            
+            radioButtons.forEach(radio => {
+                const studentId = radio.name.replace('attendance_', '');
+                attendanceData[studentId] = radio.value;
+            });
+            
+            document.getElementById('student_attendances').value = JSON.stringify(attendanceData);
+        });
+    }
 });
 
 function applyFilters() {
@@ -355,10 +314,10 @@ function applyFilters() {
     const semester = document.getElementById('semester').value;
     const section = document.getElementById('section').value;
     const courseId = document.getElementById('course_id').value;
-    const date = document.getElementById('date') ? document.getElementById('date').value : '';
+    const date = document.getElementById('date').value;
     
     const url = new URL(window.location.href);
-    url.search = ''; // Clear existing params
+    url.search = '';
     
     if (department) url.searchParams.set('department', department);
     if (year) url.searchParams.set('year', year);
@@ -372,69 +331,8 @@ function applyFilters() {
 
 function clearFilters() {
     const url = new URL(window.location.href);
-    url.search = ''; // Clear all params
+    url.search = '';
     window.location.href = url.toString();
 }
-
-function loadAttendanceView() {
-    const courseSelect = document.getElementById('course_id');
-    const dateInput = document.getElementById('date');
-    
-    const courseId = courseSelect.value;
-    const date = dateInput.value;
-    
-    if (courseId && date) {
-        const url = new URL(window.location.href);
-        const department = document.getElementById('department').value;
-        const year = document.getElementById('year').value;
-        const semester = document.getElementById('semester').value;
-        const section = document.getElementById('section').value;
-        
-        url.search = ''; // Clear existing params
-        if (department) url.searchParams.set('department', department);
-        if (year) url.searchParams.set('year', year);
-        if (semester) url.searchParams.set('semester', semester);
-        if (section) url.searchParams.set('section', section);
-        url.searchParams.set('course_id', courseId);
-        url.searchParams.set('date', date);
-        window.location.href = url.toString();
-    } else {
-        if (!courseId) {
-            alert('Please select a course');
-        }
-        if (!date) {
-            alert('Please select a date');
-        }
-    }
-}
-
-function markStudent(studentId, status) {
-    const radio = document.getElementById(status + '_' + studentId);
-    if (radio) {
-        radio.checked = true;
-    }
-}
-
-// Mark all students present/absent
-document.addEventListener('DOMContentLoaded', function() {
-    const markAllPresent = document.getElementById('markAllPresent');
-    const markAllAbsent = document.getElementById('markAllAbsent');
-    
-    if (markAllPresent) {
-        markAllPresent.addEventListener('click', function() {
-            const presentRadios = document.querySelectorAll('input[value="present"]');
-            presentRadios.forEach(radio => radio.checked = true);
-            showToast('All students marked as present', 'success');
-        });
-    }
-    
-    if (markAllAbsent) {
-        markAllAbsent.addEventListener('click', function() {
-            const absentRadios = document.querySelectorAll('input[value="absent"]');
-            absentRadios.forEach(radio => radio.checked = true);
-            showToast('All students marked as absent', 'info');
-        });
-    }
-});
 </script>
 {% endblock %}
