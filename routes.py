@@ -248,13 +248,6 @@ def faculty_dashboard():
 @login_required
 @faculty_required
 def faculty_attendance():
-    # Get courses taught by this faculty
-    courses = Course.query.filter_by(faculty_id=current_user.id, is_active=True).all()
-    
-    form = AttendanceForm()
-    form.course_id.choices = [(c.id, f"{c.code} - {c.name}") for c in courses]
-    
-    selected_course = None
     students = []
     existing_attendance = {}
     
@@ -263,36 +256,44 @@ def faculty_attendance():
     year = request.args.get('year', type=int)
     semester = request.args.get('semester', type=int)
     section = request.args.get('section', '')
-    course_id = request.args.get('course_id', type=int)
     attendance_date = request.args.get('date')
     
     if request.method == 'POST':
-        if form.validate_on_submit():
-            # Process attendance submission
-            course_id = form.course_id.data
-            attendance_date = form.date.data
-            student_attendances = json.loads(form.student_attendances.data)
-            
-            # Delete existing attendance for this date and course
-            Attendance.query.filter_by(
-                course_id=course_id,
-                date=attendance_date
-            ).delete()
-            
-            # Add new attendance records
-            for student_id, status in student_attendances.items():
-                attendance = Attendance(
-                    student_id=int(student_id),
-                    course_id=course_id,
-                    date=attendance_date,
-                    status=status,
-                    marked_by=current_user.id
-                )
-                db.session.add(attendance)
-            
-            db.session.commit()
-            flash('Attendance marked successfully!', 'success')
-            return redirect(url_for('faculty_attendance'))
+        # Process attendance submission from form data
+        attendance_date_str = request.form.get('date')
+        if attendance_date_str:
+            try:
+                attendance_date_obj = datetime.strptime(attendance_date_str, '%Y-%m-%d').date()
+                
+                # Get student attendances from form
+                student_attendances = {}
+                for key, value in request.form.items():
+                    if key.startswith('attendance_'):
+                        student_id = key.replace('attendance_', '')
+                        student_attendances[student_id] = value
+                
+                # Delete existing attendance for this date and faculty
+                Attendance.query.filter_by(
+                    marked_by=current_user.id,
+                    date=attendance_date_obj
+                ).delete()
+                
+                # Add new attendance records
+                for student_id, status in student_attendances.items():
+                    attendance = Attendance(
+                        student_id=int(student_id),
+                        course_id=None,  # No course requirement
+                        date=attendance_date_obj,
+                        status=status,
+                        marked_by=current_user.id
+                    )
+                    db.session.add(attendance)
+                
+                db.session.commit()
+                flash('Attendance marked successfully!', 'success')
+                return redirect(url_for('faculty_attendance'))
+            except Exception as e:
+                flash('Error marking attendance. Please try again.', 'error')
     
     # Build student query based on classroom parameters
     if department or year or semester or section:

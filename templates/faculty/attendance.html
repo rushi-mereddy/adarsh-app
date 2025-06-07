@@ -82,17 +82,7 @@
                                     {% endfor %}
                                 </select>
                             </div>
-                            <div class="col-md-2 mb-3">
-                                <label for="course_id" class="form-label fw-semibold">Course</label>
-                                <select class="form-select" id="course_id" name="course_id">
-                                    <option value="">Select Course</option>
-                                    {% for course in courses %}
-                                        <option value="{{ course.id }}" {% if selected_course and selected_course.id == course.id %}selected{% endif %}>
-                                            {{ course.code }}
-                                        </option>
-                                    {% endfor %}
-                                </select>
-                            </div>
+
                             <div class="col-md-2 mb-3">
                                 <label for="date" class="form-label fw-semibold">Date</label>
                                 <input type="date" class="form-control" id="date" name="date" 
@@ -118,7 +108,7 @@
         </div>
     </div>
     
-    {% if students and selected_course %}
+    {% if students %}
     <!-- Attendance Form -->
     <div class="row">
         <div class="col-12">
@@ -127,10 +117,10 @@
                     <div>
                         <h5 class="mb-0">
                             <i class="fas fa-users me-2"></i>
-                            Student Attendance - {{ selected_course.name }}
+                            Student Attendance
                         </h5>
                         <small class="text-muted">
-                            {{ selected_course.code }} • {{ students|length }} students
+                            {{ students|length }} students • {{ selected_date or 'Select date' }}
                         </small>
                     </div>
                     <div>
