@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Departments Integration Example</title>
+    <style>
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+        .grid-item {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .course-item {
+            height: 100%;
+        }
+        .coures-img {
+            height: 180px;
+            position: relative;
+            overflow: hidden;
+        }
+        .coures-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .course-tag {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+        }
+        .course-tag a {
+            background: rgba(0,123,255,0.9);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            text-decoration: none;
+            font-size: 12px;
+        }
+        .course-conten {
+            padding: 20px;
+        }
+        .course-conten h5 {
+            min-height: 75px;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        .course-conten h5 a {
+            text-decoration: none;
+            color: inherit;
+        }
+        .course-rating {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+        .error {
+            color: #dc3545;
+            text-align: center;
+            padding: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Under Graduation Programs</h2>
+        
+        <!-- Loading State -->
+        <div id="loading" class="loading">
+            <p>Loading departments...</p>
+        </div>
+        
+        <!-- Error State -->
+        <div id="error" class="error" style="display: none;">
+            <p>Failed to load departments. Please try again later.</p>
+        </div>
+        
+        <!-- Departments Grid -->
+        <div id="departments-grid" class="grid-container" style="display: none;">
+            <!-- Department cards will be inserted here dynamically -->
+        </div>
+    </div>
+
+    <script>
+        // Function to load departments from API
+        async function loadDepartments() {
+            try {
+                const response = await fetch('/api/departments');
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayDepartments(data.departments);
+                } else {
+                    showError();
+                }
+            } catch (error) {
+                console.error('Error loading departments:', error);
+                showError();
+            }
+        }
+
+        // Function to display departments in the grid
+        function displayDepartments(departments) {
+            const grid = document.getElementById('departments-grid');
+            const loading = document.getElementById('loading');
+            
+            // Clear loading state
+            loading.style.display = 'none';
+            grid.style.display = 'grid';
+            
+            // Generate HTML for each department
+            const departmentCards = departments.map(dept => `
+                <div class="grid-item" data-groups='["branding"]'>
+                    <div class="course-item">
+                        <div class="coures-img" style="height: 180px;">
+                            <img class="img-fluid" src="${dept.image_url || '/static/images/default-dept.jpg'}" 
+                                 alt="${dept.name}" onerror="this.src='/static/images/default-dept.jpg'">
+                            <div class="course-tag">
+                                <a href="#">Under Graduation (${dept.program})</a>
+                            </div>
+                        </div>
+                        <div class="course-conten">
+                            <h5 class="mb-3" style="min-height: 75px;">
+                                <a href="/department/${dept.code.toLowerCase()}">${dept.name} (${dept.code})</a>
+                            </h5>
+                            <div class="course-rating mb-3 pb-3 border-bottom">
+                                <p class="text-muted">${dept.description}</p>
+                                ${dept.established_year ? `<small class="text-secondary">Established: ${dept.established_year}</small>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            grid.innerHTML = departmentCards;
+        }
+
+        // Function to show error state
+        function showError() {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('error').style.display = 'block';
+        }
+
+        // Load departments when page loads
+        document.addEventListener('DOMContentLoaded', loadDepartments);
+    </script>
+</body>
+</html>

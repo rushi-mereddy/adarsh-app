@@ -1,0 +1,687 @@
+<div class="course-item">
+                  <div class="coures-img" style="height: 180px;">
+                    <img class="img-fluid" src="https://pallaviengineeringcollege.ac.in/assets/images/cse/CSE-500x372.jpg" alt="">
+                    <div class="course-tag">
+                      <a href="#">Under Graduation (B.Tech)</a>
+                    </div>
+                  </div>
+                  <div class="course-conten">
+                    <!-- <a href="#" class="course-author d-flex align-items-center mb-3">
+                      <img class="avatar img-fluid" src="images/avatar/01.jpg" alt="">
+                      <span class="author-name">Alice Williams</span>
+                    </a> -->
+                    <h5 class="mb-3" style="min-height: 75px;">
+                      <a href="">Computer Science Engineering (CSE)</a>
+                    </h5>
+                    <div class="course-rating mb-3 pb-3 border-bottom">
+                      <div class="review-rating d-none">
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star"></i>
+                      </div>
+                    </div>
+                    <!-- <div class="course-meta">
+                      <ul class="list-unstyled mb-0">
+                        <li><i class="fa fa-user pr-2"></i>12 students</li>
+                        <li><i class="fa fa-book-open pr-2"></i>08 lessons</li>
+                        <li class="price"><span>$100</span> $50</li>
+                      </ul>
+                    </div> -->
+                  </div>
+                </div>
+              </div>
+              <!-- item End -->
+              <!-- item START -->
+              <div class="grid-item" data-groups='["branding"]'>
+                <div class="course-item">
+                  <div class="coures-img" style="height: 180px;">
+                    <img class="img-fluid" src="https://media.licdn.com/dms/image/v2/D5612AQEn9v6xDvsGUg/article-cover_image-shrink_600_2000/article-cover_image-shrink_600_2000/0/1706794157000?e=2147483647&v=beta&t=xBQ7NwOBrEmxcYU9ADPeIkRh8lNOeWEpO0V7EOOFqV0" alt="">
+                    <div class="course-tag">
+                      <a href="#">Under Graduation (B.Tech)</a>
+                    </div>
+                  </div>
+                  <div class="course-conten">
+                    <!-- <a href="#" class="course-author d-flex align-items-center mb-3">
+                      <img class="avatar img-fluid" src="images/avatar/01.jpg" alt="">
+                      <span class="author-name">Alice Williams</span>
+                    </a> -->
+                    <h5 class="mb-3" style="min-height: 75px;">
+                      <a href="">Artificial Intelligence & Machine Learning(CSE AIML)</a>
+                    </h5>
+                    <div class="course-rating mb-3 pb-3 border-bottom">
+                      <div class="review-rating d-none">
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star"></i>
+                      </div>
+                    </div>
+                    <!-- <div class="course-meta">
+                      <ul class="list-unstyled mb-0">
+                        <li><i class="fa fa-user pr-2"></i>12 students</li>
+                        <li><i class="fa fa-book-open pr-2"></i>08 lessons</li>
+                        <li class="price"><span>$100</span> $50</li>
+                      </ul>
+                    </div> -->
+                  </div>
+                </div>
+              </div>
+              <!-- item End -->
+              <!-- item START -->
+              <div class="grid-item" data-groups='["branding"]'>
+                <div class="course-item">
+                  <div class="coures-img" style="height: 180px;">
+                    <img class="img-fluid" src="https://vctw.ac.in/images/subban/aids/aids1.jpeg" alt="">
+                    <div class="course-tag">
+                      <a href="#">Under Graduation (B.Tech)</a>
+                    </div>
+                  </div>
+                  <div class="course-conten">
+                    <!-- <a href="#" class="course-author d-flex align-items-center mb-3">
+                      <img class="avatar img-fluid" src="images/avatar/01.jpg" alt="">
+                      <span class="author-name">Alice Williams</span>
+                    </a> -->
+                    <h5 class="mb-3" style="min-height: 75px;">
+                      <a href="">Artificial Intelligence & Data Science (CSE AIDS)</a>
+                    </h5>
+                    <div class="course-rating mb-3 pb-3 border-bottom">
+                      <div class="review-rating d-none">
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star"></i>
+                      </div>
+                    </div>
+                    <!-- <div class="course-meta">
+                      <ul class="list-unstyled mb-0">
+                        <li><i class="fa fa-user pr-2"></i>12 students</li>
+                        <li><i class="fa fa-book-open pr-2"></i>08 lessons</li>
+                        <li class="price"><span>$100</span> $50</li>
+                      </ul>
+                    </div> -->
+                  </div>
+                </div>
+              </div>
+              <!-- item End -->
+
+              <!-- item START -->
+              <div class="grid-item" data-groups='["web", "photography", "branding"]'>
+                <div class="course-item">
+                  <div class="coures-img" style="height: 180px;">
+                    <img class="img-fluid" src="https://happenings.lpu.in/wp-content/uploads/2024/01/Electronics-and-Communication-Engineering.jpg" alt="">
+                    <div class="course-tag">
+                      <a href="#">Under Graduation (B.Tech)</a>
+                    </div>
+                  </div>
+                  <div class="course-conten">
+                    <!-- <a href="#" class="course-author d-flex align-items-center mb-3">
+                      <img class="avatar img-fluid" src="images/avatar/04.jpg" alt="">
+                      <span class="author-name">Mellissa Doe</span>
+                    </a> -->
+                    <h5 class="mb-3" style="min-height: 75px;">
+                      <a href="">Electronics and Communication Engineering (ECE)</a>
+                    </h5>
+                    <div class="course-rating mb-3 pb-3 border-bottom">
+                      <div class="review-rating d-none">
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                      </div>
+                    </div>
+                    <!-- <div class="course-meta">
+                      <ul class="list-unstyled mb-0">
+                        <li><i class="fa fa-user pr-2"></i>08 students</li>
+                        <li><i class="fa fa-book-open pr-2"></i>04 lessons</li>
+                        <li class="price"><span>$80</span> $40</li>
+                      </ul>
+                    </div> -->
+                  </div>
+                </div>
+              </div>
+              <!-- item End -->
+
+              <!-- item START -->
+              <div class="grid-item" data-groups='["photography"]'>
+                <div class="course-item">
+                  <div class="coures-img" style="height: 180px;">
+                    <img class="img-fluid" src="https://chennai.vit.ac.in/wp-content/uploads/2021/09/Work-by-Electrical-and-Electronics-Engineers-Difference-Between-Electrical-and-Electronics-Engineering.jpg" alt="">
+                    <div class="course-tag">
+                      <a href="#">Under Graduation (B.Tech)</a>
+                    </div>
+                  </div>
+                  <div class="course-conten">
+                    <!-- <a href="#" class="course-author d-flex align-items-center mb-3">
+                      <img class="avatar img-fluid" src="images/avatar/02.jpg" alt="">
+                      <span class="author-name">Paul Flavius</span>
+                    </a> -->
+                    <h5 class="mb-3" style="min-height: 75px;">
+                      <a href="">Electrical and Electronics Engineering (EEE)</a>
+                    </h5>
+                    <div class="course-rating mb-3 pb-3 border-bottom">
+                      <div class="review-rating d-none">
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star"></i>
+                      </div>
+                    </div>
+                    <!-- <div class="course-meta">
+                      <ul class="list-unstyled mb-0">
+                        <li><i class="fa fa-user pr-2"></i>16 students</li>
+                        <li><i class="fa fa-book-open pr-2"></i>10 lessons</li>
+                        <li class="price"><span>$150</span> $80</li>
+                      </ul>
+                    </div> -->
+                  </div>
+                </div>
+              </div>
+              <!-- item End -->
+
+              <!-- item START -->
+              <div class="grid-item" data-groups='["advertising"]'>
+                <div class="course-item">
+                  <div class="coures-img" style="height: 180px;">
+                    <img class="img-fluid" src="https://em6sqi3i3t5.exactdn.com/wp-content/uploads/2023/11/civil-eng-undergrad-banner.jpg" alt="">
+                    <div class="course-tag">
+                      <a href="#">Under Graduation (B.Tech)</a>
+                    </div>
+                  </div>
+                  <div class="course-conten">
+                    <!-- <a href="#" class="course-author d-flex align-items-center mb-3">
+                      <img class="avatar img-fluid" src="images/avatar/05.jpg" alt="">
+                      <span class="author-name">Felica Queen</span>
+                    </a> -->
+                    <h5 class="mb-3" style="min-height: 75px;">
+                      <a href="">Civil Engineering</a>
+                    </h5>
+                    <div class="course-rating mb-3 pb-3 border-bottom">
+                      <div class="review-rating d-none">
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star"></i>
+                      </div>
+                    </div>
+                    <!-- <div class="course-meta">
+                      <ul class="list-unstyled mb-0">
+                        <li><i class="fa fa-user pr-2"></i>21 students</li>
+                        <li><i class="fa fa-book-open pr-2"></i>09 lessons</li>
+                        <li class="price"><span>$180</span> $90</li>
+                      </ul>
+                    </div> -->
+                  </div>
+                </div>
+              </div>
+              <!-- item End -->
+
+              <!-- item START -->
+              <div class="grid-item" data-groups='["design", "advertising"]'>
+                <div class="course-item">
+                  <div class="coures-img" style="height: 180px;">
+                    <img class="img-fluid" src="https://assets.everspringpartners.com/dims4/default/fe2ee50/2147483647/strip/true/crop/1000x667+0+0/resize/800x534!/format/jpg/quality/90/?url=http%3A%2F%2Feverspring-brightspot.s3.us-east-1.amazonaws.com%2F40%2F7c%2Face237c74e66880a6343917b2eae%2Fautomotive-engineer.jpg" alt="">
+                    <div class="course-tag">
+                      <a href="#">Under Graduation (B.Tech)</a>
+                    </div>
+                  </div>
+                  <div class="course-conten">
+                    <!-- <a href="#" class="course-author d-flex align-items-center mb-3">
+                      <img class="avatar img-fluid" src="images/avatar/03.jpg" alt="">
+                      <span class="author-name">Michael Bean</span>
+                    </a> -->
+                    <h5 class="mb-3" style="min-height: 75px;">
+                      <a href="">Mechanical Engineering</a>
+                    </h5>
+                    <div class="course-rating mb-3 pb-3 border-bottom">
+                      <div class="review-rating d-none">
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star"></i>
+                      </div>
+                    </div>
+                    <!-- <div class="course-meta">
+                      <ul class="list-unstyled mb-0">
+                        <li><i class="fa fa-user pr-2"></i>25 students</li>
+                        <li><i class="fa fa-book-open pr-2"></i>15 lessons</li>
+                        <li class="price"><span>$300</span> $200</li>
+                      </ul>
+                    </div> -->
+                  </div>
+                </div>
+              </div>
+              <!-- item End -->
+
+
+              <!-- item START -->
+              <div class="grid-item" data-groups='["branding", "web"]'>
+                <div class="course-item">
+                  <div class="coures-img" style="height: 180px;">
+                    <img class="img-fluid" src="https://img.freepik.com/premium-photo/businesswomen-analysis-documents-office-with-laptop-graph-financial_33718-233.jpg" alt="">
+                    <div class="course-tag">
+                      <a href="#">Under Graduation</a>
+                    </div>
+                  </div>
+                  <div class="course-conten">
+                    <!-- <a href="#" class="course-author d-flex align-items-center mb-3">
+                      <img class="avatar img-fluid" src="images/avatar/06.jpg" alt="">
+                      <span class="author-name">Sara Lisbon</span>
+                    </a> -->
+                    <h5 class="mb-3" style="min-height: 75px;">
+                      <a href="">Bachelor of Business Administration (BBA)</a>
+                    </h5>
+                    <div class="course-rating mb-3 pb-3 border-bottom">
+                      <div class="review-rating d-none">
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                      </div>
+                    </div>
+                    <!-- <div class="course-meta">
+                      <ul class="list-unstyled mb-0">
+                        <li><i class="fa fa-user pr-2"></i>35 students</li>
+                        <li><i class="fa fa-book-open pr-2"></i>17 lessons</li>
+                        <li class="price"><span>$500</span> $280</li>
+                      </ul>
+                    </div> -->
+                  </div>
+                </div>
+              </div>
+              <!-- item End -->
+              <!-- item START -->
+              <div class="grid-item" data-groups='["branding", "web"]'>
+                <div class="course-item">
+                  <div class="coures-img" style="height: 180px;">
+                    <img class="img-fluid" src="https://www.isbr.in/blogs/wp-content/uploads/2024/07/Your-Tech-Journey-Begins-with-a-Bachelor-of-Computer-Application.jpg" alt="">
+                    <div class="course-tag">
+                      <a href="#">Under Graduation</a>
+                    </div>
+                  </div>
+                  <div class="course-conten">
+                    <!-- <a href="#" class="course-author d-flex align-items-center mb-3">
+                      <img class="avatar img-fluid" src="images/avatar/06.jpg" alt="">
+                      <span class="author-name">Sara Lisbon</span>
+                    </a> -->
+                    <h5 class="mb-3" style="min-height: 75px;">
+                      <a href="">Bachelor of Computer Applications (BCA)</a>
+                    </h5>
+                    <div class="course-rating mb-3 pb-3 border-bottom">
+                      <div class="review-rating d-none">
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                      </div>
+                    </div>
+                    <!-- <div class="course-meta">
+                      <ul class="list-unstyled mb-0">
+                        <li><i class="fa fa-user pr-2"></i>35 students</li>
+                        <li><i class="fa fa-book-open pr-2"></i>17 lessons</li>
+                        <li class="price"><span>$500</span> $280</li>
+                      </ul>
+                    </div> -->
+                  </div>
+                </div>
+              </div>
+              <!-- item End -->
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-12">
+            <div class="">
+              <h4 class="title" style="margin-top: 30px;">Post Graduation</h4>
+            </div>
+            <div class="my-shuffle-container columns-3 popup-gallery full-screen">
+              <!-- item START -->
+              <div class="grid-item" data-groups='["branding", "web"]'>
+                <div class="course-item">
+                  <div class="coures-img" style="height: 180px;">
+                    <img class="img-fluid" src="https://fs.tu-varna.bg/wp-content/uploads/thermal-engineering-and-renewable-energy-sources-03.jpg" alt="">
+                    <div class="course-tag">
+                      <a href="#">Post Graduation (M.Tech)</a>
+                    </div>
+                  </div>
+                  <div class="course-conten">
+                    <!-- <a href="#" class="course-author d-flex align-items-center mb-3">
+                      <img class="avatar img-fluid" src="images/avatar/06.jpg" alt="">
+                      <span class="author-name">Sara Lisbon</span>
+                    </a> -->
+                    <h5 class="mb-3" style="min-height: 75px;">
+                      <a href="">Mechanical Engineering (Thermal Engineering)</a>
+                    </h5>
+                    <div class="course-rating mb-3 pb-3 border-bottom">
+                      <div class="review-rating d-none">
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                      </div>
+                    </div>
+                    <!-- <div class="course-meta">
+                      <ul class="list-unstyled mb-0">
+                        <li><i class="fa fa-user pr-2"></i>35 students</li>
+                        <li><i class="fa fa-book-open pr-2"></i>17 lessons</li>
+                        <li class="price"><span>$500</span> $280</li>
+                      </ul>
+                    </div> -->
+                  </div>
+                </div>
+              </div>
+              <!-- item End -->
+              <!-- item START -->
+              <div class="grid-item" data-groups='["branding", "web"]'>
+                <div class="course-item">
+                  <div class="coures-img" style="height: 180px;">
+                    <img class="img-fluid" src="https://assets.skyfilabs.com/images/blog/be-projects-for-cse.webp" alt="">
+                    <div class="course-tag">
+                      <a href="#">Post Graduation (M.Tech)</a>
+                    </div>
+                  </div>
+                  <div class="course-conten">
+                    <!-- <a href="#" class="course-author d-flex align-items-center mb-3">
+                      <img class="avatar img-fluid" src="images/avatar/06.jpg" alt="">
+                      <span class="author-name">Sara Lisbon</span>
+                    </a> -->
+                    <h5 class="mb-3" style="min-height: 75px;">
+                      <a href="">Computer Science Engineering (CSE)</a>
+                    </h5>
+                    <div class="course-rating mb-3 pb-3 border-bottom">
+                      <div class="review-rating d-none">
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                      </div>
+                    </div>
+                    <!-- <div class="course-meta">
+                      <ul class="list-unstyled mb-0">
+                        <li><i class="fa fa-user pr-2"></i>35 students</li>
+                        <li><i class="fa fa-book-open pr-2"></i>17 lessons</li>
+                        <li class="price"><span>$500</span> $280</li>
+                      </ul>
+                    </div> -->
+                  </div>
+                </div>
+              </div>
+              <!-- item End -->
+              <!-- item START -->
+              <div class="grid-item" data-groups='["branding", "web"]'>
+                <div class="course-item">
+                  <div class="coures-img" style="height: 180px;">
+                    <img class="img-fluid" src="https://www.tessolve.com/wp-content/uploads/2024/11/Tessolve-Blog-VLSI-Design-Cycle-1-1.jpg" alt="">
+                    <div class="course-tag">
+                      <a href="#">Post Graduation (M.Tech)</a>
+                    </div>
+                  </div>
+                  <div class="course-conten">
+                    <!-- <a href="#" class="course-author d-flex align-items-center mb-3">
+                      <img class="avatar img-fluid" src="images/avatar/06.jpg" alt="">
+                      <span class="author-name">Sara Lisbon</span>
+                    </a> -->
+                    <h5 class="mb-3" style="min-height: 75px;">
+                      <a href="">Electronics And Communication Engineering (VLSI & ED)</a>
+                    </h5>
+                    <div class="course-rating mb-3 pb-3 border-bottom">
+                      <div class="review-rating d-none">
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                      </div>
+                    </div>
+                    <!-- <div class="course-meta">
+                      <ul class="list-unstyled mb-0">
+                        <li><i class="fa fa-user pr-2"></i>35 students</li>
+                        <li><i class="fa fa-book-open pr-2"></i>17 lessons</li>
+                        <li class="price"><span>$500</span> $280</li>
+                      </ul>
+                    </div> -->
+                  </div>
+                </div>
+              </div>
+              <!-- item End -->
+
+              <!-- item START -->
+              <div class="grid-item" data-groups='["branding", "web"]'>
+                <div class="course-item">
+                  <div class="coures-img" style="height: 180px;">
+                    <img class="img-fluid" src="https://api.hindustanuniv.ac.in/uploads/Information_Technology_25419400fc.jpg" alt="">
+                    <div class="course-tag">
+                      <a href="#">Post Graduation</a>
+                    </div>
+                  </div>
+                  <div class="course-conten">
+                    <!-- <a href="#" class="course-author d-flex align-items-center mb-3">
+                      <img class="avatar img-fluid" src="images/avatar/06.jpg" alt="">
+                      <span class="author-name">Sara Lisbon</span>
+                    </a> -->
+                    <h5 class="mb-3" style="min-height: 75px;">
+                      <a href="">Master of Computer Applications (MCA)</a>
+                    </h5>
+                    <div class="course-rating mb-3 pb-3 border-bottom">
+                      <div class="review-rating d-none">
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                      </div>
+                    </div>
+                    <!-- <div class="course-meta">
+                      <ul class="list-unstyled mb-0">
+                        <li><i class="fa fa-user pr-2"></i>35 students</li>
+                        <li><i class="fa fa-book-open pr-2"></i>17 lessons</li>
+                        <li class="price"><span>$500</span> $280</li>
+                      </ul>
+                    </div> -->
+                  </div>
+                </div>
+              </div>
+              <!-- item End -->
+              <!-- item START -->
+              <div class="grid-item" data-groups='["branding", "web"]'>
+                <div class="course-item">
+                  <div class="coures-img" style="height: 180px;">
+                    <img class="img-fluid" src="https://img.freepik.com/premium-photo/mba-master-business-administration-elearning-education-personal-development-concept_1085052-1474.jpg?semt=ais_hybrid" alt="">
+                    <div class="course-tag">
+                      <a href="#">Post Graduation</a>
+                    </div>
+                  </div>
+                  <div class="course-conten">
+                    <!-- <a href="#" class="course-author d-flex align-items-center mb-3">
+                      <img class="avatar img-fluid" src="images/avatar/06.jpg" alt="">
+                      <span class="author-name">Sara Lisbon</span>
+                    </a> -->
+                    <h5 class="mb-3" style="min-height: 75px;">
+                      <a href="">Master of Business Administration (MBA)</a>
+                    </h5>
+                    <div class="course-rating mb-3 pb-3 border-bottom">
+                      <div class="review-rating d-none">
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                      </div>
+                    </div>
+                    <!-- <div class="course-meta">
+                      <ul class="list-unstyled mb-0">
+                        <li><i class="fa fa-user pr-2"></i>35 students</li>
+                        <li><i class="fa fa-book-open pr-2"></i>17 lessons</li>
+                        <li class="price"><span>$500</span> $280</li>
+                      </ul>
+                    </div> -->
+                  </div>
+                </div>
+              </div>
+              <!-- item End -->
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-12">
+            <div class="">
+              <h4 class="title" style="margin-top: 30px;">Diploma</h4>
+            </div>
+            <div class="my-shuffle-container columns-3 popup-gallery full-screen">
+
+              <!-- item START -->
+              <div class="grid-item" data-groups='["branding", "web"]'>
+                <div class="course-item">
+                  <div class="coures-img" style="height: 180px;">
+                    <img class="img-fluid" src="https://images.squarespace-cdn.com/content/v1/5fce63270356d927d7eecdbd/033e9988-2ac8-4cb9-8b9f-5bf05fb22dcb/gff.jpg" alt="">
+                    <div class="course-tag">
+                      <a href="#">Diploma</a>
+                    </div>
+                  </div>
+                  <div class="course-conten">
+                    <!-- <a href="#" class="course-author d-flex align-items-center mb-3">
+                      <img class="avatar img-fluid" src="images/avatar/06.jpg" alt="">
+                      <span class="author-name">Sara Lisbon</span>
+                    </a> -->
+                    <h5 class="mb-3" style="min-height: 75px;">
+                      <a href="">Diploma in Computer Engineering (D.CME)</a>
+                    </h5>
+                    <div class="course-rating mb-3 pb-3 border-bottom">
+                      <div class="review-rating d-none">
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                      </div>
+                    </div>
+                    <!-- <div class="course-meta">
+                      <ul class="list-unstyled mb-0">
+                        <li><i class="fa fa-user pr-2"></i>35 students</li>
+                        <li><i class="fa fa-book-open pr-2"></i>17 lessons</li>
+                        <li class="price"><span>$500</span> $280</li>
+                      </ul>
+                    </div> -->
+                  </div>
+                </div>
+              </div>
+              <!-- item End -->
+              <!-- item START -->
+              <div class="grid-item" data-groups='["branding", "web"]'>
+                <div class="course-item">
+                  <div class="coures-img" style="height: 180px;">
+                    <img class="img-fluid" src="https://www.mindinventory.com/blog/wp-content/uploads/2023/11/ai-ml-in-business-processes.webp" alt="">
+                    <div class="course-tag">
+                      <a href="#">Diploma</a>
+                    </div>
+                  </div>
+                  <div class="course-conten">
+                    <!-- <a href="#" class="course-author d-flex align-items-center mb-3">
+                      <img class="avatar img-fluid" src="images/avatar/06.jpg" alt="">
+                      <span class="author-name">Sara Lisbon</span>
+                    </a> -->
+                    <h5 class="mb-3" style="min-height: 75px;">
+                      <a href="">Diploma in AI & ML (D.AI&ML)</a>
+                    </h5>
+                    <div class="course-rating mb-3 pb-3 border-bottom">
+                      <div class="review-rating d-none">
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                      </div>
+                    </div>
+                    <!-- <div class="course-meta">
+                      <ul class="list-unstyled mb-0">
+                        <li><i class="fa fa-user pr-2"></i>35 students</li>
+                        <li><i class="fa fa-book-open pr-2"></i>17 lessons</li>
+                        <li class="price"><span>$500</span> $280</li>
+                      </ul>
+                    </div> -->
+                  </div>
+                </div>
+              </div>
+              <!-- item End -->
+              <!-- item START -->
+              <div class="grid-item" data-groups='["branding", "web"]'>
+                <div class="course-item">
+                  <div class="coures-img" style="height: 180px;">
+                    <img class="img-fluid" src="https://assets.everspringpartners.com/dims4/default/fe2ee50/2147483647/strip/true/crop/1000x667+0+0/resize/800x534!/format/jpg/quality/90/?url=http%3A%2F%2Feverspring-brightspot.s3.us-east-1.amazonaws.com%2F40%2F7c%2Face237c74e66880a6343917b2eae%2Fautomotive-engineer.jpg" alt="">
+                    <div class="course-tag">
+                      <a href="#">Diploma</a>
+                    </div>
+                  </div>
+                  <div class="course-conten">
+                    <!-- <a href="#" class="course-author d-flex align-items-center mb-3">
+                      <img class="avatar img-fluid" src="images/avatar/06.jpg" alt="">
+                      <span class="author-name">Sara Lisbon</span>
+                    </a> -->
+                    <h5 class="mb-3" style="min-height: 75px;">
+                      <a href="">Diploma in Mechanical Engineering (D.ME)</a>
+                    </h5>
+                    <div class="course-rating mb-3 pb-3 border-bottom">
+                      <div class="review-rating d-none">
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                      </div>
+                    </div>
+                    <!-- <div class="course-meta">
+                      <ul class="list-unstyled mb-0">
+                        <li><i class="fa fa-user pr-2"></i>35 students</li>
+                        <li><i class="fa fa-book-open pr-2"></i>17 lessons</li>
+                        <li class="price"><span>$500</span> $280</li>
+                      </ul>
+                    </div> -->
+                  </div>
+                </div>
+              </div>
+              <!-- item End -->
+              <!-- item START -->
+              <div class="grid-item" data-groups='["branding", "web"]'>
+                <div class="course-item">
+                  <div class="coures-img" style="height: 180px;">
+                    <img class="img-fluid" src="https://cdn-conid.nitrocdn.com/BeQsgJvyjnkTkgaklnqeBswlXdFUklaW/assets/images/optimized/rev-86212ce/www.nibs.in/wp-content/uploads/2020/12/eec.jpg" alt="">
+                    <div class="course-tag">
+                      <a href="#">Diploma</a>
+                    </div>
+                  </div>
+                  <div class="course-conten">
+                    <!-- <a href="#" class="course-author d-flex align-items-center mb-3">
+                      <img class="avatar img-fluid" src="images/avatar/06.jpg" alt="">
+                      <span class="author-name">Sara Lisbon</span>
+                    </a> -->
+                    <h5 class="mb-3" style="min-height: 75px;">
+                      <a href="">Diploma in Electronics and Communication Engineering (D.ECE)</a>
+                    </h5>
+                    <div class="course-rating mb-3 pb-3 border-bottom">
+                      <div class="review-rating d-none">
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                      </div>
+                    </div>
+                    <!-- <div class="course-meta">
+                      <ul class="list-unstyled mb-0">
+                        <li><i class="fa fa-user pr-2"></i>35 students</li>
+                        <li><i class="fa fa-book-open pr-2"></i>17 lessons</li>
+                        <li class="price"><span>$500</span> $280</li>
+                      </ul>
+                    </div> -->
+                  </div>
