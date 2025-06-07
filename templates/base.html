@@ -14,8 +14,8 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Ultra Modern CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/ultra-modern.css') }}">
+    <!-- Ultra Modern Light Theme CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/ultra-light.css') }}">
     
     {% block extra_css %}{% endblock %}
 </head>
@@ -161,13 +161,13 @@
                         {% for category, message in messages %}
                             <div class="ultra-card mb-3" style="padding: 1rem; border-left: 4px solid {% if category == 'error' or category == 'danger' %}#ef4444{% elif category == 'success' %}#10b981{% elif category == 'warning' %}#f59e0b{% else %}#6366f1{% endif %};">
                                 <div class="d-flex align-items-start">
-                                    <div style="width: 24px; height: 24px; border-radius: 50%; background: {% if category == 'error' or category == 'danger' %}rgba(239, 68, 68, 0.2){% elif category == 'success' %}rgba(16, 185, 129, 0.2){% elif category == 'warning' %}rgba(245, 158, 11, 0.2){% else %}rgba(99, 102, 241, 0.2){% endif %}; display: flex; align-items: center; justify-content: center; margin-right: 0.75rem; flex-shrink: 0;">
+                                    <div style="width: 24px; height: 24px; border-radius: 50%; background: {% if category == 'error' or category == 'danger' %}rgba(239, 68, 68, 0.1){% elif category == 'success' %}rgba(16, 185, 129, 0.1){% elif category == 'warning' %}rgba(245, 158, 11, 0.1){% else %}rgba(99, 102, 241, 0.1){% endif %}; display: flex; align-items: center; justify-content: center; margin-right: 0.75rem; flex-shrink: 0;">
                                         <i class="fas fa-{% if category == 'error' or category == 'danger' %}exclamation-triangle{% elif category == 'success' %}check{% elif category == 'warning' %}exclamation{% else %}info{% endif %}" style="color: {% if category == 'error' or category == 'danger' %}#ef4444{% elif category == 'success' %}#10b981{% elif category == 'warning' %}#f59e0b{% else %}#6366f1{% endif %}; font-size: 0.75rem;"></i>
                                     </div>
                                     <div class="flex-grow-1">
-                                        <div style="color: white; font-size: 0.9rem; line-height: 1.4;">{{ message }}</div>
+                                        <div style="color: #1f2937; font-size: 0.9rem; line-height: 1.4;">{{ message }}</div>
                                     </div>
-                                    <button onclick="this.parentElement.parentElement.remove()" style="background: none; border: none; color: #a1a1aa; cursor: pointer; padding: 0; margin-left: 0.5rem;">
+                                    <button onclick="this.parentElement.parentElement.remove()" style="background: none; border: none; color: #6b7280; cursor: pointer; padding: 0; margin-left: 0.5rem;">
                                         <i class="fas fa-times"></i>
                                     </button>
                                 </div>

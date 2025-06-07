@@ -133,7 +133,7 @@
         <div class="col-lg-6 mb-4">
             <div class="activity-feed">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h3 style="color: white; font-size: 1.3rem; font-weight: 600; margin: 0;">
+                    <h3 style="color: #1f2937; font-size: 1.3rem; font-weight: 600; margin: 0;">
                         <i class="fas fa-bullhorn me-2" style="color: #667eea;"></i>
                         Recent Announcements
                     </h3>
@@ -176,8 +176,8 @@
                         <div style="width: 60px; height: 60px; background: rgba(102, 126, 234, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
                             <i class="fas fa-bullhorn" style="color: #667eea; font-size: 1.5rem;"></i>
                         </div>
-                        <h6 style="color: white; margin-bottom: 0.5rem;">No Announcements</h6>
-                        <p style="color: #a1a1aa; margin-bottom: 1.5rem;">Create your first announcement to get started</p>
+                        <h6 style="color: #1f2937; margin-bottom: 0.5rem;">No Announcements</h6>
+                        <p style="color: #6b7280; margin-bottom: 1.5rem;">Create your first announcement to get started</p>
                         <a href="{{ url_for('admin_add_announcement') }}" class="btn-ultra btn-primary-ultra">
                             <i class="fas fa-plus"></i>
                             Create Announcement
@@ -190,7 +190,7 @@
         <div class="col-lg-6 mb-4">
             <div class="activity-feed">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h3 style="color: white; font-size: 1.3rem; font-weight: 600; margin: 0;">
+                    <h3 style="color: #1f2937; font-size: 1.3rem; font-weight: 600; margin: 0;">
                         <i class="fas fa-users me-2" style="color: #667eea;"></i>
                         Recent Enquiries
                     </h3>
@@ -233,8 +233,8 @@
                         <div style="width: 60px; height: 60px; background: rgba(102, 126, 234, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
                             <i class="fas fa-users" style="color: #667eea; font-size: 1.5rem;"></i>
                         </div>
-                        <h6 style="color: white; margin-bottom: 0.5rem;">All Clear</h6>
-                        <p style="color: #a1a1aa;">No pending enquiries to review</p>
+                        <h6 style="color: #1f2937; margin-bottom: 0.5rem;">All Clear</h6>
+                        <p style="color: #6b7280;">No pending enquiries to review</p>
                     </div>
                 {% endif %}
             </div>
@@ -247,7 +247,7 @@
         <div class="col-12">
             <div class="activity-feed">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h3 style="color: white; font-size: 1.3rem; font-weight: 600; margin: 0;">
+                    <h3 style="color: #1f2937; font-size: 1.3rem; font-weight: 600; margin: 0;">
                         <i class="fas fa-chart-bar me-2" style="color: #667eea;"></i>
                         Attendance Overview (Last 10 Days)
                     </h3>
@@ -260,21 +260,21 @@
                 <div style="overflow-x: auto;">
                     <table style="width: 100%; border-collapse: collapse;">
                         <thead>
-                            <tr style="border-bottom: 1px solid var(--dark-border);">
-                                <th style="color: #a1a1aa; font-weight: 500; padding: 1rem; text-align: left;">Date</th>
-                                <th style="color: #a1a1aa; font-weight: 500; padding: 1rem; text-align: left;">Total Records</th>
-                                <th style="color: #a1a1aa; font-weight: 500; padding: 1rem; text-align: left;">Present</th>
-                                <th style="color: #a1a1aa; font-weight: 500; padding: 1rem; text-align: left;">Attendance %</th>
-                                <th style="color: #a1a1aa; font-weight: 500; padding: 1rem; text-align: left;">Progress</th>
+                            <tr style="border-bottom: 1px solid var(--light-border);">
+                                <th style="color: #6b7280; font-weight: 500; padding: 1rem; text-align: left;">Date</th>
+                                <th style="color: #6b7280; font-weight: 500; padding: 1rem; text-align: left;">Total Records</th>
+                                <th style="color: #6b7280; font-weight: 500; padding: 1rem; text-align: left;">Present</th>
+                                <th style="color: #6b7280; font-weight: 500; padding: 1rem; text-align: left;">Attendance %</th>
+                                <th style="color: #6b7280; font-weight: 500; padding: 1rem; text-align: left;">Progress</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for stat in attendance_stats %}
                             {% set percentage = (stat.present_count / stat.total_records * 100) if stat.total_records > 0 else 0 %}
-                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); transition: background 0.2s ease;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">
-                                <td style="color: white; padding: 1rem;">{{ stat.date.strftime('%b %d, %Y') }}</td>
-                                <td style="color: white; padding: 1rem;">{{ stat.total_records }}</td>
-                                <td style="color: white; padding: 1rem;">{{ stat.present_count }}</td>
+                            <tr style="border-bottom: 1px solid rgba(107,114,128,0.1); transition: background 0.2s ease;" onmouseover="this.style.background='rgba(107,114,128,0.05)'" onmouseout="this.style.background='transparent'">
+                                <td style="color: #1f2937; padding: 1rem;">{{ stat.date.strftime('%b %d, %Y') }}</td>
+                                <td style="color: #1f2937; padding: 1rem;">{{ stat.total_records }}</td>
+                                <td style="color: #1f2937; padding: 1rem;">{{ stat.present_count }}</td>
                                 <td style="padding: 1rem;">
                                     <span style="font-weight: 600; color: {% if percentage >= 75 %}#10b981{% elif percentage >= 60 %}#f59e0b{% else %}#ef4444{% endif %};">
                                         {{ "%.1f"|format(percentage) }}%
