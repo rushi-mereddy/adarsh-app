@@ -1,0 +1,226 @@
+{% extends "base.html" %}
+
+{% block title %}Create Classroom - Admin Panel{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-0">
+                        <i class="fas fa-plus-circle text-primary me-2"></i>
+                        Create Classroom
+                    </h1>
+                    <p class="text-muted mb-0">Set up a new classroom for students and faculty</p>
+                </div>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="{{ url_for('admin_dashboard') }}">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="{{ url_for('admin_classrooms') }}">Classrooms</a></li>
+                        <li class="breadcrumb-item active">Create</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Classroom Details</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                {{ form.department.label(class="form-label") }}
+                                {{ form.department(class="form-select") }}
+                                {% if form.department.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.department.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.year.label(class="form-label") }}
+                                {{ form.year(class="form-select") }}
+                                {% if form.year.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.year.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                {{ form.semester.label(class="form-label") }}
+                                {{ form.semester(class="form-select") }}
+                                {% if form.semester.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.semester.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.section.label(class="form-label") }}
+                                {{ form.section(class="form-select") }}
+                                {% if form.section.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.section.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.name.label(class="form-label") }}
+                            {{ form.name(class="form-control", placeholder="Leave blank to auto-generate") }}
+                            <small class="text-muted">If left blank, will be auto-generated based on department, year, semester, and section</small>
+                            {% if form.name.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.name.errors %}
+                                        <div>{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            {{ form.academic_year.label(class="form-label") }}
+                            {{ form.academic_year(class="form-control", placeholder="e.g., 2023-24") }}
+                            <small class="text-muted">If left blank, will be auto-generated for current academic year</small>
+                            {% if form.academic_year.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.academic_year.errors %}
+                                        <div>{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Create Classroom
+                            </button>
+                            <a href="{{ url_for('admin_classrooms') }}" class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Preview Card -->
+            <div class="card mt-4" id="preview-card" style="display: none;">
+                <div class="card-header">
+                    <h6 class="mb-0">Preview</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <small class="text-muted">Classroom Name</small>
+                            <div class="fw-semibold" id="preview-name">-</div>
+                        </div>
+                        <div class="col-md-6">
+                            <small class="text-muted">Department</small>
+                            <div class="fw-semibold" id="preview-department">-</div>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <small class="text-muted">Year</small>
+                            <div class="fw-semibold" id="preview-year">-</div>
+                        </div>
+                        <div class="col-md-3">
+                            <small class="text-muted">Semester</small>
+                            <div class="fw-semibold" id="preview-semester">-</div>
+                        </div>
+                        <div class="col-md-3">
+                            <small class="text-muted">Section</small>
+                            <div class="fw-semibold" id="preview-section">-</div>
+                        </div>
+                        <div class="col-md-3">
+                            <small class="text-muted">Academic Year</small>
+                            <div class="fw-semibold" id="preview-academic-year">-</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    const previewCard = document.getElementById('preview-card');
+    const fields = {
+        department: document.getElementById('department'),
+        year: document.getElementById('year'),
+        semester: document.getElementById('semester'),
+        section: document.getElementById('section'),
+        name: document.getElementById('name'),
+        academic_year: document.getElementById('academic_year')
+    };
+
+    function updatePreview() {
+        const dept = fields.department.options[fields.department.selectedIndex]?.text || '-';
+        const year = fields.year.options[fields.year.selectedIndex]?.text || '-';
+        const semester = fields.semester.options[fields.semester.selectedIndex]?.text || '-';
+        const section = fields.section.options[fields.section.selectedIndex]?.text || '-';
+        const name = fields.name.value || generateName();
+        const academicYear = fields.academic_year.value || generateAcademicYear();
+
+        document.getElementById('preview-name').textContent = name;
+        document.getElementById('preview-department').textContent = dept;
+        document.getElementById('preview-year').textContent = year;
+        document.getElementById('preview-semester').textContent = semester;
+        document.getElementById('preview-section').textContent = section;
+        document.getElementById('preview-academic-year').textContent = academicYear;
+
+        // Show preview if we have some data
+        if (fields.department.value || fields.year.value) {
+            previewCard.style.display = 'block';
+        }
+    }
+
+    function generateName() {
+        if (fields.department.value && fields.year.value && fields.semester.value && fields.section.value) {
+            return `${fields.department.value} Year ${fields.year.value} Sem ${fields.semester.value} Section ${fields.section.value}`;
+        }
+        return '-';
+    }
+
+    function generateAcademicYear() {
+        const currentYear = new Date().getFullYear();
+        return `${currentYear}-${currentYear + 1}`;
+    }
+
+    // Add event listeners
+    Object.values(fields).forEach(field => {
+        field.addEventListener('change', updatePreview);
+        field.addEventListener('input', updatePreview);
+    });
+
+    // Initial preview update
+    updatePreview();
+});
+</script>
+{% endblock %}

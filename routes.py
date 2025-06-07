@@ -779,7 +779,136 @@ def student_feedback():
     return render_template('student/feedback.html', form=form, previous_feedback=previous_feedback)
 
 # Error handlers
-# Admin - Course Enrollments
+# Admin - Classroom Management
+@app.route('/admin/classrooms')
+@login_required
+@admin_required
+def admin_classrooms():
+    classrooms = Classroom.query.filter_by(is_active=True).order_by(Classroom.department, Classroom.year, Classroom.semester, Classroom.section).all()
+    
+    # Get statistics
+    total_classrooms = len(classrooms)
+    students_assigned = db.session.query(User).filter(User.classroom_id.isnot(None), User.role == 'student').count()
+    faculty_assigned = db.session.query(User).filter(User.classroom_id.isnot(None), User.role == 'faculty').count()
+    
+    return render_template('admin/classrooms.html',
+                         classrooms=classrooms,
+                         total_classrooms=total_classrooms,
+                         students_assigned=students_assigned,
+                         faculty_assigned=faculty_assigned)
+
+@app.route('/admin/classrooms/add', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def admin_add_classroom():
+    form = ClassroomForm()
+    
+    if form.validate_on_submit():
+        # Auto-generate name if not provided
+        if not form.name.data:
+            form.name.data = f"{form.department.data} Year {form.year.data} Sem {form.semester.data} Section {form.section.data}"
+        
+        classroom = Classroom(
+            name=form.name.data,
+            department=form.department.data,
+            year=form.year.data,
+            semester=form.semester.data,
+            section=form.section.data,
+            academic_year=form.academic_year.data or f"{datetime.now().year}-{datetime.now().year + 1}",
+            created_at=datetime.utcnow(),
+            is_active=True
+        )
+        
+        try:
+            db.session.add(classroom)
+            db.session.commit()
+            flash(f'Classroom "{classroom.name}" created successfully', 'success')
+            return redirect(url_for('admin_classrooms'))
+        except Exception as e:
+            db.session.rollback()
+            flash('Error creating classroom. Please try again.', 'error')
+    
+    return render_template('admin/add_classroom.html', form=form)
+
+@app.route('/admin/classrooms/<int:classroom_id>/assign', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def admin_assign_classroom(classroom_id):
+    classroom = Classroom.query.get_or_404(classroom_id)
+    form = ClassroomAssignmentForm()
+    
+    # Populate classroom choices (just this one)
+    form.classroom_id.choices = [(classroom.id, classroom.get_classroom_name())]
+    form.classroom_id.data = classroom.id
+    
+    if form.validate_on_submit():
+        user_type = form.user_type.data
+        user_ids = form.user_ids.data
+        assigned_count = 0
+        
+        for user_id in user_ids:
+            user = User.query.get(user_id)
+            if user and user.role == user_type:
+                user.classroom_id = classroom.id
+                # Also update user's individual fields for filtering
+                user.department = classroom.department
+                user.year = classroom.year
+                user.semester = classroom.semester
+                user.section = classroom.section
+                assigned_count += 1
+        
+        try:
+            db.session.commit()
+            flash(f'Successfully assigned {assigned_count} {user_type}s to {classroom.name}', 'success')
+            return redirect(url_for('admin_classrooms'))
+        except Exception as e:
+            db.session.rollback()
+            flash('Error assigning users to classroom. Please try again.', 'error')
+    
+    # Populate user choices based on selected type
+    if request.method == 'GET' or not form.user_type.data:
+        form.user_type.data = 'student'  # Default to students
+    
+    if form.user_type.data == 'student':
+        users = User.query.filter_by(role='student', is_active=True, classroom_id=None).order_by(User.first_name, User.last_name).all()
+    else:
+        users = User.query.filter_by(role='faculty', is_active=True).order_by(User.first_name, User.last_name).all()
+    
+    form.user_ids.choices = [(u.id, f"{u.get_full_name()} ({u.student_id if u.role == 'student' else u.faculty_id})") for u in users]
+    
+    # Get current assignments
+    current_students = User.query.filter_by(classroom_id=classroom.id, role='student').all()
+    current_faculty = User.query.filter_by(classroom_id=classroom.id, role='faculty').all()
+    
+    return render_template('admin/assign_classroom.html', 
+                         form=form, 
+                         classroom=classroom,
+                         current_students=current_students,
+                         current_faculty=current_faculty)
+
+@app.route('/admin/classrooms/<int:classroom_id>/remove/<int:user_id>')
+@login_required
+@admin_required
+def admin_remove_from_classroom(classroom_id, user_id):
+    user = User.query.get_or_404(user_id)
+    classroom = Classroom.query.get_or_404(classroom_id)
+    
+    user.classroom_id = None
+    user.department = None
+    user.year = None
+    user.semester = None
+    user.section = None
+    
+    try:
+        db.session.commit()
+        flash(f'{user.get_full_name()} removed from {classroom.name}', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash('Error removing user from classroom. Please try again.', 'error')
+    
+    return redirect(url_for('admin_assign_classroom', classroom_id=classroom_id))
+
+# Admin - Course Enrollments (Keep existing for backward compatibility)
 @app.route('/admin/enrollments')
 @login_required
 @admin_required

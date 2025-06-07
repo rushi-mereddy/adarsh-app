@@ -146,3 +146,29 @@ class EnrollmentForm(FlaskForm):
 class BulkEnrollmentForm(FlaskForm):
     course_id = SelectField('Course', coerce=int, validators=[DataRequired()])
     student_ids = SelectMultipleField('Students', coerce=int, validators=[DataRequired()])
+
+class ClassroomForm(FlaskForm):
+    name = StringField('Classroom Name', validators=[DataRequired(), Length(max=100)])
+    department = SelectField('Department', validators=[DataRequired()],
+                             choices=[('CSE', 'Computer Science Engineering'),
+                                    ('ECE', 'Electronics & Communication'),
+                                    ('EEE', 'Electrical & Electronics'),
+                                    ('MECH', 'Mechanical Engineering'),
+                                    ('CIVIL', 'Civil Engineering'),
+                                    ('IT', 'Information Technology')])
+    year = SelectField('Year', coerce=int, validators=[DataRequired()],
+                      choices=[(1, '1st Year'), (2, '2nd Year'), (3, '3rd Year'), (4, '4th Year')])
+    semester = SelectField('Semester', coerce=int, validators=[DataRequired()],
+                          choices=[(1, '1st Semester'), (2, '2nd Semester'), (3, '3rd Semester'),
+                                 (4, '4th Semester'), (5, '5th Semester'), (6, '6th Semester'),
+                                 (7, '7th Semester'), (8, '8th Semester')])
+    section = SelectField('Section', validators=[DataRequired()],
+                         choices=[('A', 'Section A'), ('B', 'Section B'), ('C', 'Section C'),
+                                ('D', 'Section D'), ('E', 'Section E')])
+    academic_year = StringField('Academic Year', validators=[Optional(), Length(max=20)])
+
+class ClassroomAssignmentForm(FlaskForm):
+    classroom_id = SelectField('Classroom', coerce=int, validators=[DataRequired()])
+    user_ids = SelectMultipleField('Students/Faculty', coerce=int, validators=[DataRequired()])
+    user_type = SelectField('User Type', validators=[DataRequired()],
+                           choices=[('student', 'Students'), ('faculty', 'Faculty')])

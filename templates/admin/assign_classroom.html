@@ -1,0 +1,223 @@
+{% extends "base.html" %}
+
+{% block title %}Assign to {{ classroom.name }} - Admin Panel{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-0">
+                        <i class="fas fa-user-plus text-primary me-2"></i>
+                        Assign to {{ classroom.name }}
+                    </h1>
+                    <p class="text-muted mb-0">Manage students and faculty assignments for this classroom</p>
+                </div>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="{{ url_for('admin_dashboard') }}">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="{{ url_for('admin_classrooms') }}">Classrooms</a></li>
+                        <li class="breadcrumb-item active">Assign</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <!-- Classroom Info -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <small class="text-muted">Department</small>
+                            <div class="fw-semibold">{{ classroom.department }}</div>
+                        </div>
+                        <div class="col-md-2">
+                            <small class="text-muted">Year</small>
+                            <div class="fw-semibold">{{ classroom.year }}</div>
+                        </div>
+                        <div class="col-md-2">
+                            <small class="text-muted">Semester</small>
+                            <div class="fw-semibold">{{ classroom.semester }}</div>
+                        </div>
+                        <div class="col-md-2">
+                            <small class="text-muted">Section</small>
+                            <div class="fw-semibold">{{ classroom.section }}</div>
+                        </div>
+                        <div class="col-md-3">
+                            <small class="text-muted">Academic Year</small>
+                            <div class="fw-semibold">{{ classroom.academic_year or 'N/A' }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Assignment Form -->
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Assign Users</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" id="assignment-form">
+                        {{ form.hidden_tag() }}
+                        
+                        {{ form.classroom_id(type="hidden") }}
+                        
+                        <div class="mb-3">
+                            {{ form.user_type.label(class="form-label") }}
+                            {{ form.user_type(class="form-select", id="user-type") }}
+                            {% if form.user_type.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.user_type.errors %}
+                                        <div>{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.user_ids.label(class="form-label") }}
+                            {{ form.user_ids(class="form-select", size="8", multiple=True) }}
+                            <small class="text-muted">Hold Ctrl/Cmd to select multiple users</small>
+                            {% if form.user_ids.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.user_ids.errors %}
+                                        <div>{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-user-plus me-2"></i>Assign Selected
+                            </button>
+                            <a href="{{ url_for('admin_classrooms') }}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Classrooms
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Current Assignments -->
+        <div class="col-lg-6">
+            <!-- Current Students -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">Current Students</h6>
+                    <span class="badge bg-primary">{{ current_students|length }}</span>
+                </div>
+                <div class="card-body">
+                    {% if current_students %}
+                        <div class="list-group list-group-flush">
+                            {% for student in current_students %}
+                            <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                <div>
+                                    <div class="fw-semibold">{{ student.get_full_name() }}</div>
+                                    <small class="text-muted">{{ student.student_id }}</small>
+                                </div>
+                                <a href="{{ url_for('admin_remove_from_classroom', classroom_id=classroom.id, user_id=student.id) }}" 
+                                   class="btn btn-outline-danger btn-sm"
+                                   onclick="return confirm('Remove {{ student.get_full_name() }} from this classroom?')">
+                                    <i class="fas fa-times"></i>
+                                </a>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted py-3">
+                            <i class="fas fa-user-graduate fa-2x mb-2"></i>
+                            <div>No students assigned</div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Current Faculty -->
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">Current Faculty</h6>
+                    <span class="badge bg-success">{{ current_faculty|length }}</span>
+                </div>
+                <div class="card-body">
+                    {% if current_faculty %}
+                        <div class="list-group list-group-flush">
+                            {% for faculty in current_faculty %}
+                            <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                <div>
+                                    <div class="fw-semibold">{{ faculty.get_full_name() }}</div>
+                                    <small class="text-muted">{{ faculty.faculty_id }}</small>
+                                </div>
+                                <a href="{{ url_for('admin_remove_from_classroom', classroom_id=classroom.id, user_id=faculty.id) }}" 
+                                   class="btn btn-outline-danger btn-sm"
+                                   onclick="return confirm('Remove {{ faculty.get_full_name() }} from this classroom?')">
+                                    <i class="fas fa-times"></i>
+                                </a>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted py-3">
+                            <i class="fas fa-chalkboard-teacher fa-2x mb-2"></i>
+                            <div>No faculty assigned</div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const userTypeSelect = document.getElementById('user-type');
+    const form = document.getElementById('assignment-form');
+
+    // Auto-submit form when user type changes to update available users
+    userTypeSelect.addEventListener('change', function() {
+        // Create a temporary form to submit the type change
+        const tempForm = document.createElement('form');
+        tempForm.method = 'GET';
+        tempForm.action = window.location.href;
+        
+        const typeInput = document.createElement('input');
+        typeInput.type = 'hidden';
+        typeInput.name = 'user_type';
+        typeInput.value = this.value;
+        
+        tempForm.appendChild(typeInput);
+        document.body.appendChild(tempForm);
+        tempForm.submit();
+    });
+
+    // Add select all functionality
+    const selectAllBtn = document.createElement('button');
+    selectAllBtn.type = 'button';
+    selectAllBtn.className = 'btn btn-outline-secondary btn-sm mb-2';
+    selectAllBtn.innerHTML = '<i class="fas fa-check-square me-1"></i>Select All';
+    
+    const userSelect = document.querySelector('#user_ids');
+    if (userSelect && userSelect.options.length > 0) {
+        userSelect.parentNode.insertBefore(selectAllBtn, userSelect);
+        
+        selectAllBtn.addEventListener('click', function() {
+            for (let option of userSelect.options) {
+                option.selected = true;
+            }
+        });
+    }
+});
+</script>
+{% endblock %}
