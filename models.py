@@ -36,6 +36,70 @@ class User(UserMixin, db.Model):
     def __repr__(self):
         return f'<User {self.username}>'
 
+class Department(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False, unique=True)  # e.g., "Computer Science Engineering"
+    code = db.Column(db.String(10), nullable=False, unique=True)  # e.g., "CSE"
+    program = db.Column(db.String(20), nullable=False)  # UG, PG, Diploma
+    description = db.Column(db.Text)
+    image = db.Column(db.String(200))  # Department image for website
+    established_year = db.Column(db.Integer)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    is_active = db.Column(db.Boolean, default=True)
+    
+    # Relationships
+    lecturers = db.relationship('Lecturer', backref='department', lazy=True, cascade='all, delete-orphan')
+    student_reviews = db.relationship('StudentReview', backref='department', lazy=True, cascade='all, delete-orphan')
+    
+    def get_lecturer_count(self):
+        return len([l for l in self.lecturers if l.is_active])
+    
+    def get_average_rating(self):
+        if not self.student_reviews:
+            return 0
+        total_rating = sum(review.rating for review in self.student_reviews if review.is_approved)
+        approved_reviews = len([r for r in self.student_reviews if r.is_approved])
+        return round(total_rating / approved_reviews, 1) if approved_reviews > 0 else 0
+    
+    def __repr__(self):
+        return f'<Department {self.name}>'
+
+class Lecturer(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    photo = db.Column(db.String(200))  # Profile photo
+    experience = db.Column(db.String(100))  # e.g., "5 years"
+    qualification = db.Column(db.String(200))  # Educational qualification
+    specialization = db.Column(db.String(200))  # Area of expertise
+    designation = db.Column(db.String(100))  # Professor, Assistant Professor, etc.
+    email = db.Column(db.String(120))
+    phone = db.Column(db.String(20))
+    department_id = db.Column(db.Integer, db.ForeignKey('department.id'), nullable=False)
+    display_order = db.Column(db.Integer, default=0)  # For ordering on website
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    is_active = db.Column(db.Boolean, default=True)
+    
+    def __repr__(self):
+        return f'<Lecturer {self.name}>'
+
+class StudentReview(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    student_name = db.Column(db.String(100), nullable=False)
+    photo = db.Column(db.String(200))  # Student photo
+    review_text = db.Column(db.Text, nullable=False)
+    rating = db.Column(db.Integer, nullable=False)  # 1 to 5 stars
+    department_id = db.Column(db.Integer, db.ForeignKey('department.id'), nullable=False)
+    student_batch = db.Column(db.String(20))  # e.g., "2020-2024"
+    current_position = db.Column(db.String(200))  # Current job/position
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    is_approved = db.Column(db.Boolean, default=False)  # Admin approval
+    
+    def get_star_rating(self):
+        return '★' * self.rating + '☆' * (5 - self.rating)
+    
+    def __repr__(self):
+        return f'<StudentReview {self.student_name}>'
+
 class Classroom(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)  # e.g., "CSE 2nd Year Sem 3 Section A"

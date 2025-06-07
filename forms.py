@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
-from wtforms import StringField, PasswordField, TextAreaField, SelectField, SelectMultipleField, DateField, IntegerField, BooleanField, DateTimeField, HiddenField
+from wtforms import StringField, PasswordField, TextAreaField, SelectField, SelectMultipleField, DateField, IntegerField, BooleanField, DateTimeField, HiddenField, SubmitField
 from wtforms.validators import DataRequired, Email, Length, EqualTo, Optional, NumberRange
 from wtforms.widgets import TextArea
 
@@ -172,3 +172,41 @@ class ClassroomAssignmentForm(FlaskForm):
     user_ids = SelectMultipleField('Students/Faculty', coerce=int, validators=[DataRequired()])
     user_type = SelectField('User Type', validators=[DataRequired()],
                            choices=[('student', 'Students'), ('faculty', 'Faculty')])
+
+class DepartmentForm(FlaskForm):
+    name = StringField('Department Name', validators=[DataRequired(), Length(max=100)])
+    code = StringField('Department Code', validators=[DataRequired(), Length(max=10)])
+    program = SelectField('Program Type', validators=[DataRequired()],
+                         choices=[('UG', 'Undergraduate (UG)'), ('PG', 'Postgraduate (PG)'), ('Diploma', 'Diploma')])
+    description = TextAreaField('Description', validators=[Optional()])
+    image = FileField('Department Image', 
+                     validators=[FileAllowed(['jpg', 'png', 'jpeg'], 'Images only!')])
+    established_year = IntegerField('Established Year', validators=[Optional(), NumberRange(min=1900, max=2030)])
+    submit = SubmitField('Save Department')
+
+class LecturerForm(FlaskForm):
+    name = StringField('Full Name', validators=[DataRequired(), Length(max=100)])
+    photo = FileField('Profile Photo', 
+                     validators=[FileAllowed(['jpg', 'png', 'jpeg'], 'Images only!')])
+    experience = StringField('Experience', validators=[Optional(), Length(max=100)])
+    qualification = StringField('Educational Qualification', validators=[Optional(), Length(max=200)])
+    specialization = StringField('Specialization/Area of Expertise', validators=[Optional(), Length(max=200)])
+    designation = StringField('Designation', validators=[Optional(), Length(max=100)])
+    email = StringField('Email', validators=[Optional(), Email()])
+    phone = StringField('Phone Number', validators=[Optional(), Length(max=20)])
+    department_id = SelectField('Department', coerce=int, validators=[DataRequired()])
+    display_order = IntegerField('Display Order', validators=[Optional(), NumberRange(min=0)])
+    submit = SubmitField('Save Lecturer')
+
+class StudentReviewForm(FlaskForm):
+    student_name = StringField('Student Name', validators=[DataRequired(), Length(max=100)])
+    photo = FileField('Student Photo', 
+                     validators=[FileAllowed(['jpg', 'png', 'jpeg'], 'Images only!')])
+    review_text = TextAreaField('Review/Testimonial', validators=[DataRequired()])
+    rating = SelectField('Rating', coerce=int, validators=[DataRequired()],
+                        choices=[(5, '5 Stars - Excellent'), (4, '4 Stars - Very Good'), 
+                               (3, '3 Stars - Good'), (2, '2 Stars - Fair'), (1, '1 Star - Poor')])
+    department_id = SelectField('Department', coerce=int, validators=[DataRequired()])
+    student_batch = StringField('Student Batch', validators=[Optional(), Length(max=20)])
+    current_position = StringField('Current Position/Job', validators=[Optional(), Length(max=200)])
+    submit = SubmitField('Save Review')

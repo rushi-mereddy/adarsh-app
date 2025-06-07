@@ -9,6 +9,9 @@ from sqlalchemy import func, and_, or_, case
 from app import app, db
 from models import *
 from forms import *
+import os
+import uuid
+from werkzeug.utils import secure_filename
 from utils import admin_required, faculty_required, student_required, allowed_file, save_uploaded_file
 
 @app.route('/')
@@ -1147,6 +1150,251 @@ def admin_attendance_overview():
                          sections=sections,
                          courses=courses,
                          filters=filters)
+
+# Department Management Routes
+@app.route('/admin/departments')
+@login_required
+@admin_required
+def admin_departments():
+    departments = Department.query.order_by(Department.created_at.desc()).all()
+    return render_template('admin/departments.html', departments=departments)
+
+@app.route('/admin/departments/add', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def admin_add_department():
+    form = DepartmentForm()
+    
+    if form.validate_on_submit():
+        # Handle image upload
+        image_filename = None
+        if form.image.data:
+            image_filename = save_uploaded_file(form.image.data, 'departments')
+        
+        department = Department(
+            name=form.name.data,
+            code=form.code.data.upper(),
+            program=form.program.data,
+            description=form.description.data,
+            image=image_filename,
+            established_year=form.established_year.data
+        )
+        
+        try:
+            db.session.add(department)
+            db.session.commit()
+            flash(f'Department "{department.name}" has been created successfully!', 'success')
+            return redirect(url_for('admin_departments'))
+        except Exception as e:
+            db.session.rollback()
+            if 'UNIQUE constraint failed' in str(e):
+                flash('Department name or code already exists. Please use a different name/code.', 'error')
+            else:
+                flash('An error occurred while creating the department.', 'error')
+    
+    return render_template('admin/add_department.html', form=form, action='add')
+
+@app.route('/admin/departments/<int:department_id>/edit', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def admin_edit_department(department_id):
+    department = Department.query.get_or_404(department_id)
+    form = DepartmentForm(obj=department)
+    
+    if form.validate_on_submit():
+        # Handle image upload
+        if form.image.data:
+            image_filename = save_uploaded_file(form.image.data, 'departments')
+            department.image = image_filename
+        
+        department.name = form.name.data
+        department.code = form.code.data.upper()
+        department.program = form.program.data
+        department.description = form.description.data
+        department.established_year = form.established_year.data
+        
+        try:
+            db.session.commit()
+            flash(f'Department "{department.name}" has been updated successfully!', 'success')
+            return redirect(url_for('admin_departments'))
+        except Exception as e:
+            db.session.rollback()
+            flash('An error occurred while updating the department.', 'error')
+    
+    return render_template('admin/add_department.html', form=form, department=department, action='edit')
+
+@app.route('/admin/departments/<int:department_id>/lecturers')
+@login_required
+@admin_required
+def admin_department_lecturers(department_id):
+    department = Department.query.get_or_404(department_id)
+    lecturers = Lecturer.query.filter_by(department_id=department_id).order_by(Lecturer.display_order, Lecturer.name).all()
+    return render_template('admin/department_lecturers.html', department=department, lecturers=lecturers)
+
+@app.route('/admin/departments/<int:department_id>/lecturers/add', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def admin_add_lecturer(department_id):
+    department = Department.query.get_or_404(department_id)
+    form = LecturerForm()
+    form.department_id.choices = [(department.id, department.name)]
+    form.department_id.data = department.id
+    
+    if form.validate_on_submit():
+        # Handle photo upload
+        photo_filename = None
+        if form.photo.data:
+            photo_filename = save_uploaded_file(form.photo.data, 'lecturers')
+        
+        lecturer = Lecturer(
+            name=form.name.data,
+            photo=photo_filename,
+            experience=form.experience.data,
+            qualification=form.qualification.data,
+            specialization=form.specialization.data,
+            designation=form.designation.data,
+            email=form.email.data,
+            phone=form.phone.data,
+            department_id=form.department_id.data,
+            display_order=form.display_order.data or 0
+        )
+        
+        db.session.add(lecturer)
+        db.session.commit()
+        flash(f'Lecturer "{lecturer.name}" has been added successfully!', 'success')
+        return redirect(url_for('admin_department_lecturers', department_id=department.id))
+    
+    return render_template('admin/add_lecturer.html', form=form, department=department, action='add')
+
+@app.route('/admin/lecturers/<int:lecturer_id>/edit', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def admin_edit_lecturer(lecturer_id):
+    lecturer = Lecturer.query.get_or_404(lecturer_id)
+    form = LecturerForm(obj=lecturer)
+    form.department_id.choices = [(dept.id, dept.name) for dept in Department.query.filter_by(is_active=True).all()]
+    
+    if form.validate_on_submit():
+        # Handle photo upload
+        if form.photo.data:
+            photo_filename = save_uploaded_file(form.photo.data, 'lecturers')
+            lecturer.photo = photo_filename
+        
+        lecturer.name = form.name.data
+        lecturer.experience = form.experience.data
+        lecturer.qualification = form.qualification.data
+        lecturer.specialization = form.specialization.data
+        lecturer.designation = form.designation.data
+        lecturer.email = form.email.data
+        lecturer.phone = form.phone.data
+        lecturer.department_id = form.department_id.data
+        lecturer.display_order = form.display_order.data or 0
+        
+        db.session.commit()
+        flash(f'Lecturer "{lecturer.name}" has been updated successfully!', 'success')
+        return redirect(url_for('admin_department_lecturers', department_id=lecturer.department_id))
+    
+    return render_template('admin/add_lecturer.html', form=form, lecturer=lecturer, department=lecturer.department, action='edit')
+
+@app.route('/admin/departments/<int:department_id>/reviews')
+@login_required
+@admin_required
+def admin_department_reviews(department_id):
+    department = Department.query.get_or_404(department_id)
+    reviews = StudentReview.query.filter_by(department_id=department_id).order_by(StudentReview.created_at.desc()).all()
+    return render_template('admin/department_reviews.html', department=department, reviews=reviews)
+
+@app.route('/admin/departments/<int:department_id>/reviews/add', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def admin_add_student_review(department_id):
+    department = Department.query.get_or_404(department_id)
+    form = StudentReviewForm()
+    form.department_id.choices = [(department.id, department.name)]
+    form.department_id.data = department.id
+    
+    if form.validate_on_submit():
+        # Handle photo upload
+        photo_filename = None
+        if form.photo.data:
+            photo_filename = save_uploaded_file(form.photo.data, 'student_reviews')
+        
+        review = StudentReview(
+            student_name=form.student_name.data,
+            photo=photo_filename,
+            review_text=form.review_text.data,
+            rating=form.rating.data,
+            department_id=form.department_id.data,
+            student_batch=form.student_batch.data,
+            current_position=form.current_position.data,
+            is_approved=True  # Admin-created reviews are auto-approved
+        )
+        
+        db.session.add(review)
+        db.session.commit()
+        flash(f'Student review from "{review.student_name}" has been added successfully!', 'success')
+        return redirect(url_for('admin_department_reviews', department_id=department.id))
+    
+    return render_template('admin/add_student_review.html', form=form, department=department, action='add')
+
+@app.route('/admin/reviews/<int:review_id>/edit', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def admin_edit_student_review(review_id):
+    review = StudentReview.query.get_or_404(review_id)
+    form = StudentReviewForm(obj=review)
+    form.department_id.choices = [(dept.id, dept.name) for dept in Department.query.filter_by(is_active=True).all()]
+    
+    if form.validate_on_submit():
+        # Handle photo upload
+        if form.photo.data:
+            photo_filename = save_uploaded_file(form.photo.data, 'student_reviews')
+            review.photo = photo_filename
+        
+        review.student_name = form.student_name.data
+        review.review_text = form.review_text.data
+        review.rating = form.rating.data
+        review.department_id = form.department_id.data
+        review.student_batch = form.student_batch.data
+        review.current_position = form.current_position.data
+        
+        db.session.commit()
+        flash(f'Student review from "{review.student_name}" has been updated successfully!', 'success')
+        return redirect(url_for('admin_department_reviews', department_id=review.department_id))
+    
+    return render_template('admin/add_student_review.html', form=form, review=review, department=review.department, action='edit')
+
+@app.route('/admin/reviews/<int:review_id>/approve', methods=['POST'])
+@login_required
+@admin_required
+def admin_approve_review(review_id):
+    review = StudentReview.query.get_or_404(review_id)
+    review.is_approved = not review.is_approved
+    db.session.commit()
+    
+    status = "approved" if review.is_approved else "unapproved"
+    flash(f'Review from "{review.student_name}" has been {status}.', 'success')
+    return redirect(url_for('admin_department_reviews', department_id=review.department_id))
+
+# Public Department Views
+@app.route('/departments')
+def public_departments():
+    departments = Department.query.filter_by(is_active=True).order_by(Department.name).all()
+    return render_template('public/departments.html', departments=departments)
+
+@app.route('/departments/<int:department_id>')
+def public_department_detail(department_id):
+    department = Department.query.get_or_404(department_id)
+    if not department.is_active:
+        abort(404)
+    
+    lecturers = Lecturer.query.filter_by(department_id=department_id, is_active=True).order_by(Lecturer.display_order, Lecturer.name).all()
+    reviews = StudentReview.query.filter_by(department_id=department_id, is_approved=True).order_by(StudentReview.created_at.desc()).limit(6).all()
+    
+    return render_template('public/department_detail.html', 
+                         department=department, 
+                         lecturers=lecturers, 
+                         reviews=reviews)
 
 @app.errorhandler(403)
 def forbidden_error(error):
