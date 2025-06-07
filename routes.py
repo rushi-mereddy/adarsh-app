@@ -1330,12 +1330,64 @@ def admin_add_student_review(department_id):
             is_approved=True  # Admin-created reviews are auto-approved
         )
         
-        db.session.add(review)
-        db.session.commit()
+        # Retry mechanism for database operations
+        max_retries = 3
+        for attempt in range(max_retries):
+            try:
+                db.session.add(review)
+                db.session.commit()
+                break
+            except Exception as e:
+                db.session.rollback()
+                if attempt == max_retries - 1:
+                    flash(f'Error saving review: {str(e)}', 'error')
+                    return render_template('admin/add_student_review.html', form=form, department=department, action='add')
+                import time
+                time.sleep(0.5)  # Brief delay before retry
         flash(f'Student review from "{review.student_name}" has been added successfully!', 'success')
         return redirect(url_for('admin_department_reviews', department_id=department.id))
     
     return render_template('admin/add_student_review.html', form=form, department=department, action='add')
+
+@app.route('/admin/reviews/<int:review_id>/approve', methods=['POST'])
+@login_required
+@admin_required
+def admin_approve_review(review_id):
+    review = StudentReview.query.get_or_404(review_id)
+    review.is_approved = not review.is_approved
+    
+    try:
+        db.session.commit()
+        status = "approved" if review.is_approved else "unapproved"
+        flash(f'Review from "{review.student_name}" has been {status}!', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error updating review: {str(e)}', 'error')
+    
+    return redirect(url_for('admin_department_reviews', department_id=review.department_id))
+
+@app.route('/admin/reviews/<int:review_id>/delete', methods=['POST'])
+@login_required
+@admin_required
+def admin_delete_review(review_id):
+    review = StudentReview.query.get_or_404(review_id)
+    department_id = review.department_id
+    
+    try:
+        # Delete photo file if it exists
+        if review.photo:
+            photo_path = os.path.join(app.config['UPLOAD_FOLDER'], review.photo)
+            if os.path.exists(photo_path):
+                os.remove(photo_path)
+        
+        db.session.delete(review)
+        db.session.commit()
+        flash(f'Review from "{review.student_name}" has been deleted!', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error deleting review: {str(e)}', 'error')
+    
+    return redirect(url_for('admin_department_reviews', department_id=department_id))
 
 @app.route('/admin/reviews/<int:review_id>/edit', methods=['GET', 'POST'])
 @login_required
