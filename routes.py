@@ -359,7 +359,7 @@ def admin_dashboard():
     # Get basic statistics
     total_students = User.query.filter_by(role='student', is_active=True).count()
     total_faculty = User.query.filter_by(role='faculty', is_active=True).count()
-    total_courses = Course.query.filter_by(is_active=True).count()
+    total_departments = Department.query.filter_by(is_active=True).count()
     
     # Get recent activities
     recent_announcements = Announcement.query.filter_by(is_active=True).order_by(
@@ -385,7 +385,7 @@ def admin_dashboard():
     return render_template('admin/dashboard.html',
                          total_students=total_students,
                          total_faculty=total_faculty,
-                         total_courses=total_courses,
+                         total_departments=total_departments,
                          recent_announcements=recent_announcements,
                          recent_enquiries=recent_enquiries,
                          attendance_stats=attendance_stats)

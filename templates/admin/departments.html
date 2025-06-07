@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}Department Management - Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Department Management</h2>
+                <a href="{{ url_for('admin_add_department') }}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Add New Department
+                </a>
+            </div>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <div class="row">
+                {% for department in departments %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100">
+                        {% if department.image %}
+                        <img src="{{ url_for('static', filename='uploads/departments/' + department.image) }}" 
+                             class="card-img-top" style="height: 200px; object-fit: cover;" 
+                             alt="{{ department.name }}">
+                        {% else %}
+                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" 
+                             style="height: 200px;">
+                            <i class="fas fa-university fa-3x text-muted"></i>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title">{{ department.name }}</h5>
+                            <p class="card-text">
+                                <small class="text-muted">{{ department.code }} - {{ department.program }}</small>
+                            </p>
+                            
+                            {% if department.description %}
+                            <p class="card-text flex-grow-1">{{ department.description[:100] }}{% if department.description|length > 100 %}...{% endif %}</p>
+                            {% endif %}
+                            
+                            <div class="mt-auto">
+                                <div class="row text-center mb-3">
+                                    <div class="col-4">
+                                        <small class="text-muted">Lecturers</small><br>
+                                        <strong>{{ department.get_lecturer_count() }}</strong>
+                                    </div>
+                                    <div class="col-4">
+                                        <small class="text-muted">Rating</small><br>
+                                        <strong>{{ department.get_average_rating() }}/5</strong>
+                                    </div>
+                                    <div class="col-4">
+                                        <small class="text-muted">Established</small><br>
+                                        <strong>{{ department.established_year or 'N/A' }}</strong>
+                                    </div>
+                                </div>
+                                
+                                <div class="btn-group w-100" role="group">
+                                    <a href="{{ url_for('admin_edit_department', department_id=department.id) }}" 
+                                       class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </a>
+                                    <a href="{{ url_for('admin_department_lecturers', department_id=department.id) }}" 
+                                       class="btn btn-outline-info btn-sm">
+                                        <i class="fas fa-users"></i> Lecturers
+                                    </a>
+                                    <a href="{{ url_for('admin_department_reviews', department_id=department.id) }}" 
+                                       class="btn btn-outline-success btn-sm">
+                                        <i class="fas fa-star"></i> Reviews
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                
+                {% if not departments %}
+                <div class="col-12">
+                    <div class="text-center py-5">
+                        <i class="fas fa-university fa-4x text-muted mb-3"></i>
+                        <h4 class="text-muted">No Departments Found</h4>
+                        <p class="text-muted">Start by adding your first department to the system.</p>
+                        <a href="{{ url_for('admin_add_department') }}" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Add Department
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
