@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
-from wtforms import StringField, PasswordField, TextAreaField, SelectField, DateField, IntegerField, BooleanField, DateTimeField, HiddenField
+from wtforms import StringField, PasswordField, TextAreaField, SelectField, SelectMultipleField, DateField, IntegerField, BooleanField, DateTimeField, HiddenField
 from wtforms.validators import DataRequired, Email, Length, EqualTo, Optional, NumberRange
 from wtforms.widgets import TextArea
 
@@ -138,3 +138,11 @@ class UserForm(FlaskForm):
     faculty_id = StringField('Faculty ID', validators=[Optional(), Length(max=50)])
     is_active = BooleanField('Active', default=True)
     password = PasswordField('Password (leave blank to keep current)', validators=[Optional(), Length(min=6)])
+
+class EnrollmentForm(FlaskForm):
+    student_id = SelectField('Student', coerce=int, validators=[DataRequired()])
+    course_ids = SelectMultipleField('Courses', coerce=int, validators=[DataRequired()])
+    
+class BulkEnrollmentForm(FlaskForm):
+    course_id = SelectField('Course', coerce=int, validators=[DataRequired()])
+    student_ids = SelectMultipleField('Students', coerce=int, validators=[DataRequired()])

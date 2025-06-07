@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+
+{% block title %}Course Enrollments - Admin Panel{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-0">
+                        <i class="fas fa-user-graduate text-primary me-2"></i>
+                        Course Enrollments
+                    </h1>
+                    <p class="text-muted mb-0">Manage student course assignments</p>
+                </div>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="{{ url_for('admin_dashboard') }}">Dashboard</a></li>
+                        <li class="breadcrumb-item active">Enrollments</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Statistics -->
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="stat-value text-primary">{{ total_enrollments }}</div>
+                        <div class="stat-label">Total Enrollments</div>
+                    </div>
+                    <div class="bg-primary bg-opacity-10 rounded-circle p-3">
+                        <i class="fas fa-users fa-2x text-primary"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="stat-value text-success">{{ courses_with_students }}</div>
+                        <div class="stat-label">Courses with Students</div>
+                    </div>
+                    <div class="bg-success bg-opacity-10 rounded-circle p-3">
+                        <i class="fas fa-book fa-2x text-success"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="stat-value text-info">{{ students_enrolled }}</div>
+                        <div class="stat-label">Students Enrolled</div>
+                    </div>
+                    <div class="bg-info bg-opacity-10 rounded-circle p-3">
+                        <i class="fas fa-user-graduate fa-2x text-info"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Action Bar -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Enrollment Management</h5>
+                        <a href="{{ url_for('admin_add_enrollment') }}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Enroll Students
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Enrollments Table -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list me-2"></i>
+                        Current Enrollments
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if enrollments %}
+                        <div class="table-responsive">
+                            <table class="table table-striped" id="enrollmentsTable">
+                                <thead>
+                                    <tr>
+                                        <th>Student</th>
+                                        <th>Student ID</th>
+                                        <th>Course</th>
+                                        <th>Course Code</th>
+                                        <th>Faculty</th>
+                                        <th>Enrolled Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for enrollment in enrollments %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-initial rounded-circle bg-primary text-white me-2">
+                                                    {{ enrollment.student.first_name[0] }}{{ enrollment.student.last_name[0] }}
+                                                </div>
+                                                <div>
+                                                    <strong>{{ enrollment.student.get_full_name() }}</strong>
+                                                    <br><small class="text-muted">{{ enrollment.student.email }}</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>{{ enrollment.student.student_id or 'N/A' }}</td>
+                                        <td>
+                                            <strong>{{ enrollment.course.name }}</strong>
+                                            <br><small class="text-muted">{{ enrollment.course.department }}</small>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-primary">{{ enrollment.course.code }}</span>
+                                        </td>
+                                        <td>
+                                            {% if enrollment.course.faculty %}
+                                                {{ enrollment.course.faculty.get_full_name() }}
+                                            {% else %}
+                                                <span class="text-muted">Not assigned</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ enrollment.enrollment_date.strftime('%b %d, %Y') }}</td>
+                                        <td>
+                                            <button class="btn btn-outline-danger btn-sm" 
+                                                    onclick="confirmRemoveEnrollment({{ enrollment.id }}, '{{ enrollment.student.get_full_name() }}', '{{ enrollment.course.name }}')">
+                                                <i class="fas fa-times me-1"></i>Remove
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-user-graduate fa-3x text-muted mb-3"></i>
+                            <h5>No Enrollments Found</h5>
+                            <p class="text-muted mb-4">No students are currently enrolled in any courses.</p>
+                            <a href="{{ url_for('admin_add_enrollment') }}" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>Enroll Students
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div class="modal fade" id="removeEnrollmentModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Removal</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to remove <strong id="studentName"></strong> from <strong id="courseName"></strong>?</p>
+                <div class="alert alert-warning" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    This will remove the student from the course and they will no longer appear in attendance lists.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <a href="#" id="confirmRemoveBtn" class="btn btn-danger">Remove Student</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize DataTable if available
+    if (typeof DataTable !== 'undefined' && document.getElementById('enrollmentsTable')) {
+        new DataTable('#enrollmentsTable', {
+            pageLength: 25,
+            order: [[0, 'asc']],
+            columnDefs: [
+                { orderable: false, targets: [6] }
+            ]
+        });
+    }
+});
+
+function confirmRemoveEnrollment(enrollmentId, studentName, courseName) {
+    document.getElementById('studentName').textContent = studentName;
+    document.getElementById('courseName').textContent = courseName;
+    document.getElementById('confirmRemoveBtn').href = "{{ url_for('admin_remove_enrollment', enrollment_id=0) }}".replace('0', enrollmentId);
+    
+    const modal = new bootstrap.Modal(document.getElementById('removeEnrollmentModal'));
+    modal.show();
+}
+</script>
+{% endblock %}

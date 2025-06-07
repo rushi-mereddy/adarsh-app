@@ -779,6 +779,98 @@ def student_feedback():
     return render_template('student/feedback.html', form=form, previous_feedback=previous_feedback)
 
 # Error handlers
+# Admin - Course Enrollments
+@app.route('/admin/enrollments')
+@login_required
+@admin_required
+def admin_enrollments():
+    # Get all enrollments with student and course details
+    enrollments = db.session.query(Enrollment).join(User, Enrollment.student_id == User.id).join(Course, Enrollment.course_id == Course.id).filter(Enrollment.is_active == True).order_by(Course.name, User.first_name, User.last_name).all()
+    
+    # Get counts
+    total_enrollments = len(enrollments)
+    courses_with_students = db.session.query(Course.id).join(Enrollment).filter(Enrollment.is_active == True).distinct().count()
+    students_enrolled = db.session.query(User.id).join(Enrollment).filter(Enrollment.is_active == True, User.role == 'student').distinct().count()
+    
+    return render_template('admin/enrollments.html',
+                         enrollments=enrollments,
+                         total_enrollments=total_enrollments,
+                         courses_with_students=courses_with_students,
+                         students_enrolled=students_enrolled)
+
+@app.route('/admin/enrollments/add', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def admin_add_enrollment():
+    form = BulkEnrollmentForm()
+    
+    # Populate course choices
+    courses = Course.query.filter_by(is_active=True).order_by(Course.name).all()
+    form.course_id.choices = [(c.id, f"{c.code} - {c.name}") for c in courses]
+    
+    # Populate student choices
+    students = User.query.filter_by(role='student', is_active=True).order_by(User.first_name, User.last_name).all()
+    form.student_ids.choices = [(s.id, f"{s.get_full_name()} ({s.student_id})") for s in students]
+    
+    if form.validate_on_submit():
+        course_id = form.course_id.data
+        student_ids = form.student_ids.data
+        
+        enrolled_count = 0
+        already_enrolled = []
+        
+        for student_id in student_ids:
+            # Check if already enrolled
+            existing = Enrollment.query.filter_by(student_id=student_id, course_id=course_id).first()
+            if existing:
+                if existing.is_active:
+                    student = User.query.get(student_id)
+                    already_enrolled.append(student.get_full_name())
+                else:
+                    # Reactivate enrollment
+                    existing.is_active = True
+                    existing.enrollment_date = datetime.utcnow()
+                    enrolled_count += 1
+            else:
+                # Create new enrollment
+                enrollment = Enrollment(
+                    student_id=student_id,
+                    course_id=course_id,
+                    enrollment_date=datetime.utcnow(),
+                    is_active=True
+                )
+                db.session.add(enrollment)
+                enrolled_count += 1
+        
+        try:
+            db.session.commit()
+            course = Course.query.get(course_id)
+            flash(f'Successfully enrolled {enrolled_count} students in {course.name}', 'success')
+            if already_enrolled:
+                flash(f'Note: {", ".join(already_enrolled)} were already enrolled', 'info')
+            return redirect(url_for('admin_enrollments'))
+        except Exception as e:
+            db.session.rollback()
+            flash('Error enrolling students. Please try again.', 'error')
+    
+    return render_template('admin/add_enrollment.html', form=form)
+
+@app.route('/admin/enrollments/remove/<int:enrollment_id>')
+@login_required
+@admin_required
+def admin_remove_enrollment(enrollment_id):
+    enrollment = Enrollment.query.get_or_404(enrollment_id)
+    enrollment.is_active = False
+    
+    try:
+        db.session.commit()
+        flash('Student removed from course successfully', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash('Error removing enrollment. Please try again.', 'error')
+    
+    return redirect(url_for('admin_enrollments'))
+
 @app.errorhandler(404)
 def not_found_error(error):
     return render_template('errors/404.html'), 404
