@@ -1245,7 +1245,6 @@ def admin_attendance_overview():
                          years=years,
                          semesters=semesters,
                          sections=sections,
-                         courses=courses,
                          filters=filters)
 
 # Department Management Routes
