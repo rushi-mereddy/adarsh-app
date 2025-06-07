@@ -404,7 +404,19 @@ def admin_users():
     classroom_filter = request.args.get('classroom', 'all')
     search = request.args.get('search', '')
     
-    query = User.query.outerjoin(Classroom, User.classroom_id == Classroom.id)
+    # Check if any classroom-related filters are active
+    classroom_filters_active = any([
+        year_filter != 'all',
+        semester_filter != 'all', 
+        section_filter != 'all',
+        classroom_filter != 'all'
+    ])
+    
+    # Only join with classroom table if classroom filters are active
+    if classroom_filters_active:
+        query = User.query.join(Classroom, User.classroom_id == Classroom.id)
+    else:
+        query = User.query
     
     # Role filter
     if role_filter != 'all':
