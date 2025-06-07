@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block title %}{{ department.name }} - Student Reviews{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('admin_departments') }}">Departments</a></li>
+                    <li class="breadcrumb-item active">{{ department.name }} - Reviews</li>
+                </ol>
+            </nav>
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2>{{ department.name }} - Student Reviews</h2>
+                    <p class="text-muted">{{ department.code }} | {{ department.program }} | Average Rating: {{ department.get_average_rating() }}/5</p>
+                </div>
+                <a href="{{ url_for('admin_add_student_review', department_id=department.id) }}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Add Review
+                </a>
+            </div>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <div class="row">
+                {% for review in reviews %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body d-flex flex-column">
+                            <div class="d-flex align-items-center mb-3">
+                                {% if review.photo %}
+                                <img src="{{ url_for('static', filename='uploads/student_reviews/' + review.photo) }}" 
+                                     class="rounded-circle me-3" style="width: 60px; height: 60px; object-fit: cover;" 
+                                     alt="{{ review.student_name }}">
+                                {% else %}
+                                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                     style="width: 60px; height: 60px;">
+                                    <i class="fas fa-user fa-lg text-muted"></i>
+                                </div>
+                                {% endif %}
+                                
+                                <div>
+                                    <h6 class="mb-0">{{ review.student_name }}</h6>
+                                    <small class="text-muted">{{ review.student_batch or 'Batch N/A' }}</small>
+                                    {% if review.current_position %}
+                                    <small class="text-muted d-block">{{ review.current_position }}</small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="mb-2">
+                                <div class="text-warning mb-1">
+                                    {% for i in range(review.rating) %}
+                                        <i class="fas fa-star"></i>
+                                    {% endfor %}
+                                    {% for i in range(5 - review.rating) %}
+                                        <i class="far fa-star"></i>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            
+                            <p class="card-text flex-grow-1">{{ review.review_text }}</p>
+                            
+                            <div class="mt-auto">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">
+                                        {{ review.created_at.strftime('%b %d, %Y') }}
+                                        {% if review.is_approved %}
+                                            <span class="badge bg-success ms-1">Approved</span>
+                                        {% else %}
+                                            <span class="badge bg-warning ms-1">Pending</span>
+                                        {% endif %}
+                                    </small>
+                                    
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ url_for('admin_edit_student_review', review_id=review.id) }}" 
+                                           class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        
+                                        <form method="POST" action="{{ url_for('admin_approve_review', review_id=review.id) }}" class="d-inline">
+                                            <button type="submit" class="btn btn-outline-{{ 'warning' if review.is_approved else 'success' }} btn-sm"
+                                                    title="{{ 'Unapprove' if review.is_approved else 'Approve' }} Review">
+                                                <i class="fas fa-{{ 'times' if review.is_approved else 'check' }}"></i>
+                                            </button>
+                                        </form>
+                                        
+                                        <button type="button" class="btn btn-outline-danger btn-sm" 
+                                                onclick="confirmDelete('{{ review.id }}', '{{ review.student_name }}')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                
+                {% if not reviews %}
+                <div class="col-12">
+                    <div class="text-center py-5">
+                        <i class="fas fa-star fa-4x text-muted mb-3"></i>
+                        <h4 class="text-muted">No Reviews Found</h4>
+                        <p class="text-muted">Start by adding student reviews for this department.</p>
+                        <a href="{{ url_for('admin_add_student_review', department_id=department.id) }}" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Add Review
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmDelete(reviewId, studentName) {
+    if (confirm(`Are you sure you want to delete the review from "${studentName}"? This action cannot be undone.`)) {
+        // Create a form and submit it
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/admin/reviews/${reviewId}/delete`;
+        
+        const csrfToken = document.querySelector('meta[name=csrf-token]');
+        if (csrfToken) {
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrf_token';
+            csrfInput.value = csrfToken.getAttribute('content');
+            form.appendChild(csrfInput);
+        }
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+</script>
+{% endblock %}

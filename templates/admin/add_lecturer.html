@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Edit' if action == 'edit' else 'Add' }} Lecturer - {{ department.name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('admin_departments') }}">Departments</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('admin_department_lecturers', department_id=department.id) }}">{{ department.name }} - Lecturers</a></li>
+                    <li class="breadcrumb-item active">{{ 'Edit' if action == 'edit' else 'Add' }} Lecturer</li>
+                </ol>
+            </nav>
+
+            <div class="card">
+                <div class="card-header">
+                    <h4>{{ 'Edit' if action == 'edit' else 'Add New' }} Lecturer - {{ department.name }}</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="row">
+                            <div class="col-md-8 mb-3">
+                                {{ form.name.label(class="form-label") }}
+                                {{ form.name(class="form-control") }}
+                                {% if form.name.errors %}
+                                    <div class="text-danger">{{ form.name.errors[0] }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                {{ form.designation.label(class="form-label") }}
+                                {{ form.designation(class="form-control", placeholder="e.g., Professor") }}
+                                {% if form.designation.errors %}
+                                    <div class="text-danger">{{ form.designation.errors[0] }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.photo.label(class="form-label") }}
+                            {{ form.photo(class="form-control") }}
+                            {% if form.photo.errors %}
+                                <div class="text-danger">{{ form.photo.errors[0] }}</div>
+                            {% endif %}
+                            <div class="form-text">Upload a professional photo (JPG, PNG, JPEG only)</div>
+                            
+                            {% if action == 'edit' and lecturer.photo %}
+                            <div class="mt-2">
+                                <small class="text-muted">Current photo:</small><br>
+                                <img src="{{ url_for('static', filename='uploads/lecturers/' + lecturer.photo) }}" 
+                                     class="img-thumbnail" style="max-width: 150px; max-height: 150px;" 
+                                     alt="Current lecturer photo">
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form.qualification.label(class="form-label") }}
+                                {{ form.qualification(class="form-control", placeholder="e.g., Ph.D. in Computer Science") }}
+                                {% if form.qualification.errors %}
+                                    <div class="text-danger">{{ form.qualification.errors[0] }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ form.experience.label(class="form-label") }}
+                                {{ form.experience(class="form-control", placeholder="e.g., 10 years") }}
+                                {% if form.experience.errors %}
+                                    <div class="text-danger">{{ form.experience.errors[0] }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.specialization.label(class="form-label") }}
+                            {{ form.specialization(class="form-control", placeholder="e.g., Machine Learning, Data Structures") }}
+                            {% if form.specialization.errors %}
+                                <div class="text-danger">{{ form.specialization.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form.email.label(class="form-label") }}
+                                {{ form.email(class="form-control") }}
+                                {% if form.email.errors %}
+                                    <div class="text-danger">{{ form.email.errors[0] }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ form.phone.label(class="form-label") }}
+                                {{ form.phone(class="form-control") }}
+                                {% if form.phone.errors %}
+                                    <div class="text-danger">{{ form.phone.errors[0] }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.display_order.label(class="form-label") }}
+                            {{ form.display_order(class="form-control", placeholder="0") }}
+                            {% if form.display_order.errors %}
+                                <div class="text-danger">{{ form.display_order.errors[0] }}</div>
+                            {% endif %}
+                            <div class="form-text">Lower numbers appear first in the listing</div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('admin_department_lecturers', department_id=department.id) }}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Back to Lecturers
+                            </a>
+                            {{ form.submit(class="btn btn-primary") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
