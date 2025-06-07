@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - DATABASE_URL=postgresql://college_user:college_pass@db:5432/college_db
+      - SESSION_SECRET=your-secret-key-change-in-production
+      - FLASK_ENV=production
+    depends_on:
+      - db
+    volumes:
+      - ./static/uploads:/app/static/uploads
+    restart: unless-stopped
+
+  db:
+    image: postgres:15
+    environment:
+      - POSTGRES_DB=college_db
+      - POSTGRES_USER=college_user
+      - POSTGRES_PASSWORD=college_pass
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
