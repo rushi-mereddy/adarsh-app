@@ -300,7 +300,6 @@ function applyFilters() {
     const year = document.getElementById('year').value;
     const semester = document.getElementById('semester').value;
     const section = document.getElementById('section').value;
-    const courseId = document.getElementById('course_id').value;
     const date = document.getElementById('date').value;
     
     const url = new URL(window.location.href);
@@ -310,7 +309,6 @@ function applyFilters() {
     if (year) url.searchParams.set('year', year);
     if (semester) url.searchParams.set('semester', semester);
     if (section) url.searchParams.set('section', section);
-    if (courseId) url.searchParams.set('course_id', courseId);
     if (date) url.searchParams.set('date', date);
     
     window.location.href = url.toString();
