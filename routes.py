@@ -708,48 +708,7 @@ def admin_add_notification():
     
     return render_template('admin/notifications.html', form=form, action='add')
 
-@app.route('/admin/attendance-overview')
-@login_required
-@admin_required
-def admin_attendance_overview():
-    # Get attendance statistics
-    courses = Course.query.filter_by(is_active=True).all()
-    
-    attendance_data = []
-    for course in courses:
-        # Get all enrolled students for this course
-        enrolled_students = db.session.query(User).join(Enrollment).filter(
-            Enrollment.course_id == course.id,
-            Enrollment.is_active == True,
-            User.role == 'student',
-            User.is_active == True
-        ).count()
-        
-        # Get total classes conducted
-        total_classes = db.session.query(func.count(func.distinct(Attendance.date))).filter(
-            Attendance.course_id == course.id
-        ).scalar() or 0
-        
-        # Get average attendance percentage
-        if total_classes > 0 and enrolled_students > 0:
-            present_records = Attendance.query.filter(
-                Attendance.course_id == course.id,
-                Attendance.status == 'present'
-            ).count()
-            
-            total_possible = total_classes * enrolled_students
-            avg_attendance = (present_records / total_possible * 100) if total_possible > 0 else 0
-        else:
-            avg_attendance = 0
-        
-        attendance_data.append({
-            'course': course,
-            'enrolled_students': enrolled_students,
-            'total_classes': total_classes,
-            'avg_attendance': round(avg_attendance, 2)
-        })
-    
-    return render_template('admin/attendance_overview.html', attendance_data=attendance_data)
+
 
 # Public Routes (for enquiries)
 @app.route('/enquiry', methods=['GET', 'POST'])
@@ -1037,6 +996,156 @@ def admin_remove_enrollment(enrollment_id):
 @app.errorhandler(404)
 def not_found_error(error):
     return render_template('errors/404.html'), 404
+
+@app.route('/admin/attendance-overview')
+@login_required
+@admin_required
+def admin_attendance_overview():
+    from sqlalchemy import func, distinct
+    from datetime import datetime, timedelta
+    
+    # Get filter parameters
+    department = request.args.get('department', '')
+    year = request.args.get('year', type=int)
+    semester = request.args.get('semester', type=int)
+    section = request.args.get('section', '')
+    course_id = request.args.get('course_id', type=int)
+    date_from = request.args.get('date_from')
+    date_to = request.args.get('date_to')
+    
+    # Set default date range (last 30 days)
+    if not date_from:
+        date_from = (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d')
+    if not date_to:
+        date_to = datetime.now().strftime('%Y-%m-%d')
+    
+    # Base query for attendance records
+    query = db.session.query(
+        Attendance.course_id,
+        Course.name.label('course_name'),
+        Course.code.label('course_code'),
+        User.department,
+        User.year,
+        User.semester,
+        User.section,
+        func.count(Attendance.id).label('total_records'),
+        func.sum(func.case((Attendance.status == 'present', 1), else_=0)).label('present_count'),
+        func.sum(func.case((Attendance.status == 'absent', 1), else_=0)).label('absent_count'),
+        func.sum(func.case((Attendance.status == 'late', 1), else_=0)).label('late_count'),
+        func.count(distinct(Attendance.student_id)).label('total_students'),
+        func.count(distinct(Attendance.date)).label('total_days')
+    ).join(Course, Attendance.course_id == Course.id)\
+     .join(User, Attendance.student_id == User.id)\
+     .filter(Attendance.date >= date_from)\
+     .filter(Attendance.date <= date_to)
+    
+    # Apply filters
+    if department:
+        query = query.filter(User.department == department)
+    if year:
+        query = query.filter(User.year == year)
+    if semester:
+        query = query.filter(User.semester == semester)
+    if section:
+        query = query.filter(User.section == section)
+    if course_id:
+        query = query.filter(Attendance.course_id == course_id)
+    
+    # Group by course and classroom parameters
+    stats = query.group_by(
+        Attendance.course_id,
+        Course.name,
+        Course.code,
+        User.department,
+        User.year,
+        User.semester,
+        User.section
+    ).all()
+    
+    # Calculate percentages and format data
+    attendance_stats = []
+    for stat in stats:
+        total = stat.total_records
+        if total > 0:
+            present_percentage = round((stat.present_count / total) * 100, 1)
+            absent_percentage = round((stat.absent_count / total) * 100, 1)
+            late_percentage = round((stat.late_count / total) * 100, 1)
+        else:
+            present_percentage = absent_percentage = late_percentage = 0
+            
+        attendance_stats.append({
+            'course_id': stat.course_id,
+            'course_name': stat.course_name,
+            'course_code': stat.course_code,
+            'department': stat.department or 'N/A',
+            'year': stat.year or 'N/A',
+            'semester': stat.semester or 'N/A',
+            'section': stat.section or 'N/A',
+            'classroom': f"{stat.department or 'N/A'} - Y{stat.year or 'N/A'}/S{stat.semester or 'N/A'}/{stat.section or 'N/A'}",
+            'total_records': stat.total_records,
+            'present_count': stat.present_count,
+            'absent_count': stat.absent_count,
+            'late_count': stat.late_count,
+            'total_students': stat.total_students,
+            'total_days': stat.total_days,
+            'present_percentage': present_percentage,
+            'absent_percentage': absent_percentage,
+            'late_percentage': late_percentage,
+            'attendance_rate': present_percentage + late_percentage  # Consider late as attended
+        })
+    
+    # Get filter options
+    departments = db.session.query(distinct(User.department)).filter(User.department.isnot(None)).all()
+    departments = [dept[0] for dept in departments if dept[0]]
+    
+    years = db.session.query(distinct(User.year)).filter(User.year.isnot(None)).all()
+    years = sorted([year[0] for year in years if year[0]])
+    
+    semesters = db.session.query(distinct(User.semester)).filter(User.semester.isnot(None)).all()
+    semesters = sorted([sem[0] for sem in semesters if sem[0]])
+    
+    sections = db.session.query(distinct(User.section)).filter(User.section.isnot(None)).all()
+    sections = sorted([sec[0] for sec in sections if sec[0]])
+    
+    courses = Course.query.all()
+    
+    # Calculate overall statistics
+    total_attendance_records = sum(stat['total_records'] for stat in attendance_stats)
+    total_present = sum(stat['present_count'] for stat in attendance_stats)
+    total_absent = sum(stat['absent_count'] for stat in attendance_stats)
+    total_late = sum(stat['late_count'] for stat in attendance_stats)
+    
+    overall_stats = {
+        'total_records': total_attendance_records,
+        'present_count': total_present,
+        'absent_count': total_absent,
+        'late_count': total_late,
+        'present_percentage': round((total_present / total_attendance_records * 100), 1) if total_attendance_records > 0 else 0,
+        'absent_percentage': round((total_absent / total_attendance_records * 100), 1) if total_attendance_records > 0 else 0,
+        'late_percentage': round((total_late / total_attendance_records * 100), 1) if total_attendance_records > 0 else 0,
+        'total_classes': len(set(f"{stat['department']}-{stat['year']}-{stat['semester']}-{stat['section']}" for stat in attendance_stats)),
+        'total_courses': len(set(stat['course_id'] for stat in attendance_stats))
+    }
+    
+    filters = {
+        'department': department,
+        'year': year,
+        'semester': semester,
+        'section': section,
+        'course_id': course_id,
+        'date_from': date_from,
+        'date_to': date_to
+    }
+    
+    return render_template('admin/attendance_overview.html',
+                         attendance_stats=attendance_stats,
+                         overall_stats=overall_stats,
+                         departments=departments,
+                         years=years,
+                         semesters=semesters,
+                         sections=sections,
+                         courses=courses,
+                         filters=filters)
 
 @app.errorhandler(403)
 def forbidden_error(error):
