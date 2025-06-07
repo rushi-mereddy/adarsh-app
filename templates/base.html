@@ -22,62 +22,103 @@
 <body class="{% if current_user.is_authenticated %}{{ current_user.role }}-theme{% endif %}">
     
     {% if current_user.is_authenticated %}
-    <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-modern">
-        <div class="container-fluid px-3 px-lg-4">
-            <a class="navbar-brand" href="{{ url_for('index') }}">
-                <i class="fas fa-graduation-cap me-2"></i>
-                College Management
-            </a>
-            
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    {% if current_user.role == 'student' %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('student_dashboard') }}">
-                                <i class="fas fa-tachometer-alt me-1"></i>Dashboard
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('student_profile') }}">
-                                <i class="fas fa-user me-1"></i>Profile
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('student_attendance') }}">
-                                <i class="fas fa-calendar-check me-1"></i>Attendance
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('student_feedback') }}">
-                                <i class="fas fa-comment me-1"></i>Feedback
-                            </a>
-                        </li>
-                    {% elif current_user.role == 'faculty' %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('faculty_dashboard') }}">
-                                <i class="fas fa-tachometer-alt me-1"></i>Dashboard
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('faculty_attendance') }}">
-                                <i class="fas fa-calendar-check me-1"></i>Attendance
-                            </a>
-                        </li>
-                    {% elif current_user.role == 'admin' %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('admin_dashboard') }}">
-                                <i class="fas fa-tachometer-alt me-1"></i>Dashboard
-                            </a>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="managementDropdown" role="button" data-bs-toggle="dropdown">
-                                <i class="fas fa-cogs me-1"></i>Management
-                            </a>
+    <!-- Ultra Modern Navigation -->
+    <nav class="navbar-ultra">
+        <div class="container-fluid px-4">
+            <div class="d-flex justify-content-between align-items-center w-100">
+                <a class="navbar-brand-ultra" href="{{ url_for('index') }}">
+                    <i class="fas fa-graduation-cap"></i>
+                    College Management
+                </a>
+                
+                <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                
+                <div class="d-flex align-items-center">
+                    <ul class="nav-ultra" id="mainNav">
+                        {% if current_user.role == 'student' %}
+                            <li class="nav-item-ultra">
+                                <a class="nav-link-ultra {{ 'active' if request.endpoint == 'student_dashboard' }}" href="{{ url_for('student_dashboard') }}">
+                                    <i class="fas fa-chart-line"></i>Dashboard
+                                </a>
+                            </li>
+                            <li class="nav-item-ultra">
+                                <a class="nav-link-ultra {{ 'active' if request.endpoint == 'student_profile' }}" href="{{ url_for('student_profile') }}">
+                                    <i class="fas fa-user"></i>Profile
+                                </a>
+                            </li>
+                            <li class="nav-item-ultra">
+                                <a class="nav-link-ultra {{ 'active' if request.endpoint == 'student_attendance' }}" href="{{ url_for('student_attendance') }}">
+                                    <i class="fas fa-calendar-check"></i>Attendance
+                                </a>
+                            </li>
+                            <li class="nav-item-ultra">
+                                <a class="nav-link-ultra {{ 'active' if request.endpoint == 'student_feedback' }}" href="{{ url_for('student_feedback') }}">
+                                    <i class="fas fa-comment"></i>Feedback
+                                </a>
+                            </li>
+                        {% elif current_user.role == 'faculty' %}
+                            <li class="nav-item-ultra">
+                                <a class="nav-link-ultra {{ 'active' if request.endpoint == 'faculty_dashboard' }}" href="{{ url_for('faculty_dashboard') }}">
+                                    <i class="fas fa-chart-line"></i>Dashboard
+                                </a>
+                            </li>
+                            <li class="nav-item-ultra">
+                                <a class="nav-link-ultra {{ 'active' if request.endpoint == 'faculty_attendance' }}" href="{{ url_for('faculty_attendance') }}">
+                                    <i class="fas fa-calendar-check"></i>Attendance
+                                </a>
+                            </li>
+                        {% elif current_user.role == 'admin' %}
+                            <li class="nav-item-ultra">
+                                <a class="nav-link-ultra {{ 'active' if request.endpoint == 'admin_dashboard' }}" href="{{ url_for('admin_dashboard') }}">
+                                    <i class="fas fa-chart-line"></i>Dashboard
+                                </a>
+                            </li>
+                            <li class="nav-item-ultra dropdown-ultra">
+                                <a class="nav-link-ultra" href="#">
+                                    <i class="fas fa-cogs"></i>Management
+                                    <i class="fas fa-chevron-down ms-1"></i>
+                                </a>
+                                <div class="dropdown-menu-ultra">
+                                    <a class="dropdown-item-ultra" href="{{ url_for('admin_users') }}">
+                                        <i class="fas fa-users"></i>
+                                        User Management
+                                    </a>
+                                    <a class="dropdown-item-ultra" href="{{ url_for('admin_classrooms') }}">
+                                        <i class="fas fa-school"></i>
+                                        Classrooms
+                                    </a>
+                                    <a class="dropdown-item-ultra" href="{{ url_for('admin_courses') }}">
+                                        <i class="fas fa-book"></i>
+                                        Courses
+                                    </a>
+                                    <a class="dropdown-item-ultra" href="{{ url_for('admin_departments') }}">
+                                        <i class="fas fa-university"></i>
+                                        Departments
+                                    </a>
+                                </div>
+                            </li>
+                            <li class="nav-item-ultra dropdown-ultra">
+                                <a class="nav-link-ultra" href="#">
+                                    <i class="fas fa-bullhorn"></i>Communication
+                                    <i class="fas fa-chevron-down ms-1"></i>
+                                </a>
+                                <div class="dropdown-menu-ultra">
+                                    <a class="dropdown-item-ultra" href="{{ url_for('admin_announcements') }}">
+                                        <i class="fas fa-bullhorn"></i>
+                                        Announcements
+                                    </a>
+                                    <a class="dropdown-item-ultra" href="{{ url_for('admin_enquiries') }}">
+                                        <i class="fas fa-question-circle"></i>
+                                        Enquiries
+                                    </a>
+                                    <a class="dropdown-item-ultra" href="{{ url_for('admin_notifications') }}">
+                                        <i class="fas fa-bell"></i>
+                                        Notifications
+                                    </a>
+                                </div>
+                            </li>
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="{{ url_for('admin_users') }}">
                                     <i class="fas fa-users me-2"></i>Users
