@@ -92,10 +92,10 @@ class FeedbackForm(FlaskForm):
     subject = StringField('Subject', validators=[DataRequired(), Length(max=200)])
     message = TextAreaField('Message', validators=[DataRequired()], widget=TextArea())
     rating = SelectField('Rating (Optional)',
-                        choices=[('', 'Select Rating'), ('5', '5 - Excellent'), 
+                        choices=[('0', 'Select Rating'), ('5', '5 - Excellent'), 
                                ('4', '4 - Good'), ('3', '3 - Average'),
                                ('2', '2 - Poor'), ('1', '1 - Very Poor')],
-                        coerce=int, validators=[Optional()])
+                        coerce=int, validators=[Optional()], default='0')
 
 class EnquiryForm(FlaskForm):
     name = StringField('Full Name', validators=[DataRequired(), Length(max=100)])

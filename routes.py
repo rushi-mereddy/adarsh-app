@@ -873,7 +873,7 @@ def student_feedback():
             category=form.category.data,
             subject=form.subject.data,
             message=form.message.data,
-            rating=form.rating.data
+            rating=form.rating.data if form.rating.data > 0 else None
         )
         
         db.session.add(feedback)
