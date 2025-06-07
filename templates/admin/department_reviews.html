@@ -95,7 +95,7 @@
                                         </a>
                                         
                                         <form method="POST" action="{{ url_for('admin_approve_review', review_id=review.id) }}" class="d-inline">
-                                            <button type="submit" class="btn btn-outline-{{ 'warning' if review.is_approved else 'success' }} btn-sm"
+                                            <button type="submit" class="btn-ultra btn-outline-{{ 'warning' if review.is_approved else 'success' }}-ultra btn-sm"
                                                     title="{{ 'Unapprove' if review.is_approved else 'Approve' }} Review">
                                                 <i class="fas fa-{{ 'times' if review.is_approved else 'check' }}"></i>
                                             </button>
