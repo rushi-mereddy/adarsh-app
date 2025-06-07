@@ -397,7 +397,7 @@
                             <ul class="pagination justify-content-center mb-0">
                                 {% if users.has_prev %}
                                 <li class="page-item">
-                                    <a class="page-link" href="{{ url_for('admin_users', page=users.prev_num, role=role_filter, search=search) }}">
+                                    <a class="page-link" href="{{ url_for('admin_users', page=users.prev_num, role=role_filter, department=department_filter, year=year_filter, semester=semester_filter, section=section_filter, classroom=classroom_filter, search=search) }}">
                                         <i class="fas fa-chevron-left"></i>
                                     </a>
                                 </li>
@@ -407,7 +407,7 @@
                                     {% if page_num %}
                                         {% if page_num != users.page %}
                                         <li class="page-item">
-                                            <a class="page-link" href="{{ url_for('admin_users', page=page_num, role=role_filter, search=search) }}">
+                                            <a class="page-link" href="{{ url_for('admin_users', page=page_num, role=role_filter, department=department_filter, year=year_filter, semester=semester_filter, section=section_filter, classroom=classroom_filter, search=search) }}">
                                                 {{ page_num }}
                                             </a>
                                         </li>
@@ -425,7 +425,7 @@
                                 
                                 {% if users.has_next %}
                                 <li class="page-item">
-                                    <a class="page-link" href="{{ url_for('admin_users', page=users.next_num, role=role_filter, search=search) }}">
+                                    <a class="page-link" href="{{ url_for('admin_users', page=users.next_num, role=role_filter, department=department_filter, year=year_filter, semester=semester_filter, section=section_filter, classroom=classroom_filter, search=search) }}">
                                         <i class="fas fa-chevron-right"></i>
                                     </a>
                                 </li>
