@@ -136,6 +136,8 @@ class UserForm(FlaskForm):
     department = StringField('Department', validators=[Optional(), Length(max=100)])
     student_id = StringField('Student ID', validators=[Optional(), Length(max=50)])
     faculty_id = StringField('Faculty ID', validators=[Optional(), Length(max=50)])
+    classroom_id = SelectField('Assign to Classroom (for Students)', coerce=int, validators=[Optional()],
+                              choices=[(0, 'No Classroom Assignment')])
     is_active = BooleanField('Active', default=True)
     password = PasswordField('Password (leave blank to keep current)', validators=[Optional(), Length(min=6)])
 

@@ -423,6 +423,10 @@ def admin_users():
 def admin_add_user():
     form = UserForm()
     
+    # Populate classroom choices
+    classrooms = Classroom.query.filter_by(is_active=True).order_by(Classroom.name).all()
+    form.classroom_id.choices = [(0, 'No Classroom Assignment')] + [(c.id, f"{c.name} ({c.department} - Year {c.year})") for c in classrooms]
+    
     if form.validate_on_submit():
         # Check for existing users
         if User.query.filter_by(email=form.email.data).first():
@@ -451,7 +455,24 @@ def admin_add_user():
         db.session.add(user)
         db.session.commit()
         
-        flash('User created successfully!', 'success')
+        # Handle classroom assignment for students
+        if form.role.data == 'student' and form.classroom_id.data and form.classroom_id.data != 0:
+            try:
+                classroom_assignment = ClassroomAssignment(
+                    classroom_id=form.classroom_id.data,
+                    user_id=user.id,
+                    assigned_at=datetime.utcnow()
+                )
+                db.session.add(classroom_assignment)
+                db.session.commit()
+                
+                classroom = Classroom.query.get(form.classroom_id.data)
+                flash(f'User created successfully and assigned to classroom: {classroom.name}!', 'success')
+            except Exception as e:
+                flash(f'User created but failed to assign to classroom: {str(e)}', 'warning')
+        else:
+            flash('User created successfully!', 'success')
+        
         return redirect(url_for('admin_users'))
     
     return render_template('admin/users.html', form=form, action='add')
