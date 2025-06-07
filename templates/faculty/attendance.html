@@ -26,7 +26,7 @@
     </div>
     
     <!-- Classroom Filters -->
-    <div class="row mb-4">
+    <div class="row mb-5">
         <div class="col-12">
             <div class="card-ultra">
                 <div class="card-header-ultra">
@@ -37,7 +37,7 @@
                 </div>
                 <div class="card-body-ultra">
                     <form method="GET" id="filter-form">
-                        <div class="row align-items-end">
+                        <div class="row">
                             <div class="col-md-2 mb-3">
                                 <label for="department" class="form-label fw-semibold">Department</label>
                                 <select class="form-select" id="department" name="department">
@@ -49,28 +49,31 @@
                                     {% endfor %}
                                 </select>
                             </div>
+
                             <div class="col-md-2 mb-3">
                                 <label for="year" class="form-label fw-semibold">Year</label>
                                 <select class="form-select" id="year" name="year">
                                     <option value="">All Years</option>
-                                    {% for yr in years %}
-                                        <option value="{{ yr }}" {% if filters.year == yr %}selected{% endif %}>
-                                            Year {{ yr }}
+                                    {% for year in years %}
+                                        <option value="{{ year }}" {% if filters.year == year %}selected{% endif %}>
+                                            Year {{ year }}
                                         </option>
                                     {% endfor %}
                                 </select>
                             </div>
+
                             <div class="col-md-2 mb-3">
                                 <label for="semester" class="form-label fw-semibold">Semester</label>
                                 <select class="form-select" id="semester" name="semester">
                                     <option value="">All Semesters</option>
                                     {% for sem in semesters %}
                                         <option value="{{ sem }}" {% if filters.semester == sem %}selected{% endif %}>
-                                            Sem {{ sem }}
+                                            Semester {{ sem }}
                                         </option>
                                     {% endfor %}
                                 </select>
                             </div>
+
                             <div class="col-md-2 mb-3">
                                 <label for="section" class="form-label fw-semibold">Section</label>
                                 <select class="form-select" id="section" name="section">
@@ -88,16 +91,14 @@
                                 <input type="date" class="form-control" id="date" name="date" 
                                        value="{{ selected_date or '' }}">
                             </div>
-                        </div>
-                        
-                        <div class="row">
-                            <div class="col-12">
-                                <div class="d-flex gap-2">
-                                    <button type="button" class="btn-ultra btn-primary-ultra" onclick="applyFilters()">
+
+                            <div class="col-md-2 mb-3 d-flex align-items-end">
+                                <div class="d-flex gap-2 w-100">
+                                    <button type="button" class="btn-ultra btn-primary-ultra flex-fill" onclick="applyFilters()">
                                         <i class="fas fa-search me-2"></i>Load Students
                                     </button>
                                     <button type="button" class="btn-ultra btn-secondary-ultra" onclick="clearFilters()">
-                                        <i class="fas fa-times me-2"></i>Clear Filters
+                                        <i class="fas fa-times"></i>
                                     </button>
                                 </div>
                             </div>
@@ -113,211 +114,247 @@
     <div class="row">
         <div class="col-12">
             <div class="card-ultra">
-                <div class="card-header-ultra d-flex justify-content-between align-items-center">
-                    <div>
-                        <h5 class="mb-0">
-                            <i class="fas fa-users me-2"></i>
-                            Student Attendance
-                        </h5>
-                        <small class="text-muted">
-                            {{ students|length }} students • {{ selected_date or 'Select date' }}
-                        </small>
-                    </div>
-                    <div>
-                        <button type="button" class="btn btn-success btn-sm me-2" id="markAllPresent">
-                            <i class="fas fa-check-circle me-1"></i>Mark All Present
-                        </button>
-                        <button type="button" class="btn btn-danger btn-sm" id="markAllAbsent">
-                            <i class="fas fa-times-circle me-1"></i>Mark All Absent
-                        </button>
+                <div class="card-header-ultra">
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
+                        <div class="mb-3 mb-md-0">
+                            <h5 class="mb-1">
+                                <i class="fas fa-users me-2"></i>
+                                Student Attendance
+                            </h5>
+                            <small class="text-muted">
+                                {{ students|length }} students • {{ selected_date or 'Select date' }}
+                            </small>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn-ultra btn-success-ultra btn-sm" id="markAllPresent">
+                                <i class="fas fa-check-circle me-1"></i>Mark All Present
+                            </button>
+                            <button type="button" class="btn-ultra btn-danger-ultra btn-sm" id="markAllAbsent">
+                                <i class="fas fa-times-circle me-1"></i>Mark All Absent
+                            </button>
+                        </div>
                     </div>
                 </div>
+                
                 <div class="card-body-ultra">
-                    <form method="POST" id="attendanceForm">
-                        <input type="hidden" name="date" value="{{ selected_date }}" />
+                    <form method="POST" id="attendance-form">
+                        {{ form.hidden_tag() }}
+                        {{ form.date(value=selected_date, style="display: none;") }}
                         
-                        <div class="table-responsive">
-                            <table class="table table-hover" id="attendanceTable">
-                                <thead>
-                                    <tr>
-                                        <th style="width: 60px;">#</th>
-                                        <th>Student Name</th>
-                                        <th>Student ID</th>
-                                        <th>Department</th>
-                                        <th>Year/Sem/Sec</th>
-                                        <th style="width: 200px;">Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for student in students %}
-                                    <tr data-student-id="{{ student.id }}">
-                                        <td>{{ loop.index }}</td>
-                                        <td>
-                                            <div class="fw-semibold">{{ student.get_full_name() }}</div>
-                                        </td>
-                                        <td>{{ student.student_id or '-' }}</td>
-                                        <td>{{ student.department or '-' }}</td>
-                                        <td>{{ student.year or '-' }}/{{ student.semester or '-' }}/{{ student.section or '-' }}</td>
-                                        <td>
-                                            <div class="btn-group btn-group-sm" role="group">
+                        <div class="row">
+                            {% for student in students %}
+                            <div class="col-lg-4 col-md-6 mb-3">
+                                <div class="student-card">
+                                    <div class="d-flex align-items-center">
+                                        <div class="student-avatar">
+                                            {% if student.profile_image %}
+                                                <img src="{{ url_for('static', filename='uploads/profiles/' + student.profile_image) }}" 
+                                                     alt="{{ student.first_name }}" class="avatar-img">
+                                            {% else %}
+                                                <i class="fas fa-user"></i>
+                                            {% endif %}
+                                        </div>
+                                        <div class="student-info ms-3 flex-grow-1">
+                                            <h6 class="student-name">{{ student.first_name }} {{ student.last_name }}</h6>
+                                            <small class="student-id">ID: {{ student.student_id }}</small>
+                                        </div>
+                                        <div class="attendance-controls">
+                                            <div class="btn-group" role="group">
                                                 <input type="radio" class="btn-check" name="attendance_{{ student.id }}" 
-                                                       id="present_{{ student.id }}" value="present" 
-                                                       {% if existing_attendance.get(student.id|string) == 'present' %}checked{% endif %}>
-                                                <label class="btn btn-outline-success" for="present_{{ student.id }}">
-                                                    <i class="fas fa-check me-1"></i>Present
+                                                       id="present_{{ student.id }}" value="present" autocomplete="off">
+                                                <label class="btn btn-outline-success btn-sm" for="present_{{ student.id }}">
+                                                    <i class="fas fa-check"></i>
                                                 </label>
                                                 
                                                 <input type="radio" class="btn-check" name="attendance_{{ student.id }}" 
-                                                       id="absent_{{ student.id }}" value="absent" 
-                                                       {% if existing_attendance.get(student.id|string) == 'absent' %}checked{% endif %}>
-                                                <label class="btn btn-outline-danger" for="absent_{{ student.id }}">
-                                                    <i class="fas fa-times me-1"></i>Absent
-                                                </label>
-                                                
-                                                <input type="radio" class="btn-check" name="attendance_{{ student.id }}" 
-                                                       id="late_{{ student.id }}" value="late" 
-                                                       {% if existing_attendance.get(student.id|string) == 'late' %}checked{% endif %}>
-                                                <label class="btn btn-outline-warning" for="late_{{ student.id }}">
-                                                    <i class="fas fa-clock me-1"></i>Late
+                                                       id="absent_{{ student.id }}" value="absent" autocomplete="off">
+                                                <label class="btn btn-outline-danger btn-sm" for="absent_{{ student.id }}">
+                                                    <i class="fas fa-times"></i>
                                                 </label>
                                             </div>
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
                         </div>
                         
-                        <div class="d-flex justify-content-between align-items-center mt-4">
-                            <div class="text-muted">
-                                Total Students: {{ students|length }}
-                            </div>
-                            <div class="d-flex gap-2">
-                                <button type="submit" class="btn-ultra btn-primary-ultra">
-                                    <i class="fas fa-save me-2"></i>Save Attendance
-                                </button>
-                                <button type="button" class="btn-ultra btn-secondary-ultra" onclick="clearFilters()">
-                                    <i class="fas fa-arrow-left me-2"></i>Back to Filters
-                                </button>
-                            </div>
+                        {% if selected_date %}
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn-ultra btn-primary-ultra btn-lg">
+                                <i class="fas fa-save me-2"></i>Save Attendance
+                            </button>
                         </div>
+                        {% endif %}
                     </form>
                 </div>
             </div>
         </div>
     </div>
-    {% else %}
-    <!-- Instructions -->
+    {% elif request.args.get('department') or request.args.get('year') or request.args.get('semester') or request.args.get('section') %}
+    <!-- No Students Found -->
     <div class="row">
         <div class="col-12">
-            <div class="card-ultra">
-                <div class="card-body text-center py-5">
-                    <i class="fas fa-filter fa-3x text-primary mb-3"></i>
-                    <h5>Filter Students by Classroom</h5>
-                    <p class="text-muted mb-4">
-                        Use the filters above to select students by classroom parameters for attendance marking.
-                    </p>
-                    <div class="row justify-content-center">
-                        <div class="col-md-6">
-                            <div class="text-start">
-                                <h6 class="fw-bold mb-2">New Classroom-Based Workflow:</h6>
-                                <ul class="list-unstyled">
-                                    <li class="mb-2">
-                                        <i class="fas fa-chevron-right text-primary me-2"></i>
-                                        Filter students by Department, Year, Semester, Section
-                                    </li>
-                                    <li class="mb-2">
-                                        <i class="fas fa-chevron-right text-primary me-2"></i>
-                                        Select a course you are teaching
-                                    </li>
-                                    <li class="mb-2">
-                                        <i class="fas fa-chevron-right text-primary me-2"></i>
-                                        Choose the date for attendance
-                                    </li>
-                                    <li class="mb-2">
-                                        <i class="fas fa-chevron-right text-primary me-2"></i>
-                                        Mark attendance for filtered students
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="card-ultra text-center" style="padding: 3rem;">
+                <i class="fas fa-users-slash" style="font-size: 4rem; color: #e5e7eb; margin-bottom: 1rem;"></i>
+                <h5 style="color: #6b7280; margin-bottom: 1rem;">No Students Found</h5>
+                <p style="color: #9ca3af;">No students match the selected filter criteria. Please adjust your filters and try again.</p>
+                <button type="button" class="btn-ultra btn-secondary-ultra" onclick="clearFilters()">
+                    <i class="fas fa-filter me-2"></i>Clear Filters
+                </button>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <!-- Initial State -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card-ultra text-center" style="padding: 3rem;">
+                <i class="fas fa-filter" style="font-size: 4rem; color: #e5e7eb; margin-bottom: 1rem;"></i>
+                <h5 style="color: #6b7280; margin-bottom: 1rem;">Filter Students</h5>
+                <p style="color: #9ca3af;">Select filter criteria above and click "Load Students" to display the student list for attendance marking.</p>
             </div>
         </div>
     </div>
     {% endif %}
 </div>
-{% endblock %}
 
-{% block extra_js %}
+<style>
+.student-card {
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(229, 231, 235, 0.8);
+    border-radius: 16px;
+    padding: 1rem;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.student-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(102, 126, 234, 0.15);
+    border-color: rgba(102, 126, 234, 0.3);
+}
+
+.student-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.student-name {
+    color: #1f2937;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    font-size: 0.95rem;
+}
+
+.student-id {
+    color: #6b7280;
+    font-size: 0.8rem;
+}
+
+.attendance-controls .btn {
+    padding: 0.375rem 0.75rem;
+    border-radius: 8px;
+}
+
+.attendance-controls .btn-check:checked + .btn-outline-success {
+    background-color: #10b981;
+    border-color: #10b981;
+    color: white;
+}
+
+.attendance-controls .btn-check:checked + .btn-outline-danger {
+    background-color: #ef4444;
+    border-color: #ef4444;
+    color: white;
+}
+
+.btn-success-ultra {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    border: none;
+}
+
+.btn-success-ultra:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+}
+
+.btn-danger-ultra {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    border: none;
+}
+
+.btn-danger-ultra:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
+}
+</style>
+
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Set default date to today
-    const dateInput = document.getElementById('date');
-    if (dateInput && !dateInput.value) {
-        const today = new Date().toISOString().split('T')[0];
-        dateInput.value = today;
-    }
-    
-    // Mark all students present/absent
-    const markAllPresent = document.getElementById('markAllPresent');
-    const markAllAbsent = document.getElementById('markAllAbsent');
-    
-    if (markAllPresent) {
-        markAllPresent.addEventListener('click', function() {
-            const presentRadios = document.querySelectorAll('input[value="present"]');
-            presentRadios.forEach(radio => radio.checked = true);
-        });
-    }
-    
-    if (markAllAbsent) {
-        markAllAbsent.addEventListener('click', function() {
-            const absentRadios = document.querySelectorAll('input[value="absent"]');
-            absentRadios.forEach(radio => radio.checked = true);
-        });
-    }
-    
-    // Handle form submission
-    const attendanceForm = document.getElementById('attendanceForm');
-    if (attendanceForm) {
-        attendanceForm.addEventListener('submit', function(e) {
-            const attendanceData = {};
-            const radioButtons = document.querySelectorAll('input[type="radio"]:checked');
-            
-            radioButtons.forEach(radio => {
-                const studentId = radio.name.replace('attendance_', '');
-                attendanceData[studentId] = radio.value;
-            });
-            
-            document.getElementById('student_attendances').value = JSON.stringify(attendanceData);
-        });
-    }
-});
-
 function applyFilters() {
-    const department = document.getElementById('department').value;
-    const year = document.getElementById('year').value;
-    const semester = document.getElementById('semester').value;
-    const section = document.getElementById('section').value;
-    const date = document.getElementById('date').value;
-    
-    const url = new URL(window.location.href);
-    url.search = '';
-    
-    if (department) url.searchParams.set('department', department);
-    if (year) url.searchParams.set('year', year);
-    if (semester) url.searchParams.set('semester', semester);
-    if (section) url.searchParams.set('section', section);
-    if (date) url.searchParams.set('date', date);
-    
-    window.location.href = url.toString();
+    document.getElementById('filter-form').submit();
 }
 
 function clearFilters() {
-    const url = new URL(window.location.href);
-    url.search = '';
-    window.location.href = url.toString();
+    const form = document.getElementById('filter-form');
+    const inputs = form.querySelectorAll('select, input[type="date"]');
+    inputs.forEach(input => {
+        if (input.type === 'date') {
+            input.value = '';
+        } else {
+            input.selectedIndex = 0;
+        }
+    });
+    form.submit();
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Mark All Present functionality
+    document.getElementById('markAllPresent')?.addEventListener('click', function() {
+        const presentInputs = document.querySelectorAll('input[value="present"]');
+        presentInputs.forEach(input => {
+            input.checked = true;
+        });
+    });
+
+    // Mark All Absent functionality
+    document.getElementById('markAllAbsent')?.addEventListener('click', function() {
+        const absentInputs = document.querySelectorAll('input[value="absent"]');
+        absentInputs.forEach(input => {
+            input.checked = true;
+        });
+    });
+
+    // Form submission handling
+    const attendanceForm = document.getElementById('attendance-form');
+    if (attendanceForm) {
+        attendanceForm.addEventListener('submit', function(e) {
+            const checkedInputs = document.querySelectorAll('input[name^="attendance_"]:checked');
+            if (checkedInputs.length === 0) {
+                e.preventDefault();
+                alert('Please mark attendance for at least one student.');
+                return false;
+            }
+        });
+    }
+});
 </script>
 {% endblock %}
