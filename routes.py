@@ -1663,6 +1663,7 @@ def admin_download_template():
     df = create_sample_excel_template()
     
     # Create Excel file in memory
+    import pandas as pd
     output = io.BytesIO()
     with pd.ExcelWriter(output, engine='openpyxl') as writer:
         df.to_excel(writer, sheet_name='Students', index=False)
