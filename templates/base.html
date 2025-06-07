@@ -201,17 +201,17 @@
         function toggleMobileMenu() {
             const nav = document.getElementById('mainNav');
             const menuToggle = document.querySelector('.mobile-menu-toggle i');
-            const body = document.body;
             
-            nav.classList.toggle('mobile-active');
-            
-            // Toggle hamburger icon
-            if (nav.classList.contains('mobile-active')) {
-                menuToggle.className = 'fas fa-times';
-                body.style.overflow = 'hidden'; // Prevent body scroll when menu is open
-            } else {
-                menuToggle.className = 'fas fa-bars';
-                body.style.overflow = ''; // Restore body scroll
+            if (window.innerWidth <= 768) {
+                nav.classList.toggle('mobile-active');
+                nav.classList.remove('mobile-hidden');
+                
+                // Toggle hamburger icon
+                if (nav.classList.contains('mobile-active')) {
+                    menuToggle.className = 'fas fa-times';
+                } else {
+                    menuToggle.className = 'fas fa-bars';
+                }
             }
         }
         
@@ -221,60 +221,6 @@
                 element.classList.toggle('mobile-expanded');
             }
         }
-        
-        // Close mobile menu when clicking on a link
-        document.addEventListener('DOMContentLoaded', function() {
-            const navLinks = document.querySelectorAll('.nav-link-ultra, .dropdown-item-ultra');
-            const nav = document.getElementById('mainNav');
-            const menuToggle = document.querySelector('.mobile-menu-toggle i');
-            const body = document.body;
-            
-            navLinks.forEach(link => {
-                link.addEventListener('click', function(e) {
-                    // Close mobile menu when clicking a link (except dropdown toggles)
-                    if (window.innerWidth <= 768 && !this.closest('.dropdown-ultra')) {
-                        nav.classList.remove('mobile-active');
-                        if (menuToggle) {
-                            menuToggle.className = 'fas fa-bars';
-                        }
-                        body.style.overflow = '';
-                    }
-                });
-            });
-            
-            // Handle window resize
-            window.addEventListener('resize', function() {
-                if (window.innerWidth > 768) {
-                    nav.classList.remove('mobile-active');
-                    nav.classList.add('mobile-hidden');
-                    if (menuToggle) {
-                        menuToggle.className = 'fas fa-bars';
-                    }
-                    body.style.overflow = '';
-                    
-                    // Close all mobile dropdowns
-                    document.querySelectorAll('.dropdown-ultra').forEach(dropdown => {
-                        dropdown.classList.remove('mobile-expanded');
-                    });
-                } else {
-                    nav.classList.remove('mobile-hidden');
-                }
-            });
-            
-            // Close mobile menu when clicking outside
-            document.addEventListener('click', function(e) {
-                if (window.innerWidth <= 768 && 
-                    !e.target.closest('.nav-ultra') && 
-                    !e.target.closest('.mobile-menu-toggle') &&
-                    nav.classList.contains('mobile-active')) {
-                    nav.classList.remove('mobile-active');
-                    if (menuToggle) {
-                        menuToggle.className = 'fas fa-bars';
-                    }
-                    body.style.overflow = '';
-                }
-            });
-        });
         
         // Handle responsive navigation
         function handleResize() {
