@@ -169,7 +169,7 @@
                             <input type="hidden" name="default_password" value="{{ form.default_password.data }}">
                             <input type="hidden" name="department" value="{{ form.department.data }}">
                             <input type="hidden" name="classroom_id" value="{{ form.classroom_id.data }}">
-                            <button type="submit" class="btn btn-success btn-lg" 
+                            <button type="submit" class="btn-ultra btn-success-ultra btn-lg" 
                                     onclick="return confirm('Are you sure you want to import {{ result.valid_count }} students?')">
                                 <i class="fas fa-check"></i> Import {{ result.valid_count }} Students
                             </button>
@@ -179,7 +179,7 @@
                         <form method="POST" action="{{ url_for('admin_confirm_import') }}" class="d-inline">
                             <input type="hidden" name="action" value="cancel">
                             <input type="hidden" name="temp_file" value="{{ temp_file }}">
-                            <button type="submit" class="btn btn-outline-secondary btn-lg">
+                            <button type="submit" class="btn-ultra btn-outline-secondary-ultra btn-lg">
                                 <i class="fas fa-times"></i> Cancel
                             </button>
                         </form>
