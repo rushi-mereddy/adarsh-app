@@ -138,50 +138,61 @@
     </div>
     
     <div class="row">
-        <!-- Recent Announcements -->
+        <!-- Modern Recent Announcements -->
         <div class="col-lg-6 mb-4">
-            <div class="card h-100">
+            <div class="card-modern h-100">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">
-                        <i class="fas fa-bullhorn text-primary me-2"></i>
+                    <h5 class="mb-0 d-flex align-items-center">
+                        <div class="p-2 rounded-lg me-3" style="background: var(--primary-light);">
+                            <i class="fas fa-bullhorn" style="color: var(--primary);"></i>
+                        </div>
                         Recent Announcements
                     </h5>
-                    <a href="{{ url_for('admin_announcements') }}" class="btn btn-sm btn-primary">
-                        <i class="fas fa-plus me-1"></i>Add New
+                    <a href="{{ url_for('admin_announcements') }}" class="btn-modern btn-modern-sm btn-modern-primary">
+                        <i class="fas fa-plus"></i>
+                        Add New
                     </a>
                 </div>
                 <div class="card-body">
                     {% if recent_announcements %}
-                        {% for announcement in recent_announcements %}
-                        <div class="d-flex justify-content-between align-items-start mb-3 {% if not loop.last %}border-bottom pb-3{% endif %}">
-                            <div class="flex-grow-1">
-                                <h6 class="mb-1">{{ announcement.title }}</h6>
-                                <p class="text-muted mb-1 small">{{ announcement.content[:100] }}{% if announcement.content|length > 100 %}...{% endif %}</p>
-                                <div class="d-flex gap-2">
-                                    <span class="badge bg-{{ 'danger' if announcement.category == 'urgent' else 'primary' if announcement.category == 'academic' else 'success' if announcement.category == 'event' else 'secondary' }}">
-                                        {{ announcement.category.title() }}
-                                    </span>
-                                    <small class="text-muted">{{ announcement.created_at.strftime('%b %d') }}</small>
+                        <div class="list-modern">
+                            {% for announcement in recent_announcements %}
+                            <div class="list-modern-item">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-2 fw-semibold">{{ announcement.title }}</h6>
+                                        <p class="text-muted mb-3 small lh-base">{{ announcement.content[:100] }}{% if announcement.content|length > 100 %}...{% endif %}</p>
+                                        <div class="d-flex align-items-center gap-3">
+                                            <span class="badge badge-modern-{{ 'danger' if announcement.category == 'urgent' else 'primary' if announcement.category == 'academic' else 'success' if announcement.category == 'event' else 'secondary' }}">
+                                                {{ announcement.category.title() }}
+                                            </span>
+                                            <small class="text-muted">{{ announcement.created_at.strftime('%b %d, %Y') }}</small>
+                                            {% if announcement.is_pinned %}
+                                                <i class="fas fa-thumbtack" style="color: var(--warning);"></i>
+                                            {% endif %}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            {% if announcement.is_pinned %}
-                                <i class="fas fa-thumbtack text-warning ms-2"></i>
-                            {% endif %}
+                            {% endfor %}
                         </div>
-                        {% endfor %}
                         
-                        <div class="text-center mt-3">
-                            <a href="{{ url_for('admin_announcements') }}" class="btn btn-outline-primary btn-sm">
+                        <div class="text-center mt-4">
+                            <a href="{{ url_for('admin_announcements') }}" class="btn-modern btn-modern-secondary btn-modern-sm">
+                                <i class="fas fa-arrow-right"></i>
                                 View All Announcements
                             </a>
                         </div>
                     {% else %}
-                        <div class="text-center py-4">
-                            <i class="fas fa-bullhorn fa-3x text-muted mb-3"></i>
-                            <h6>No Announcements</h6>
-                            <p class="text-muted mb-3">Create your first announcement</p>
-                            <a href="{{ url_for('admin_add_announcement') }}" class="btn btn-primary">
-                                <i class="fas fa-plus me-2"></i>Create Announcement
+                        <div class="empty-state">
+                            <div class="empty-state-icon">
+                                <i class="fas fa-bullhorn"></i>
+                            </div>
+                            <h6 class="empty-state-title">No Announcements Yet</h6>
+                            <p class="empty-state-text">Start communicating with your community by creating announcements</p>
+                            <a href="{{ url_for('admin_add_announcement') }}" class="btn-modern btn-modern-primary">
+                                <i class="fas fa-plus"></i>
+                                Create First Announcement
                             </a>
                         </div>
                     {% endif %}
@@ -189,50 +200,64 @@
             </div>
         </div>
         
-        <!-- Recent Enquiries -->
+        <!-- Modern Recent Enquiries -->
         <div class="col-lg-6 mb-4">
-            <div class="card h-100">
+            <div class="card-modern h-100">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">
-                        <i class="fas fa-question-circle text-warning me-2"></i>
+                    <h5 class="mb-0 d-flex align-items-center">
+                        <div class="p-2 rounded-lg me-3" style="background: var(--warning-light);">
+                            <i class="fas fa-question-circle" style="color: var(--warning);"></i>
+                        </div>
                         Recent Enquiries
                     </h5>
-                    <a href="{{ url_for('admin_enquiries') }}" class="btn btn-sm btn-warning">
-                        <i class="fas fa-eye me-1"></i>View All
+                    <a href="{{ url_for('admin_enquiries') }}" class="btn-modern btn-modern-sm" style="background: linear-gradient(135deg, var(--warning) 0%, #d97706 100%); color: white;">
+                        <i class="fas fa-eye"></i>
+                        View All
                     </a>
                 </div>
                 <div class="card-body">
                     {% if recent_enquiries %}
-                        {% for enquiry in recent_enquiries %}
-                        <div class="d-flex justify-content-between align-items-start mb-3 {% if not loop.last %}border-bottom pb-3{% endif %}">
-                            <div class="flex-grow-1">
-                                <h6 class="mb-1">{{ enquiry.name }}</h6>
-                                <p class="text-muted mb-1 small">
-                                    <i class="fas fa-envelope me-1"></i>{{ enquiry.email }}
-                                </p>
-                                {% if enquiry.course_interested %}
-                                <p class="text-muted mb-1 small">
-                                    <i class="fas fa-book me-1"></i>{{ enquiry.course_interested }}
-                                </p>
-                                {% endif %}
-                                <small class="text-muted">{{ enquiry.created_at.strftime('%b %d, %Y') }}</small>
+                        <div class="list-modern">
+                            {% for enquiry in recent_enquiries %}
+                            <div class="list-modern-item">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-2 fw-semibold">{{ enquiry.name }}</h6>
+                                        <div class="mb-2">
+                                            <div class="text-muted small mb-1">
+                                                <i class="fas fa-envelope me-2"></i>{{ enquiry.email }}
+                                            </div>
+                                            {% if enquiry.course_interested %}
+                                            <div class="text-muted small mb-1">
+                                                <i class="fas fa-book me-2"></i>{{ enquiry.course_interested }}
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="d-flex align-items-center gap-3">
+                                            <span class="badge badge-modern-{{ 'primary' if enquiry.status == 'new' else 'info' if enquiry.status == 'contacted' else 'success' if enquiry.status == 'converted' else 'secondary' }}">
+                                                {{ enquiry.status.title() }}
+                                            </span>
+                                            <small class="text-muted">{{ enquiry.created_at.strftime('%b %d, %Y') }}</small>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <span class="badge bg-{{ 'primary' if enquiry.status == 'new' else 'info' if enquiry.status == 'contacted' else 'success' if enquiry.status == 'converted' else 'secondary' }}">
-                                {{ enquiry.status.title() }}
-                            </span>
+                            {% endfor %}
                         </div>
-                        {% endfor %}
                         
-                        <div class="text-center mt-3">
-                            <a href="{{ url_for('admin_enquiries') }}" class="btn btn-outline-warning btn-sm">
+                        <div class="text-center mt-4">
+                            <a href="{{ url_for('admin_enquiries') }}" class="btn-modern btn-modern-secondary btn-modern-sm">
+                                <i class="fas fa-arrow-right"></i>
                                 Manage All Enquiries
                             </a>
                         </div>
                     {% else %}
-                        <div class="text-center py-4">
-                            <i class="fas fa-question-circle fa-3x text-muted mb-3"></i>
-                            <h6>No New Enquiries</h6>
-                            <p class="text-muted mb-0">All enquiries have been processed</p>
+                        <div class="empty-state">
+                            <div class="empty-state-icon">
+                                <i class="fas fa-question-circle"></i>
+                            </div>
+                            <h6 class="empty-state-title">No New Enquiries</h6>
+                            <p class="empty-state-text">All enquiries have been processed or no new ones received</p>
                         </div>
                     {% endif %}
                 </div>

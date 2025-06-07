@@ -616,6 +616,77 @@ body {
   }
 }
 
+/* Modern List Components */
+.list-modern {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.list-modern-item {
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--gray-200);
+  transition: background-color 0.2s ease;
+}
+
+.list-modern-item:last-child {
+  border-bottom: none;
+}
+
+.list-modern-item:hover {
+  background-color: var(--gray-50);
+}
+
+/* Empty State Components */
+.empty-state {
+  text-align: center;
+  padding: var(--space-8) var(--space-6);
+}
+
+.empty-state-icon {
+  width: 4rem;
+  height: 4rem;
+  background: var(--gray-100);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto var(--space-4);
+  font-size: 1.5rem;
+  color: var(--gray-400);
+}
+
+.empty-state-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--gray-900);
+  margin-bottom: var(--space-2);
+}
+
+.empty-state-text {
+  color: var(--gray-600);
+  margin-bottom: var(--space-4);
+  max-width: 300px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Enhanced Badge Variants */
+.badge-modern-danger {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+}
+
+.badge-modern-info {
+  background: linear-gradient(135deg, var(--info) 0%, #0891b2 100%);
+  color: white;
+}
+
+.badge-modern-warning {
+  background: linear-gradient(135deg, var(--warning) 0%, #d97706 100%);
+  color: white;
+}
+
 /* Loading States */
 .loading {
   position: relative;
