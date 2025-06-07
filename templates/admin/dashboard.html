@@ -3,264 +3,240 @@
 {% block title %}Admin Dashboard - College Management System{% endblock %}
 
 {% block content %}
-<div class="fade-in">
-    <!-- Modern Page Header -->
-    <div class="row mb-5">
-        <div class="col-12">
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
-                <div class="mb-3 mb-md-0">
-                    <h1 class="h2 mb-2 gradient-text fw-bold">
-                        <i class="fas fa-tachometer-alt me-3"></i>
-                        Admin Dashboard
-                    </h1>
-                    <p class="text-muted mb-0 fs-5">Welcome back, {{ current_user.get_full_name() }}! Here's your system overview.</p>
-                </div>
-                <div class="glass-effect rounded-lg p-3 text-center text-md-end">
-                    <div class="small text-muted">Last Activity</div>
-                    <div class="fw-semibold">{{ current_user.created_at.strftime('%b %d, %Y %H:%M') if current_user.created_at else 'N/A' }}</div>
-                    <div class="badge badge-modern-primary mt-1">System Administrator</div>
+<div class="fade-in" style="padding: 2rem;">
+    <!-- Ultra Modern Header -->
+    <div class="mb-5">
+        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center gap-4">
+            <div>
+                <h1 class="title-ultra">
+                    <i class="fas fa-chart-line me-3"></i>
+                    Dashboard Overview
+                </h1>
+                <p class="subtitle-ultra">Welcome back, {{ current_user.get_full_name() }}! Monitor your institution's performance at a glance.</p>
+            </div>
+            <div class="ultra-card" style="padding: 1.5rem; min-width: 250px;">
+                <div class="text-center">
+                    <div style="color: #a1a1aa; font-size: 0.9rem; margin-bottom: 0.5rem;">System Status</div>
+                    <div style="color: white; font-weight: 600; margin-bottom: 0.5rem;">{{ current_user.created_at.strftime('%b %d, %Y %H:%M') if current_user.created_at else 'Active Now' }}</div>
+                    <span class="badge-ultra badge-primary">Administrator</span>
                 </div>
             </div>
         </div>
     </div>
     
-    <!-- Modern Statistics Cards -->
+    <!-- Ultra Modern Statistics -->
     <div class="row mb-5">
-        <div class="col-lg-3 col-md-6 col-sm-6 mb-4">
-            <div class="stat-card stat-card-primary slide-in">
-                <div class="stat-card-icon">
-                    <i class="fas fa-user-graduate"></i>
-                </div>
-                <div class="stat-card-value">{{ total_students }}</div>
-                <div class="stat-card-label">Total Students</div>
-                <div class="mt-3">
-                    <a href="{{ url_for('admin_users') }}?role=student" class="btn-modern btn-modern-sm btn-modern-primary">
-                        <i class="fas fa-arrow-right"></i>
-                        View All Students
-                    </a>
-                </div>
+        <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
+            <div class="stat-card-ultra slide-up">
+                <div class="stat-number">{{ total_students }}</div>
+                <div class="stat-label">Total Students</div>
+                <a href="{{ url_for('admin_users') }}?role=student" class="btn-ultra btn-primary-ultra">
+                    <i class="fas fa-users"></i>
+                    View Students
+                </a>
             </div>
         </div>
         
-        <div class="col-lg-3 col-md-6 col-sm-6 mb-4">
-            <div class="stat-card stat-card-success slide-in" style="animation-delay: 0.1s;">
-                <div class="stat-card-icon">
+        <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
+            <div class="stat-card-ultra slide-up" style="animation-delay: 0.1s;">
+                <div class="stat-number">{{ total_faculty }}</div>
+                <div class="stat-label">Faculty Members</div>
+                <a href="{{ url_for('admin_users') }}?role=faculty" class="btn-ultra btn-secondary-ultra">
                     <i class="fas fa-chalkboard-teacher"></i>
-                </div>
-                <div class="stat-card-value">{{ total_faculty }}</div>
-                <div class="stat-card-label">Faculty Members</div>
-                <div class="mt-3">
-                    <a href="{{ url_for('admin_users') }}?role=faculty" class="btn-modern btn-modern-sm btn-modern-success">
-                        <i class="fas fa-arrow-right"></i>
-                        View All Faculty
-                    </a>
-                </div>
+                    View Faculty
+                </a>
             </div>
         </div>
         
-        <div class="col-lg-3 col-md-6 col-sm-6 mb-4">
-            <div class="stat-card stat-card-info slide-in" style="animation-delay: 0.2s;">
-                <div class="stat-card-icon">
+        <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
+            <div class="stat-card-ultra slide-up" style="animation-delay: 0.2s;">
+                <div class="stat-number">{{ total_departments }}</div>
+                <div class="stat-label">Departments</div>
+                <a href="{{ url_for('admin_departments') }}" class="btn-ultra btn-primary-ultra">
+                    <i class="fas fa-university"></i>
+                    Manage
+                </a>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
+            <div class="stat-card-ultra slide-up" style="animation-delay: 0.3s;">
+                <div class="stat-number">{{ recent_enquiries|length }}</div>
+                <div class="stat-label">New Enquiries</div>
+                <a href="{{ url_for('admin_enquiries') }}" class="btn-ultra btn-secondary-ultra">
+                    <i class="fas fa-bell"></i>
+                    Review
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Ultra Quick Actions Grid -->
+    <div class="mb-5">
+        <h2 style="color: white; font-size: 1.5rem; font-weight: 600; margin-bottom: 2rem;">
+            <i class="fas fa-bolt me-2" style="color: #667eea;"></i>
+            Quick Actions
+        </h2>
+        <div class="quick-actions-grid">
+            <a href="{{ url_for('admin_add_user') }}" class="quick-action-card">
+                <div class="quick-action-icon">
+                    <i class="fas fa-user-plus"></i>
+                </div>
+                <div class="quick-action-title">Add New User</div>
+                <div class="quick-action-desc">Create student or faculty accounts with classroom assignment</div>
+            </a>
+            
+            <a href="{{ url_for('admin_classrooms') }}" class="quick-action-card">
+                <div class="quick-action-icon">
+                    <i class="fas fa-school"></i>
+                </div>
+                <div class="quick-action-title">Manage Classrooms</div>
+                <div class="quick-action-desc">Organize classes and assign students to sections</div>
+            </a>
+            
+            <a href="{{ url_for('admin_attendance_overview') }}" class="quick-action-card">
+                <div class="quick-action-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="quick-action-title">Analytics Dashboard</div>
+                <div class="quick-action-desc">View attendance patterns and performance metrics</div>
+            </a>
+            
+            <a href="{{ url_for('admin_departments') }}" class="quick-action-card">
+                <div class="quick-action-icon">
                     <i class="fas fa-university"></i>
                 </div>
-                <div class="stat-card-value">{{ total_departments }}</div>
-                <div class="stat-card-label">Active Departments</div>
-                <div class="mt-3">
-                    <a href="{{ url_for('admin_departments') }}" class="btn-modern btn-modern-sm" style="background: linear-gradient(135deg, var(--info) 0%, #0891b2 100%); color: white;">
-                        <i class="fas fa-cog"></i>
-                        Manage
-                    </a>
+                <div class="quick-action-title">Department Management</div>
+                <div class="quick-action-desc">Manage academic departments and programs</div>
+            </a>
+            
+            <a href="{{ url_for('admin_courses') }}" class="quick-action-card">
+                <div class="quick-action-icon">
+                    <i class="fas fa-book"></i>
                 </div>
-            </div>
-        </div>
-        
-        <div class="col-lg-3 col-md-6 col-sm-6 mb-4">
-            <div class="stat-card stat-card-warning slide-in" style="animation-delay: 0.3s;">
-                <div class="stat-card-icon">
-                    <i class="fas fa-question-circle"></i>
+                <div class="quick-action-title">Course Management</div>
+                <div class="quick-action-desc">Create and manage academic courses</div>
+            </a>
+            
+            <a href="{{ url_for('admin_announcements') }}" class="quick-action-card">
+                <div class="quick-action-icon">
+                    <i class="fas fa-bullhorn"></i>
                 </div>
-                <div class="stat-card-value">{{ recent_enquiries|length }}</div>
-                <div class="stat-card-label">Pending Enquiries</div>
-                <div class="mt-3">
-                    <a href="{{ url_for('admin_enquiries') }}" class="btn-modern btn-modern-sm" style="background: linear-gradient(135deg, var(--warning) 0%, #d97706 100%); color: white;">
-                        <i class="fas fa-eye"></i>
-                        Review Now
-                    </a>
-                </div>
-            </div>
+                <div class="quick-action-title">Announcements</div>
+                <div class="quick-action-desc">Send important updates to students and faculty</div>
+            </a>
         </div>
     </div>
     
-    <!-- Modern Quick Actions -->
-    <div class="row mb-5">
-        <div class="col-12">
-            <div class="card-modern">
-                <div class="card-header">
-                    <h5 class="mb-0">
-                        <i class="fas fa-bolt me-2" style="color: var(--accent);"></i>
-                        Quick Actions
-                    </h5>
+    <!-- Ultra Activity Feed -->
+    <div class="row">
+        <div class="col-lg-6 mb-4">
+            <div class="activity-feed">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3 style="color: white; font-size: 1.3rem; font-weight: 600; margin: 0;">
+                        <i class="fas fa-bullhorn me-2" style="color: #667eea;"></i>
+                        Recent Announcements
+                    </h3>
+                    <a href="{{ url_for('admin_announcements') }}" class="btn-ultra btn-primary-ultra">
+                        <i class="fas fa-plus"></i>
+                        Create
+                    </a>
                 </div>
-                <div class="card-body">
-                    <div class="row g-3">
-                        <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6">
-                            <a href="{{ url_for('admin_add_user') }}" class="btn-modern btn-modern-primary w-100 h-100 d-flex flex-column align-items-center justify-content-center py-4">
-                                <i class="fas fa-user-plus fa-2x mb-3"></i>
-                                <span class="fw-semibold">Add New User</span>
-                                <small class="text-white-50 mt-1">Create student/faculty</small>
-                            </a>
+                
+                {% if recent_announcements %}
+                    {% for announcement in recent_announcements %}
+                    <div class="activity-item">
+                        <div class="activity-icon">
+                            <i class="fas fa-{{ 'exclamation-triangle' if announcement.category == 'urgent' else 'graduation-cap' if announcement.category == 'academic' else 'calendar' if announcement.category == 'event' else 'info-circle' }}"></i>
                         </div>
-                        <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6">
-                            <a href="{{ url_for('admin_classrooms') }}" class="btn-modern btn-modern-secondary w-100 h-100 d-flex flex-column align-items-center justify-content-center py-4">
-                                <i class="fas fa-school fa-2x mb-3"></i>
-                                <span class="fw-semibold">Manage Classrooms</span>
-                                <small class="opacity-75 mt-1">Organize classes</small>
-                            </a>
-                        </div>
-                        <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6">
-                            <a href="{{ url_for('admin_attendance_overview') }}" class="btn-modern w-100 h-100 d-flex flex-column align-items-center justify-content-center py-4" style="background: linear-gradient(135deg, var(--info) 0%, #0891b2 100%); color: white;">
-                                <i class="fas fa-chart-line fa-2x mb-3"></i>
-                                <span class="fw-semibold">View Analytics</span>
-                                <small class="text-white-50 mt-1">Attendance insights</small>
-                            </a>
-                        </div>
-                        <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6">
-                            <a href="{{ url_for('admin_departments') }}" class="btn-modern w-100 h-100 d-flex flex-column align-items-center justify-content-center py-4" style="background: linear-gradient(135deg, var(--accent) 0%, #7c3aed 100%); color: white;">
-                                <i class="fas fa-university fa-2x mb-3"></i>
-                                <span class="fw-semibold">Departments</span>
-                                <small class="text-white-50 mt-1">Manage programs</small>
-                            </a>
+                        <div class="activity-content flex-grow-1">
+                            <h6>{{ announcement.title }}</h6>
+                            <p>{{ announcement.content[:80] }}{% if announcement.content|length > 80 %}...{% endif %}</p>
+                            <div class="activity-meta">
+                                <span class="badge-ultra badge-{{ 'danger' if announcement.category == 'urgent' else 'primary' if announcement.category == 'academic' else 'success' if announcement.category == 'event' else 'primary' }}">
+                                    {{ announcement.category.title() }}
+                                </span>
+                                <span>{{ announcement.created_at.strftime('%b %d') }}</span>
+                                {% if announcement.is_pinned %}
+                                    <i class="fas fa-thumbtack" style="color: #f59e0b;"></i>
+                                {% endif %}
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="row">
-        <!-- Modern Recent Announcements -->
-        <div class="col-lg-6 mb-4">
-            <div class="card-modern h-100">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 d-flex align-items-center">
-                        <div class="p-2 rounded-lg me-3" style="background: var(--primary-light);">
-                            <i class="fas fa-bullhorn" style="color: var(--primary);"></i>
+                    {% endfor %}
+                    
+                    <div class="text-center mt-4">
+                        <a href="{{ url_for('admin_announcements') }}" class="btn-ultra btn-secondary-ultra">
+                            <i class="fas fa-arrow-right"></i>
+                            View All
+                        </a>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <div style="width: 60px; height: 60px; background: rgba(102, 126, 234, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
+                            <i class="fas fa-bullhorn" style="color: #667eea; font-size: 1.5rem;"></i>
                         </div>
-                        Recent Announcements
-                    </h5>
-                    <a href="{{ url_for('admin_announcements') }}" class="btn-modern btn-modern-sm btn-modern-primary">
-                        <i class="fas fa-plus"></i>
-                        Add New
-                    </a>
-                </div>
-                <div class="card-body">
-                    {% if recent_announcements %}
-                        <div class="list-modern">
-                            {% for announcement in recent_announcements %}
-                            <div class="list-modern-item">
-                                <div class="d-flex justify-content-between align-items-start">
-                                    <div class="flex-grow-1">
-                                        <h6 class="mb-2 fw-semibold">{{ announcement.title }}</h6>
-                                        <p class="text-muted mb-3 small lh-base">{{ announcement.content[:100] }}{% if announcement.content|length > 100 %}...{% endif %}</p>
-                                        <div class="d-flex align-items-center gap-3">
-                                            <span class="badge badge-modern-{{ 'danger' if announcement.category == 'urgent' else 'primary' if announcement.category == 'academic' else 'success' if announcement.category == 'event' else 'secondary' }}">
-                                                {{ announcement.category.title() }}
-                                            </span>
-                                            <small class="text-muted">{{ announcement.created_at.strftime('%b %d, %Y') }}</small>
-                                            {% if announcement.is_pinned %}
-                                                <i class="fas fa-thumbtack" style="color: var(--warning);"></i>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            {% endfor %}
-                        </div>
-                        
-                        <div class="text-center mt-4">
-                            <a href="{{ url_for('admin_announcements') }}" class="btn-modern btn-modern-secondary btn-modern-sm">
-                                <i class="fas fa-arrow-right"></i>
-                                View All Announcements
-                            </a>
-                        </div>
-                    {% else %}
-                        <div class="empty-state">
-                            <div class="empty-state-icon">
-                                <i class="fas fa-bullhorn"></i>
-                            </div>
-                            <h6 class="empty-state-title">No Announcements Yet</h6>
-                            <p class="empty-state-text">Start communicating with your community by creating announcements</p>
-                            <a href="{{ url_for('admin_add_announcement') }}" class="btn-modern btn-modern-primary">
-                                <i class="fas fa-plus"></i>
-                                Create First Announcement
-                            </a>
-                        </div>
-                    {% endif %}
-                </div>
+                        <h6 style="color: white; margin-bottom: 0.5rem;">No Announcements</h6>
+                        <p style="color: #a1a1aa; margin-bottom: 1.5rem;">Create your first announcement to get started</p>
+                        <a href="{{ url_for('admin_add_announcement') }}" class="btn-ultra btn-primary-ultra">
+                            <i class="fas fa-plus"></i>
+                            Create Announcement
+                        </a>
+                    </div>
+                {% endif %}
             </div>
         </div>
         
-        <!-- Modern Recent Enquiries -->
         <div class="col-lg-6 mb-4">
-            <div class="card-modern h-100">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 d-flex align-items-center">
-                        <div class="p-2 rounded-lg me-3" style="background: var(--warning-light);">
-                            <i class="fas fa-question-circle" style="color: var(--warning);"></i>
-                        </div>
+            <div class="activity-feed">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3 style="color: white; font-size: 1.3rem; font-weight: 600; margin: 0;">
+                        <i class="fas fa-users me-2" style="color: #667eea;"></i>
                         Recent Enquiries
-                    </h5>
-                    <a href="{{ url_for('admin_enquiries') }}" class="btn-modern btn-modern-sm" style="background: linear-gradient(135deg, var(--warning) 0%, #d97706 100%); color: white;">
+                    </h3>
+                    <a href="{{ url_for('admin_enquiries') }}" class="btn-ultra btn-secondary-ultra">
                         <i class="fas fa-eye"></i>
                         View All
                     </a>
                 </div>
-                <div class="card-body">
-                    {% if recent_enquiries %}
-                        <div class="list-modern">
-                            {% for enquiry in recent_enquiries %}
-                            <div class="list-modern-item">
-                                <div class="d-flex justify-content-between align-items-start">
-                                    <div class="flex-grow-1">
-                                        <h6 class="mb-2 fw-semibold">{{ enquiry.name }}</h6>
-                                        <div class="mb-2">
-                                            <div class="text-muted small mb-1">
-                                                <i class="fas fa-envelope me-2"></i>{{ enquiry.email }}
-                                            </div>
-                                            {% if enquiry.course_interested %}
-                                            <div class="text-muted small mb-1">
-                                                <i class="fas fa-book me-2"></i>{{ enquiry.course_interested }}
-                                            </div>
-                                            {% endif %}
-                                        </div>
-                                        <div class="d-flex align-items-center gap-3">
-                                            <span class="badge badge-modern-{{ 'primary' if enquiry.status == 'new' else 'info' if enquiry.status == 'contacted' else 'success' if enquiry.status == 'converted' else 'secondary' }}">
-                                                {{ enquiry.status.title() }}
-                                            </span>
-                                            <small class="text-muted">{{ enquiry.created_at.strftime('%b %d, %Y') }}</small>
-                                        </div>
-                                    </div>
-                                </div>
+                
+                {% if recent_enquiries %}
+                    {% for enquiry in recent_enquiries %}
+                    <div class="activity-item">
+                        <div class="activity-icon">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="activity-content flex-grow-1">
+                            <h6>{{ enquiry.name }}</h6>
+                            <p><i class="fas fa-envelope me-1"></i>{{ enquiry.email }}</p>
+                            {% if enquiry.course_interested %}
+                            <p><i class="fas fa-book me-1"></i>{{ enquiry.course_interested }}</p>
+                            {% endif %}
+                            <div class="activity-meta">
+                                <span class="badge-ultra badge-{{ 'primary' if enquiry.status == 'new' else 'success' if enquiry.status == 'contacted' else 'warning' if enquiry.status == 'converted' else 'primary' }}">
+                                    {{ enquiry.status.title() }}
+                                </span>
+                                <span>{{ enquiry.created_at.strftime('%b %d') }}</span>
                             </div>
-                            {% endfor %}
                         </div>
-                        
-                        <div class="text-center mt-4">
-                            <a href="{{ url_for('admin_enquiries') }}" class="btn-modern btn-modern-secondary btn-modern-sm">
-                                <i class="fas fa-arrow-right"></i>
-                                Manage All Enquiries
-                            </a>
+                    </div>
+                    {% endfor %}
+                    
+                    <div class="text-center mt-4">
+                        <a href="{{ url_for('admin_enquiries') }}" class="btn-ultra btn-secondary-ultra">
+                            <i class="fas fa-arrow-right"></i>
+                            Manage All
+                        </a>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <div style="width: 60px; height: 60px; background: rgba(102, 126, 234, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
+                            <i class="fas fa-users" style="color: #667eea; font-size: 1.5rem;"></i>
                         </div>
-                    {% else %}
-                        <div class="empty-state">
-                            <div class="empty-state-icon">
-                                <i class="fas fa-question-circle"></i>
-                            </div>
-                            <h6 class="empty-state-title">No New Enquiries</h6>
-                            <p class="empty-state-text">All enquiries have been processed or no new ones received</p>
-                        </div>
-                    {% endif %}
-                </div>
+                        <h6 style="color: white; margin-bottom: 0.5rem;">All Clear</h6>
+                        <p style="color: #a1a1aa;">No pending enquiries to review</p>
+                    </div>
+                {% endif %}
             </div>
         </div>
     </div>
