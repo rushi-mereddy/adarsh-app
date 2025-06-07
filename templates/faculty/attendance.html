@@ -25,29 +25,107 @@
         </div>
     </div>
     
-    <!-- Course and Date Selection -->
+    <!-- Classroom Filters and Course Selection -->
     <div class="row mb-4">
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
                     <h5 class="mb-0">
                         <i class="fas fa-filter me-2"></i>
-                        Select Course and Date
+                        Filter Students by Classroom Parameters
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="GET" id="filter-form">
+                        <div class="row align-items-end">
+                            <div class="col-md-3 mb-3">
+                                <label for="department" class="form-label fw-semibold">Department</label>
+                                <select class="form-select" id="department" name="department" onchange="applyFilters()">
+                                    <option value="">All Departments</option>
+                                    {% for dept in departments %}
+                                        <option value="{{ dept }}" {% if filters.department == dept %}selected{% endif %}>
+                                            {{ dept }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-2 mb-3">
+                                <label for="year" class="form-label fw-semibold">Year</label>
+                                <select class="form-select" id="year" name="year" onchange="applyFilters()">
+                                    <option value="">All Years</option>
+                                    {% for yr in years %}
+                                        <option value="{{ yr }}" {% if filters.year == yr %}selected{% endif %}>
+                                            Year {{ yr }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-2 mb-3">
+                                <label for="semester" class="form-label fw-semibold">Semester</label>
+                                <select class="form-select" id="semester" name="semester" onchange="applyFilters()">
+                                    <option value="">All Semesters</option>
+                                    {% for sem in semesters %}
+                                        <option value="{{ sem }}" {% if filters.semester == sem %}selected{% endif %}>
+                                            Sem {{ sem }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-2 mb-3">
+                                <label for="section" class="form-label fw-semibold">Section</label>
+                                <select class="form-select" id="section" name="section" onchange="applyFilters()">
+                                    <option value="">All Sections</option>
+                                    {% for sec in sections %}
+                                        <option value="{{ sec }}" {% if filters.section == sec %}selected{% endif %}>
+                                            Section {{ sec }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="course_id" class="form-label fw-semibold">Course</label>
+                                <select class="form-select" id="course_id" name="course_id" onchange="applyFilters()">
+                                    <option value="">Select a course</option>
+                                    {% for course in courses %}
+                                        <option value="{{ course.id }}" {% if selected_course and selected_course.id == course.id %}selected{% endif %}>
+                                            {{ course.code }} - {{ course.name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="d-flex gap-2">
+                                    <button type="button" class="btn btn-primary" onclick="applyFilters()">
+                                        <i class="fas fa-search me-2"></i>Filter Students
+                                    </button>
+                                    <button type="button" class="btn btn-secondary" onclick="clearFilters()">
+                                        <i class="fas fa-times me-2"></i>Clear Filters
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Date Selection for Attendance -->
+    {% if students %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-calendar me-2"></i>
+                        Select Date for Attendance
                     </h5>
                 </div>
                 <div class="card-body">
                     <div class="row align-items-end">
-                        <div class="col-md-4 mb-3">
-                            <label for="course_id" class="form-label fw-semibold">Course</label>
-                            <select class="form-select" id="course_id" name="course_id" onchange="loadAttendanceView()">
-                                <option value="">Select a course</option>
-                                {% for course in courses %}
-                                    <option value="{{ course.id }}" {% if selected_course and selected_course.id == course.id %}selected{% endif %}>
-                                        {{ course.code }} - {{ course.name }}
-                                    </option>
-                                {% endfor %}
-                            </select>
-                        </div>
                         <div class="col-md-4 mb-3">
                             <label for="date" class="form-label fw-semibold">Date</label>
                             <input type="date" class="form-control" id="date" name="date" 
@@ -271,6 +349,33 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+function applyFilters() {
+    const department = document.getElementById('department').value;
+    const year = document.getElementById('year').value;
+    const semester = document.getElementById('semester').value;
+    const section = document.getElementById('section').value;
+    const courseId = document.getElementById('course_id').value;
+    const date = document.getElementById('date') ? document.getElementById('date').value : '';
+    
+    const url = new URL(window.location.href);
+    url.search = ''; // Clear existing params
+    
+    if (department) url.searchParams.set('department', department);
+    if (year) url.searchParams.set('year', year);
+    if (semester) url.searchParams.set('semester', semester);
+    if (section) url.searchParams.set('section', section);
+    if (courseId) url.searchParams.set('course_id', courseId);
+    if (date) url.searchParams.set('date', date);
+    
+    window.location.href = url.toString();
+}
+
+function clearFilters() {
+    const url = new URL(window.location.href);
+    url.search = ''; // Clear all params
+    window.location.href = url.toString();
+}
+
 function loadAttendanceView() {
     const courseSelect = document.getElementById('course_id');
     const dateInput = document.getElementById('date');
@@ -280,24 +385,27 @@ function loadAttendanceView() {
     
     if (courseId && date) {
         const url = new URL(window.location.href);
+        const department = document.getElementById('department').value;
+        const year = document.getElementById('year').value;
+        const semester = document.getElementById('semester').value;
+        const section = document.getElementById('section').value;
+        
         url.search = ''; // Clear existing params
+        if (department) url.searchParams.set('department', department);
+        if (year) url.searchParams.set('year', year);
+        if (semester) url.searchParams.set('semester', semester);
+        if (section) url.searchParams.set('section', section);
         url.searchParams.set('course_id', courseId);
         url.searchParams.set('date', date);
         window.location.href = url.toString();
     } else {
         if (!courseId) {
-            showToast('Please select a course', 'warning');
+            alert('Please select a course');
         }
         if (!date) {
-            showToast('Please select a date', 'warning');
+            alert('Please select a date');
         }
     }
-}
-
-function clearSelection() {
-    const url = new URL(window.location.href);
-    url.search = ''; // Clear all params
-    window.location.href = url.toString();
 }
 
 function markStudent(studentId, status) {

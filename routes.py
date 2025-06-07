@@ -254,6 +254,14 @@ def faculty_attendance():
     students = []
     existing_attendance = {}
     
+    # Get filter parameters for classroom-based filtering
+    department = request.args.get('department', '')
+    year = request.args.get('year', type=int)
+    semester = request.args.get('semester', type=int)
+    section = request.args.get('section', '')
+    course_id = request.args.get('course_id', type=int)
+    attendance_date = request.args.get('date')
+    
     if request.method == 'POST':
         if form.validate_on_submit():
             # Process attendance submission
@@ -282,29 +290,45 @@ def faculty_attendance():
             flash('Attendance marked successfully!', 'success')
             return redirect(url_for('faculty_attendance'))
     
-    # Handle course selection for viewing
-    course_id = request.args.get('course_id', type=int)
-    attendance_date = request.args.get('date')
+    # Build student query based on classroom parameters
+    if department or year or semester or section:
+        student_query = User.query.filter(User.role == 'student', User.is_active == True)
+        
+        if department:
+            student_query = student_query.filter(User.department == department)
+        if year:
+            student_query = student_query.filter(User.year == year)
+        if semester:
+            student_query = student_query.filter(User.semester == semester)
+        if section:
+            student_query = student_query.filter(User.section == section)
+            
+        students = student_query.order_by(User.first_name, User.last_name).all()
     
+    # Handle course selection and existing attendance
     if course_id:
         selected_course = Course.query.get(course_id)
         if selected_course and selected_course.faculty_id == current_user.id:
-            # Get enrolled students
-            students = db.session.query(User).join(Enrollment).filter(
-                Enrollment.course_id == course_id,
-                Enrollment.is_active == True,
-                User.role == 'student',
-                User.is_active == True
-            ).order_by(User.first_name, User.last_name).all()
+            form.course_id.data = course_id
             
             # Get existing attendance for the date
             if attendance_date:
-                attendance_date = datetime.strptime(attendance_date, '%Y-%m-%d').date()
-                existing_records = Attendance.query.filter_by(
-                    course_id=course_id,
-                    date=attendance_date
-                ).all()
-                existing_attendance = {str(r.student_id): r.status for r in existing_records}
+                try:
+                    date_obj = datetime.strptime(attendance_date, '%Y-%m-%d').date()
+                    attendance_records = Attendance.query.filter_by(
+                        course_id=course_id,
+                        date=date_obj
+                    ).all()
+                    existing_attendance = {str(a.student_id): a.status for a in attendance_records}
+                    form.date.data = date_obj
+                except:
+                    pass
+    
+    # Get available filter options
+    departments = db.session.query(User.department).filter(User.role == 'student', User.department.isnot(None)).distinct().all()
+    years = db.session.query(User.year).filter(User.role == 'student', User.year.isnot(None)).distinct().order_by(User.year).all()
+    semesters = db.session.query(User.semester).filter(User.role == 'student', User.semester.isnot(None)).distinct().order_by(User.semester).all()
+    sections = db.session.query(User.section).filter(User.role == 'student', User.section.isnot(None)).distinct().order_by(User.section).all()
     
     return render_template('faculty/attendance.html',
                          form=form,
@@ -312,7 +336,17 @@ def faculty_attendance():
                          selected_course=selected_course,
                          students=students,
                          existing_attendance=existing_attendance,
-                         selected_date=attendance_date)
+                         selected_date=attendance_date,
+                         departments=[d[0] for d in departments if d[0]],
+                         years=[y[0] for y in years if y[0]],
+                         semesters=[s[0] for s in semesters if s[0]],
+                         sections=[sec[0] for sec in sections if sec[0]],
+                         filters={
+                             'department': department,
+                             'year': year,
+                             'semester': semester,
+                             'section': section
+                         })
 
 # Admin Routes
 @app.route('/admin/dashboard')
