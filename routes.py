@@ -1705,7 +1705,7 @@ def api_departments():
                 'code': dept.code,
                 'program': dept.program,
                 'description': dept.description,
-                'image_url': dept.image_filename if dept.image_filename else None,
+                'image_url': dept.image if dept.image else None,
                 'established_year': dept.established_year
             }
             department_list.append(department_data)
