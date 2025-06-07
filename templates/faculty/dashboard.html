@@ -110,17 +110,17 @@
         </div>
         
         <div class="col-lg-3 col-md-6 mb-4">
-            <a href="{{ url_for('manage_courses') }}" class="quick-action-card">
+            <a href="{{ url_for('admin_courses') }}" class="quick-action-card">
                 <div class="quick-action-icon">
                     <i class="fas fa-book"></i>
                 </div>
-                <h6 class="quick-action-title">Manage Courses</h6>
-                <p class="quick-action-desc">View and edit your course details</p>
+                <h6 class="quick-action-title">View Courses</h6>
+                <p class="quick-action-desc">View available course details</p>
             </a>
         </div>
         
         <div class="col-lg-3 col-md-6 mb-4">
-            <a href="{{ url_for('view_enrollments') }}" class="quick-action-card">
+            <a href="{{ url_for('admin_enrollments') }}" class="quick-action-card">
                 <div class="quick-action-icon">
                     <i class="fas fa-users"></i>
                 </div>
@@ -130,7 +130,7 @@
         </div>
         
         <div class="col-lg-3 col-md-6 mb-4">
-            <a href="{{ url_for('view_announcements') }}" class="quick-action-card">
+            <a href="{{ url_for('admin_announcements') }}" class="quick-action-card">
                 <div class="quick-action-icon">
                     <i class="fas fa-bullhorn"></i>
                 </div>
@@ -183,7 +183,7 @@
                             <i class="fas fa-calendar-check me-1"></i>
                             Mark Attendance
                         </a>
-                        <a href="{{ url_for('view_enrollments') }}?course_id={{ item.course.id }}" 
+                        <a href="{{ url_for('admin_enrollments') }}" 
                            class="btn-ultra btn-secondary-ultra">
                             <i class="fas fa-users"></i>
                         </a>
@@ -200,7 +200,7 @@
                 <i class="fas fa-book" style="font-size: 4rem; color: #e5e7eb; margin-bottom: 1rem;"></i>
                 <h5 style="color: #6b7280; margin-bottom: 1rem;">No Courses Assigned</h5>
                 <p style="color: #9ca3af;">You haven't been assigned to any courses yet. Contact the administrator to get courses assigned.</p>
-                <a href="{{ url_for('manage_courses') }}" class="btn-ultra btn-primary-ultra">
+                <a href="{{ url_for('admin_courses') }}" class="btn-ultra btn-primary-ultra">
                     <i class="fas fa-plus me-2"></i>View All Courses
                 </a>
             </div>
@@ -266,7 +266,7 @@
                         </div>
                         {% endfor %}
                         <div class="text-center mt-3">
-                            <a href="{{ url_for('view_announcements') }}" class="btn-ultra btn-secondary-ultra btn-sm">
+                            <a href="{{ url_for('admin_announcements') }}" class="btn-ultra btn-secondary-ultra btn-sm">
                                 View All Announcements
                             </a>
                         </div>
