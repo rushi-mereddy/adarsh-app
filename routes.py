@@ -207,9 +207,6 @@ def student_attendance():
 @login_required
 @faculty_required
 def faculty_dashboard():
-    # Get courses taught by faculty
-    courses = Course.query.filter_by(faculty_id=current_user.id, is_active=True).all()
-    
     # Get recent announcements
     announcements = Announcement.query.filter(
         or_(Announcement.target_audience == 'all', Announcement.target_audience == 'faculty'),
@@ -222,25 +219,27 @@ def faculty_dashboard():
         Event.is_active == True
     ).order_by(Event.event_date).limit(5).all()
     
-    # Calculate attendance statistics for each course
-    course_stats = []
-    for course in courses:
-        total_students = db.session.query(Enrollment).filter_by(
-            course_id=course.id, is_active=True
-        ).count()
-        
-        recent_classes = Attendance.query.filter_by(course_id=course.id).filter(
-            Attendance.date >= datetime.now().date().replace(day=1)
-        ).count()
-        
-        course_stats.append({
-            'course': course,
-            'total_students': total_students,
-            'recent_classes': recent_classes
-        })
+    # Calculate attendance statistics for classroom-based system
+    total_students = User.query.filter_by(role='student', is_active=True).count()
+    
+    # Count attendance marked today by this faculty
+    today = datetime.now().date()
+    attendance_marked_today = Attendance.query.filter_by(
+        marked_by=current_user.id,
+        date=today
+    ).count()
+    
+    # Count active students in the faculty's department
+    active_students = User.query.filter_by(
+        role='student', 
+        department=current_user.department,
+        is_active=True
+    ).count() if current_user.department else total_students
     
     return render_template('faculty/dashboard.html',
-                         course_stats=course_stats,
+                         total_students=total_students,
+                         attendance_marked_today=attendance_marked_today,
+                         active_students=active_students,
                          announcements=announcements,
                          events=events)
 
@@ -1126,7 +1125,6 @@ def admin_attendance_overview():
     year = request.args.get('year', type=int)
     semester = request.args.get('semester', type=int)
     section = request.args.get('section', '')
-    course_id = request.args.get('course_id', type=int)
     date_from = request.args.get('date_from')
     date_to = request.args.get('date_to')
     
@@ -1136,12 +1134,9 @@ def admin_attendance_overview():
     if not date_to:
         date_to = datetime.now().strftime('%Y-%m-%d')
     
-    # Base query for attendance records
+    # Base query for attendance records (classroom-based)
     from sqlalchemy import case
     query = db.session.query(
-        Attendance.course_id,
-        Course.name.label('course_name'),
-        Course.code.label('course_code'),
         User.department,
         User.year,
         User.semester,
@@ -1152,8 +1147,7 @@ def admin_attendance_overview():
         func.sum(case((Attendance.status == 'late', 1), else_=0)).label('late_count'),
         func.count(distinct(Attendance.student_id)).label('total_students'),
         func.count(distinct(Attendance.date)).label('total_days')
-    ).join(Course, Attendance.course_id == Course.id)\
-     .join(User, Attendance.student_id == User.id)\
+    ).join(User, Attendance.student_id == User.id)\
      .filter(Attendance.date >= date_from)\
      .filter(Attendance.date <= date_to)
     
@@ -1166,14 +1160,9 @@ def admin_attendance_overview():
         query = query.filter(User.semester == semester)
     if section:
         query = query.filter(User.section == section)
-    if course_id:
-        query = query.filter(Attendance.course_id == course_id)
     
-    # Group by course and classroom parameters
+    # Group by classroom parameters
     stats = query.group_by(
-        Attendance.course_id,
-        Course.name,
-        Course.code,
         User.department,
         User.year,
         User.semester,
@@ -1192,9 +1181,6 @@ def admin_attendance_overview():
             present_percentage = absent_percentage = late_percentage = 0
             
         attendance_stats.append({
-            'course_id': stat.course_id,
-            'course_name': stat.course_name,
-            'course_code': stat.course_code,
             'department': stat.department or 'N/A',
             'year': stat.year or 'N/A',
             'semester': stat.semester or 'N/A',
@@ -1225,8 +1211,6 @@ def admin_attendance_overview():
     sections = db.session.query(distinct(User.section)).filter(User.section.isnot(None)).all()
     sections = sorted([sec[0] for sec in sections if sec[0]])
     
-    courses = Course.query.all()
-    
     # Calculate overall statistics
     total_attendance_records = sum(stat['total_records'] for stat in attendance_stats)
     total_present = sum(stat['present_count'] for stat in attendance_stats)
@@ -1242,7 +1226,7 @@ def admin_attendance_overview():
         'absent_percentage': round((total_absent / total_attendance_records * 100), 1) if total_attendance_records > 0 else 0,
         'late_percentage': round((total_late / total_attendance_records * 100), 1) if total_attendance_records > 0 else 0,
         'total_classes': len(set(f"{stat['department']}-{stat['year']}-{stat['semester']}-{stat['section']}" for stat in attendance_stats)),
-        'total_courses': len(set(stat['course_id'] for stat in attendance_stats))
+        'total_classrooms': len(attendance_stats)
     }
     
     filters = {
@@ -1250,7 +1234,6 @@ def admin_attendance_overview():
         'year': year,
         'semester': semester,
         'section': section,
-        'course_id': course_id,
         'date_from': date_from,
         'date_to': date_to
     }
