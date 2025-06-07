@@ -16,8 +16,12 @@ class User(UserMixin, db.Model):
     date_of_birth = db.Column(db.Date)
     profile_image = db.Column(db.String(200))
     department = db.Column(db.String(100))
+    year = db.Column(db.Integer)  # 1, 2, 3, 4 for students
+    semester = db.Column(db.Integer)  # 1, 2, 3, 4, 5, 6, 7, 8
+    section = db.Column(db.String(10))  # A, B, C, etc.
     student_id = db.Column(db.String(50), unique=True)
     faculty_id = db.Column(db.String(50), unique=True)
+    classroom_id = db.Column(db.Integer, db.ForeignKey('classroom.id'))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     is_active = db.Column(db.Boolean, default=True)
     
@@ -31,6 +35,28 @@ class User(UserMixin, db.Model):
 
     def __repr__(self):
         return f'<User {self.username}>'
+
+class Classroom(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)  # e.g., "CSE 2nd Year Sem 3 Section A"
+    department = db.Column(db.String(100), nullable=False)
+    year = db.Column(db.Integer, nullable=False)  # 1, 2, 3, 4
+    semester = db.Column(db.Integer, nullable=False)  # 1, 2, 3, 4, 5, 6, 7, 8
+    section = db.Column(db.String(10), nullable=False)  # A, B, C, etc.
+    academic_year = db.Column(db.String(20))  # e.g., "2023-24"
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    is_active = db.Column(db.Boolean, default=True)
+    
+    # Relationships
+    students = db.relationship('User', backref='assigned_classroom', lazy=True, 
+                              foreign_keys='User.classroom_id',
+                              primaryjoin='and_(Classroom.id==User.classroom_id, User.role=="student")')
+    
+    def get_classroom_name(self):
+        return f"{self.department} Year {self.year} Sem {self.semester} Section {self.section}"
+    
+    def __repr__(self):
+        return f'<Classroom {self.get_classroom_name()}>'
 
 class Course(db.Model):
     id = db.Column(db.Integer, primary_key=True)
