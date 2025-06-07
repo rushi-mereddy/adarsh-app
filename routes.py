@@ -13,6 +13,7 @@ import os
 import uuid
 from werkzeug.utils import secure_filename
 from utils import admin_required, faculty_required, student_required, allowed_file, save_uploaded_file
+from excel_utils import process_excel_file, create_students_from_data, create_sample_excel_template
 
 @app.route('/')
 def index():
@@ -1543,6 +1544,136 @@ def public_department_detail(department_id):
 @app.errorhandler(403)
 def forbidden_error(error):
     return render_template('errors/403.html'), 403
+
+@app.route('/admin/import-students', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def admin_import_students():
+    form = ExcelImportForm()
+    
+    # Populate classroom choices
+    classrooms = Classroom.query.all()
+    form.classroom_id.choices = [(0, 'No Classroom Assignment')] + [(c.id, f"{c.name} ({c.department} - {c.year}{c.section})") for c in classrooms]
+    
+    if form.validate_on_submit():
+        # Handle file upload
+        if 'excel_file' not in request.files:
+            flash('No file selected', 'error')
+            return redirect(request.url)
+        
+        file = request.files['excel_file']
+        if file.filename == '':
+            flash('No file selected', 'error')
+            return redirect(request.url)
+        
+        if file and file.filename.lower().endswith(('.xlsx', '.xls')):
+            # Save uploaded file temporarily
+            filename = secure_filename(file.filename)
+            temp_filepath = os.path.join('/tmp', f"{uuid.uuid4()}_{filename}")
+            file.save(temp_filepath)
+            
+            try:
+                # Process Excel file
+                result = process_excel_file(
+                    temp_filepath,
+                    form.default_password.data,
+                    form.department.data,
+                    form.classroom_id.data
+                )
+                
+                if not result['success']:
+                    flash(f"Error processing file: {result['error']}", 'error')
+                    return render_template('admin/import_students.html', form=form)
+                
+                # Show preview if there are errors or valid data
+                if result['errors'] or result['valid_data']:
+                    return render_template('admin/import_preview.html', 
+                                         form=form, 
+                                         result=result,
+                                         temp_file=temp_filepath)
+                else:
+                    flash('No valid data found in Excel file', 'warning')
+                    return render_template('admin/import_students.html', form=form)
+                    
+            except Exception as e:
+                flash(f'Error processing Excel file: {str(e)}', 'error')
+                if os.path.exists(temp_filepath):
+                    os.remove(temp_filepath)
+                return render_template('admin/import_students.html', form=form)
+                
+            finally:
+                # Clean up temp file if still exists
+                if os.path.exists(temp_filepath):
+                    os.remove(temp_filepath)
+        else:
+            flash('Please upload a valid Excel file (.xlsx or .xls)', 'error')
+    
+    return render_template('admin/import_students.html', form=form)
+
+@app.route('/admin/confirm-import', methods=['POST'])
+@login_required
+@admin_required
+def admin_confirm_import():
+    """Confirm and execute the student import"""
+    temp_file = request.form.get('temp_file')
+    action = request.form.get('action')
+    
+    if action == 'confirm' and temp_file and os.path.exists(temp_file):
+        try:
+            # Re-process the file to get valid data
+            form_data = request.form
+            result = process_excel_file(
+                temp_file,
+                form_data.get('default_password'),
+                form_data.get('department'),
+                int(form_data.get('classroom_id', 0)) if form_data.get('classroom_id') != '0' else None
+            )
+            
+            if result['success'] and result['valid_data']:
+                # Create students
+                creation_result = create_students_from_data(result['valid_data'])
+                
+                if creation_result['success']:
+                    flash(f"Successfully imported {creation_result['created_count']} students!", 'success')
+                    if creation_result['failed_count'] > 0:
+                        flash(f"Failed to import {creation_result['failed_count']} students", 'warning')
+                else:
+                    flash(f"Error creating students: {creation_result.get('error', 'Unknown error')}", 'error')
+            else:
+                flash('No valid student data to import', 'error')
+                
+        except Exception as e:
+            flash(f'Error during import: {str(e)}', 'error')
+        finally:
+            # Clean up temp file
+            if os.path.exists(temp_file):
+                os.remove(temp_file)
+    
+    return redirect(url_for('admin_users'))
+
+@app.route('/admin/download-template')
+@login_required
+@admin_required
+def admin_download_template():
+    """Download Excel template for student import"""
+    from flask import Response
+    import io
+    
+    # Create sample template
+    df = create_sample_excel_template()
+    
+    # Create Excel file in memory
+    output = io.BytesIO()
+    with pd.ExcelWriter(output, engine='openpyxl') as writer:
+        df.to_excel(writer, sheet_name='Students', index=False)
+    
+    output.seek(0)
+    
+    return Response(
+        output.getvalue(),
+        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        headers={'Content-Disposition': 'attachment; filename=student_import_template.xlsx'}
+    )
 
 @app.errorhandler(500)
 def internal_error(error):

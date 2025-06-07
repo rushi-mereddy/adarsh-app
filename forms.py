@@ -200,6 +200,22 @@ class LecturerForm(FlaskForm):
     display_order = IntegerField('Display Order', validators=[Optional(), NumberRange(min=0)])
     submit = SubmitField('Save Lecturer')
 
+class ExcelImportForm(FlaskForm):
+    excel_file = FileField('Excel File', 
+                          validators=[DataRequired(), FileAllowed(['xlsx', 'xls'], 'Excel files only!')])
+    default_password = StringField('Default Password', validators=[DataRequired(), Length(min=6)], 
+                                 default='student123')
+    department = SelectField('Default Department', validators=[DataRequired()],
+                            choices=[('CSE', 'Computer Science Engineering'),
+                                   ('ECE', 'Electronics & Communication'),
+                                   ('EEE', 'Electrical & Electronics'),
+                                   ('MECH', 'Mechanical Engineering'),
+                                   ('CIVIL', 'Civil Engineering'),
+                                   ('IT', 'Information Technology')])
+    classroom_id = SelectField('Assign to Classroom (Optional)', coerce=int, validators=[Optional()],
+                              choices=[(0, 'No Classroom Assignment')])
+    submit = SubmitField('Import Students')
+
 class StudentReviewForm(FlaskForm):
     student_name = StringField('Student Name', validators=[DataRequired(), Length(max=100)])
     photo = FileField('Student Photo', 
