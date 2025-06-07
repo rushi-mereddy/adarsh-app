@@ -1690,6 +1690,90 @@ def admin_download_template():
         headers={'Content-Disposition': 'attachment; filename=student_import_template.xlsx'}
     )
 
+# API Endpoints
+@app.route('/api/departments', methods=['GET'])
+def api_departments():
+    """API endpoint for listing all departments"""
+    try:
+        departments = Department.query.filter_by(is_active=True).order_by(Department.name).all()
+        
+        department_list = []
+        for dept in departments:
+            department_data = {
+                'id': dept.id,
+                'name': dept.name,
+                'code': dept.code,
+                'program': dept.program,
+                'description': dept.description,
+                'image_url': dept.image_filename if dept.image_filename else None,
+                'established_year': dept.established_year
+            }
+            department_list.append(department_data)
+        
+        return jsonify({
+            'success': True,
+            'departments': department_list,
+            'total': len(department_list)
+        }), 200
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': 'Failed to fetch departments'
+        }), 500
+
+@app.route('/api/enquiry', methods=['POST'])
+def api_enquiry():
+    """API endpoint for handling enquiry submissions"""
+    try:
+        # Get JSON data from request
+        data = request.get_json()
+        
+        if not data:
+            return jsonify({
+                'success': False,
+                'message': 'No data provided'
+            }), 400
+        
+        # Validate required fields
+        required_fields = ['name', 'email', 'mobile']
+        for field in required_fields:
+            if not data.get(field):
+                return jsonify({
+                    'success': False,
+                    'message': f'Missing required field: {field}'
+                }), 400
+        
+        # Create enquiry record
+        enquiry = Enquiry(
+            name=data.get('name'),
+            email=data.get('email'),
+            phone=data.get('mobile'),
+            message=f"Programme: {data.get('programme', 'Not specified')}\n"
+                   f"Branch: {data.get('branch', 'Not specified')}\n"
+                   f"State: {data.get('state', 'Not specified')}\n"
+                   f"City: {data.get('city', 'Not specified')}",
+            course_interested=data.get('branch', ''),
+            status='new',
+            created_at=datetime.utcnow()
+        )
+        
+        db.session.add(enquiry)
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Enquiry submitted successfully',
+            'enquiry_id': enquiry.id
+        }), 201
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            'success': False,
+            'message': 'Failed to submit enquiry. Please try again.'
+        }), 500
+
 @app.errorhandler(500)
 def internal_error(error):
     db.session.rollback()

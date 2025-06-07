@@ -1,0 +1,36 @@
+  <!-- item START -->
+              <div class="grid-item" data-groups='["branding"]'>
+                <div class="course-item">
+                  <div class="coures-img" style="height: 180px;">
+                    <img class="img-fluid" src="https://media.licdn.com/dms/image/v2/D5612AQEn9v6xDvsGUg/article-cover_image-shrink_600_2000/article-cover_image-shrink_600_2000/0/1706794157000?e=2147483647&v=beta&t=xBQ7NwOBrEmxcYU9ADPeIkRh8lNOeWEpO0V7EOOFqV0" alt="">
+                    <div class="course-tag">
+                      <a href="#">Under Graduation (B.Tech)</a>
+                    </div>
+                  </div>
+                  <div class="course-conten">
+                    <!-- <a href="#" class="course-author d-flex align-items-center mb-3">
+                      <img class="avatar img-fluid" src="images/avatar/01.jpg" alt="">
+                      <span class="author-name">Alice Williams</span>
+                    </a> -->
+                    <h5 class="mb-3" style="min-height: 75px;">
+                      <a href="">Artificial Intelligence & Machine Learning(CSE AIML)</a>
+                    </h5>
+                    <div class="course-rating mb-3 pb-3 border-bottom">
+                      <div class="review-rating d-none">
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star"></i>
+                      </div>
+                    </div>
+                    <!-- <div class="course-meta">
+                      <ul class="list-unstyled mb-0">
+                        <li><i class="fa fa-user pr-2"></i>12 students</li>
+                        <li><i class="fa fa-book-open pr-2"></i>08 lessons</li>
+                        <li class="price"><span>$100</span> $50</li>
+                      </ul>
+                    </div> -->
+                  </div>
+                </div>
+              </div>
