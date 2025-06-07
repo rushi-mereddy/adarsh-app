@@ -241,55 +241,54 @@
         </div>
     </div>
     
-    <!-- Attendance Overview -->
+    <!-- Ultra Modern Attendance Overview -->
     {% if attendance_stats %}
-    <div class="row mb-4">
+    <div class="row mb-5">
         <div class="col-12">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">
-                        <i class="fas fa-chart-bar text-info me-2"></i>
+            <div class="activity-feed">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3 style="color: white; font-size: 1.3rem; font-weight: 600; margin: 0;">
+                        <i class="fas fa-chart-bar me-2" style="color: #667eea;"></i>
                         Attendance Overview (Last 10 Days)
-                    </h5>
-                    <a href="{{ url_for('admin_attendance_overview') }}" class="btn btn-sm btn-info">
-                        <i class="fas fa-chart-line me-1"></i>Detailed View
+                    </h3>
+                    <a href="{{ url_for('admin_attendance_overview') }}" class="btn-ultra btn-primary-ultra">
+                        <i class="fas fa-chart-line"></i>
+                        Detailed View
                     </a>
                 </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-sm">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Total Records</th>
-                                    <th>Present</th>
-                                    <th>Attendance %</th>
-                                    <th>Progress</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for stat in attendance_stats %}
-                                {% set percentage = (stat.present_count / stat.total_records * 100) if stat.total_records > 0 else 0 %}
-                                <tr>
-                                    <td>{{ stat.date.strftime('%b %d, %Y') }}</td>
-                                    <td>{{ stat.total_records }}</td>
-                                    <td>{{ stat.present_count }}</td>
-                                    <td>
-                                        <span class="fw-bold {% if percentage >= 75 %}text-success{% elif percentage >= 60 %}text-warning{% else %}text-danger{% endif %}">
-                                            {{ "%.1f"|format(percentage) }}%
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <div class="progress" style="height: 20px; width: 100px;">
-                                            <div class="progress-bar {% if percentage >= 75 %}bg-success{% elif percentage >= 60 %}bg-warning{% else %}bg-danger{% endif %}" 
-                                                 style="width: {{ percentage }}%"></div>
-                                        </div>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
+                
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="border-bottom: 1px solid var(--dark-border);">
+                                <th style="color: #a1a1aa; font-weight: 500; padding: 1rem; text-align: left;">Date</th>
+                                <th style="color: #a1a1aa; font-weight: 500; padding: 1rem; text-align: left;">Total Records</th>
+                                <th style="color: #a1a1aa; font-weight: 500; padding: 1rem; text-align: left;">Present</th>
+                                <th style="color: #a1a1aa; font-weight: 500; padding: 1rem; text-align: left;">Attendance %</th>
+                                <th style="color: #a1a1aa; font-weight: 500; padding: 1rem; text-align: left;">Progress</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for stat in attendance_stats %}
+                            {% set percentage = (stat.present_count / stat.total_records * 100) if stat.total_records > 0 else 0 %}
+                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); transition: background 0.2s ease;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">
+                                <td style="color: white; padding: 1rem;">{{ stat.date.strftime('%b %d, %Y') }}</td>
+                                <td style="color: white; padding: 1rem;">{{ stat.total_records }}</td>
+                                <td style="color: white; padding: 1rem;">{{ stat.present_count }}</td>
+                                <td style="padding: 1rem;">
+                                    <span style="font-weight: 600; color: {% if percentage >= 75 %}#10b981{% elif percentage >= 60 %}#f59e0b{% else %}#ef4444{% endif %};">
+                                        {{ "%.1f"|format(percentage) }}%
+                                    </span>
+                                </td>
+                                <td style="padding: 1rem;">
+                                    <div style="width: 100px; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden;">
+                                        <div style="height: 100%; background: {% if percentage >= 75 %}linear-gradient(90deg, #10b981 0%, #059669 100%){% elif percentage >= 60 %}linear-gradient(90deg, #f59e0b 0%, #d97706 100%){% else %}linear-gradient(90deg, #ef4444 0%, #dc2626 100%){% endif %}; width: {{ percentage }}%; transition: width 0.3s ease;"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>

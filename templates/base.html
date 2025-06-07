@@ -36,7 +36,7 @@
                 </button>
                 
                 <div class="d-flex align-items-center">
-                    <ul class="nav-ultra" id="mainNav">
+                    <ul class="nav-ultra mobile-hidden" id="mainNav">
                         {% if current_user.role == 'student' %}
                             <li class="nav-item-ultra">
                                 <a class="nav-link-ultra {{ 'active' if request.endpoint == 'student_dashboard' }}" href="{{ url_for('student_dashboard') }}">
@@ -203,8 +203,22 @@
             nav.classList.toggle('mobile-hidden');
         }
         
-        // Auto-hide flash messages
+        // Handle responsive navigation
+        function handleResize() {
+            const nav = document.getElementById('mainNav');
+            if (window.innerWidth > 768) {
+                nav.classList.remove('mobile-hidden');
+            } else {
+                nav.classList.add('mobile-hidden');
+            }
+        }
+        
+        // Initialize navigation
         document.addEventListener('DOMContentLoaded', function() {
+            handleResize();
+            window.addEventListener('resize', handleResize);
+            
+            // Auto-hide flash messages
             const flashMessages = document.querySelectorAll('.ultra-card[style*="position: fixed"]');
             flashMessages.forEach(message => {
                 setTimeout(() => {
@@ -213,10 +227,8 @@
                     setTimeout(() => message.remove(), 300);
                 }, 5000);
             });
-        });
-        
-        // Smooth animations on scroll
-        document.addEventListener('DOMContentLoaded', function() {
+            
+            // Smooth animations on scroll
             const cards = document.querySelectorAll('.stat-card-ultra, .quick-action-card, .ultra-card');
             
             const observer = new IntersectionObserver((entries) => {
