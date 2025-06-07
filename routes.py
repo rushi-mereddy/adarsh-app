@@ -1416,17 +1416,7 @@ def admin_edit_student_review(review_id):
     
     return render_template('admin/add_student_review.html', form=form, review=review, department=review.department, action='edit')
 
-@app.route('/admin/reviews/<int:review_id>/approve', methods=['POST'])
-@login_required
-@admin_required
-def admin_approve_review(review_id):
-    review = StudentReview.query.get_or_404(review_id)
-    review.is_approved = not review.is_approved
-    db.session.commit()
-    
-    status = "approved" if review.is_approved else "unapproved"
-    flash(f'Review from "{review.student_name}" has been {status}.', 'success')
-    return redirect(url_for('admin_department_reviews', department_id=review.department_id))
+
 
 # Public Department Views
 @app.route('/departments')
