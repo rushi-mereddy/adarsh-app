@@ -4,24 +4,22 @@
 
 {% block content %}
 <div class="fade-in">
-    <!-- Page Header -->
-    <div class="row mb-4">
+    <!-- Ultra Modern Page Header -->
+    <div class="row mb-5">
         <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h1 class="h3 mb-0">
-                        <i class="fas fa-plus-circle text-primary me-2"></i>
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
+                <div class="mb-3 mb-md-0">
+                    <h1 class="title-ultra">
+                        <i class="fas fa-plus-circle me-3" style="color: #667eea;"></i>
                         Create Classroom
                     </h1>
-                    <p class="text-muted mb-0">Set up a new classroom for students and faculty</p>
+                    <p class="subtitle-ultra">Set up a new classroom for students and faculty</p>
                 </div>
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb mb-0">
-                        <li class="breadcrumb-item"><a href="{{ url_for('admin_dashboard') }}">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a href="{{ url_for('admin_classrooms') }}">Classrooms</a></li>
-                        <li class="breadcrumb-item active">Create</li>
-                    </ol>
-                </nav>
+                <div class="d-flex gap-2 flex-wrap">
+                    <a href="{{ url_for('admin_classrooms') }}" class="btn-ultra btn-secondary-ultra">
+                        <i class="fas fa-arrow-left"></i>Back to Classrooms
+                    </a>
+                </div>
             </div>
         </div>
     </div>
