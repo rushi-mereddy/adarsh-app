@@ -28,14 +28,14 @@
     <!-- Classroom Filters -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="card">
-                <div class="card-header">
+            <div class="card-ultra">
+                <div class="card-header-ultra">
                     <h5 class="mb-0">
                         <i class="fas fa-filter me-2"></i>
                         Filter Students by Classroom Parameters
                     </h5>
                 </div>
-                <div class="card-body">
+                <div class="card-body-ultra">
                     <form method="GET" id="filter-form">
                         <div class="row align-items-end">
                             <div class="col-md-2 mb-3">
@@ -93,10 +93,10 @@
                         <div class="row">
                             <div class="col-12">
                                 <div class="d-flex gap-2">
-                                    <button type="button" class="btn btn-primary" onclick="applyFilters()">
+                                    <button type="button" class="btn-ultra btn-primary-ultra" onclick="applyFilters()">
                                         <i class="fas fa-search me-2"></i>Load Students
                                     </button>
-                                    <button type="button" class="btn btn-secondary" onclick="clearFilters()">
+                                    <button type="button" class="btn-ultra btn-secondary-ultra" onclick="clearFilters()">
                                         <i class="fas fa-times me-2"></i>Clear Filters
                                     </button>
                                 </div>
@@ -112,8 +112,8 @@
     <!-- Attendance Form -->
     <div class="row">
         <div class="col-12">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="card-ultra">
+                <div class="card-header-ultra d-flex justify-content-between align-items-center">
                     <div>
                         <h5 class="mb-0">
                             <i class="fas fa-users me-2"></i>
@@ -132,7 +132,7 @@
                         </button>
                     </div>
                 </div>
-                <div class="card-body">
+                <div class="card-body-ultra">
                     <form method="POST" id="attendanceForm">
                         <input type="hidden" name="date" value="{{ selected_date }}" />
                         
@@ -193,10 +193,10 @@
                                 Total Students: {{ students|length }}
                             </div>
                             <div class="d-flex gap-2">
-                                <button type="submit" class="btn btn-primary">
+                                <button type="submit" class="btn-ultra btn-primary-ultra">
                                     <i class="fas fa-save me-2"></i>Save Attendance
                                 </button>
-                                <button type="button" class="btn btn-secondary" onclick="clearFilters()">
+                                <button type="button" class="btn-ultra btn-secondary-ultra" onclick="clearFilters()">
                                     <i class="fas fa-arrow-left me-2"></i>Back to Filters
                                 </button>
                             </div>
@@ -210,7 +210,7 @@
     <!-- Instructions -->
     <div class="row">
         <div class="col-12">
-            <div class="card">
+            <div class="card-ultra">
                 <div class="card-body text-center py-5">
                     <i class="fas fa-filter fa-3x text-primary mb-3"></i>
                     <h5>Filter Students by Classroom</h5>
