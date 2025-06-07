@@ -458,15 +458,15 @@ def admin_add_user():
         # Handle classroom assignment for students
         if form.role.data == 'student' and form.classroom_id.data and form.classroom_id.data != 0:
             try:
-                classroom_assignment = ClassroomAssignment(
-                    classroom_id=form.classroom_id.data,
-                    user_id=user.id,
-                    assigned_at=datetime.utcnow()
-                )
-                db.session.add(classroom_assignment)
+                classroom = Classroom.query.get(form.classroom_id.data)
+                user.classroom_id = form.classroom_id.data
+                # Also update user's individual fields for consistency
+                user.department = classroom.department
+                user.year = classroom.year
+                user.semester = classroom.semester
+                user.section = classroom.section
                 db.session.commit()
                 
-                classroom = Classroom.query.get(form.classroom_id.data)
                 flash(f'User created successfully and assigned to classroom: {classroom.name}!', 'success')
             except Exception as e:
                 flash(f'User created but failed to assign to classroom: {str(e)}', 'warning')
@@ -483,6 +483,16 @@ def admin_add_user():
 def admin_edit_user(user_id):
     user = User.query.get_or_404(user_id)
     form = UserForm(obj=user)
+    
+    # Populate classroom choices
+    classrooms = Classroom.query.filter_by(is_active=True).order_by(Classroom.name).all()
+    form.classroom_id.choices = [(0, 'No Classroom Assignment')] + [(c.id, f"{c.name} ({c.department} - Year {c.year})") for c in classrooms]
+    
+    # Set current classroom assignment
+    if user.classroom_id:
+        form.classroom_id.data = user.classroom_id
+    else:
+        form.classroom_id.data = 0
     
     if form.validate_on_submit():
         # Check for email conflicts
@@ -502,6 +512,20 @@ def admin_edit_user(user_id):
         user.student_id = form.student_id.data if form.role.data == 'student' else None
         user.faculty_id = form.faculty_id.data if form.role.data == 'faculty' else None
         user.is_active = form.is_active.data
+        
+        # Handle classroom assignment for students
+        if form.role.data == 'student' and form.classroom_id.data and form.classroom_id.data != 0:
+            classroom = Classroom.query.get(form.classroom_id.data)
+            if classroom:
+                user.classroom_id = form.classroom_id.data
+                # Update user's individual fields for consistency
+                user.department = classroom.department
+                user.year = classroom.year
+                user.semester = classroom.semester
+                user.section = classroom.section
+        elif form.role.data != 'student' or form.classroom_id.data == 0:
+            # Remove classroom assignment if not student or no classroom selected
+            user.classroom_id = None
         
         if form.password.data:
             user.password_hash = generate_password_hash(form.password.data)

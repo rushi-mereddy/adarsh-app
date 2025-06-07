@@ -102,6 +102,15 @@
                             </div>
                         </div>
                         
+                        <!-- Classroom Assignment Field (Students Only) -->
+                        <div class="row" id="classroomField" style="display: none;">
+                            <div class="col-md-6 mb-3">
+                                {{ form.classroom_id.label(class="form-label fw-semibold") }}
+                                {{ form.classroom_id(class="form-select") }}
+                                <small class="text-muted">Optional: Assign student directly to a classroom</small>
+                            </div>
+                        </div>
+                        
                         {% if action == 'add' or (action == 'edit' and user) %}
                         <div class="row">
                             <div class="col-md-6 mb-3">
@@ -357,19 +366,23 @@ function toggleRoleFields() {
     const roleSelect = document.getElementById('role');
     const studentField = document.getElementById('studentIdField');
     const facultyField = document.getElementById('facultyIdField');
+    const classroomField = document.getElementById('classroomField');
     
-    if (roleSelect && studentField && facultyField) {
+    if (roleSelect && studentField && facultyField && classroomField) {
         const selectedRole = roleSelect.value;
         
         if (selectedRole === 'student') {
             studentField.style.display = 'block';
             facultyField.style.display = 'none';
+            classroomField.style.display = 'block';
         } else if (selectedRole === 'faculty') {
             studentField.style.display = 'none';
             facultyField.style.display = 'block';
+            classroomField.style.display = 'none';
         } else {
             studentField.style.display = 'none';
             facultyField.style.display = 'none';
+            classroomField.style.display = 'none';
         }
     }
 }
