@@ -33,7 +33,7 @@
                         Bulk Student Enrollment
                     </h5>
                 </div>
-                <div class="card-body">
+                <div class="card-body-ultra">
                     <div class="alert alert-info" role="alert">
                         <div class="d-flex">
                             <i class="fas fa-info-circle me-2 mt-1"></i>
@@ -69,10 +69,10 @@
                         </div>
                         
                         <div class="d-flex gap-2">
-                            <button type="submit" class="btn btn-primary">
+                            <button type="submit" class="btn-ultra btn-primary-ultra">
                                 <i class="fas fa-user-plus me-2"></i>Enroll Students
                             </button>
-                            <a href="{{ url_for('admin_enrollments') }}" class="btn btn-secondary">
+                            <a href="{{ url_for('admin_enrollments') }}" class="btn-ultra btn-secondary-ultra">
                                 <i class="fas fa-arrow-left me-2"></i>Back to Enrollments
                             </a>
                         </div>
@@ -88,25 +88,25 @@
                         Quick Actions
                     </h5>
                 </div>
-                <div class="card-body">
+                <div class="card-body-ultra">
                     <div class="row">
                         <div class="col-md-4 mb-3">
                             <div class="d-grid">
-                                <button class="btn btn-outline-primary" onclick="selectAllStudents()">
+                                <button class="btn-ultra btn-outline-primary-ultra" onclick="selectAllStudents()">
                                     <i class="fas fa-check-double me-2"></i>Select All Students
                                 </button>
                             </div>
                         </div>
                         <div class="col-md-4 mb-3">
                             <div class="d-grid">
-                                <button class="btn btn-outline-secondary" onclick="clearSelection()">
+                                <button class="btn-ultra btn-outline-secondary-ultra" onclick="clearSelection()">
                                     <i class="fas fa-times me-2"></i>Clear Selection
                                 </button>
                             </div>
                         </div>
                         <div class="col-md-4 mb-3">
                             <div class="d-grid">
-                                <a href="{{ url_for('admin_courses') }}" class="btn btn-outline-info">
+                                <a href="{{ url_for('admin_courses') }}" class="btn-ultra btn-outline-info-ultra">
                                     <i class="fas fa-book me-2"></i>Manage Courses
                                 </a>
                             </div>

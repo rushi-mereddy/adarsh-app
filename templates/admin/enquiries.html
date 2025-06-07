@@ -35,7 +35,7 @@
                         Update Enquiry Status
                     </h5>
                 </div>
-                <div class="card-body">
+                <div class="card-body-ultra">
                     <!-- Enquiry Details -->
                     <div class="alert alert-light" role="alert">
                         <div class="row">
@@ -91,10 +91,10 @@
                         </div>
                         
                         <div class="d-flex gap-2">
-                            <button type="submit" class="btn btn-primary">
+                            <button type="submit" class="btn-ultra btn-primary-ultra">
                                 <i class="fas fa-save me-2"></i>Update Enquiry
                             </button>
-                            <a href="{{ url_for('admin_enquiries') }}" class="btn btn-secondary">
+                            <a href="{{ url_for('admin_enquiries') }}" class="btn-ultra btn-secondary-ultra">
                                 <i class="fas fa-times me-2"></i>Cancel
                             </a>
                         </div>
@@ -111,7 +111,7 @@
     <div class="row mb-4">
         <div class="col-12">
             <div class="card-ultra">
-                <div class="card-body">
+                <div class="card-body-ultra">
                     <div class="row align-items-end">
                         <div class="col-md-3 mb-2">
                             <label class="form-label fw-semibold">Filter by Status</label>
@@ -259,12 +259,12 @@
                                     </td>
                                     <td>
                                         <div class="btn-group btn-group-sm" role="group">
-                                            <button class="btn btn-outline-info" title="View Details" 
+                                            <button class="btn-ultra btn-outline-info-ultra" title="View Details" 
                                                     onclick="showEnquiryDetails({{ loop.index0 }})">
                                                 <i class="fas fa-eye"></i>
                                             </button>
                                             <a href="{{ url_for('admin_update_enquiry', enquiry_id=enquiry.id) }}" 
-                                               class="btn btn-outline-primary" title="Update">
+                                               class="btn-ultra btn-outline-primary-ultra" title="Update">
                                                 <i class="fas fa-edit"></i>
                                             </a>
                                             {% if enquiry.email %}
@@ -307,8 +307,8 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="updateEnquiryButton">
+                <button type="button" class="btn-ultra btn-secondary-ultra" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn-ultra btn-primary-ultra" id="updateEnquiryButton">
                     <i class="fas fa-edit me-2"></i>Update
                 </button>
             </div>

@@ -378,13 +378,13 @@
                                     <td>
                                         <div class="btn-group btn-group-sm" role="group">
                                             <a href="{{ url_for('admin_edit_user', user_id=user.id) }}" 
-                                               class="btn btn-outline-primary" title="Edit">
+                                               class="btn-ultra btn-outline-primary-ultra" title="Edit">
                                                 <i class="fas fa-edit"></i>
                                             </a>
                                             {% if user.id != current_user.id %}
                                             <form method="POST" action="{{ url_for('admin_delete_user', user_id=user.id) }}" 
                                                   class="d-inline" onsubmit="return confirmDelete('Are you sure you want to deactivate this user?')">
-                                                <button type="submit" class="btn btn-outline-danger" title="Deactivate">
+                                                <button type="submit" class="btn-ultra btn-outline-danger-ultra" title="Deactivate">
                                                     <i class="fas fa-user-slash"></i>
                                                 </button>
                                             </form>
@@ -454,7 +454,7 @@
                             {% endif %}
                         </p>
                         {% if not search %}
-                        <a href="{{ url_for('admin_add_user') }}" class="btn btn-primary">
+                        <a href="{{ url_for('admin_add_user') }}" class="btn-ultra btn-primary-ultra">
                             <i class="fas fa-user-plus me-2"></i>Add First User
                         </a>
                         {% endif %}

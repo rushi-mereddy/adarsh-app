@@ -28,7 +28,7 @@
     <div class="row mb-4">
         <div class="col-md-3">
             <div class="card border-0 shadow-sm">
-                <div class="card-body">
+                <div class="card-body-ultra">
                     <div class="d-flex align-items-center">
                         <div class="flex-shrink-0">
                             <div class="bg-primary bg-opacity-10 rounded-3 p-3">
@@ -45,7 +45,7 @@
         </div>
         <div class="col-md-3">
             <div class="card border-0 shadow-sm">
-                <div class="card-body">
+                <div class="card-body-ultra">
                     <div class="d-flex align-items-center">
                         <div class="flex-shrink-0">
                             <div class="bg-success bg-opacity-10 rounded-3 p-3">
@@ -63,7 +63,7 @@
         </div>
         <div class="col-md-3">
             <div class="card border-0 shadow-sm">
-                <div class="card-body">
+                <div class="card-body-ultra">
                     <div class="d-flex align-items-center">
                         <div class="flex-shrink-0">
                             <div class="bg-danger bg-opacity-10 rounded-3 p-3">
@@ -81,7 +81,7 @@
         </div>
         <div class="col-md-3">
             <div class="card border-0 shadow-sm">
-                <div class="card-body">
+                <div class="card-body-ultra">
                     <div class="d-flex align-items-center">
                         <div class="flex-shrink-0">
                             <div class="bg-warning bg-opacity-10 rounded-3 p-3">
@@ -109,7 +109,7 @@
                         Filter Attendance Data
                     </h5>
                 </div>
-                <div class="card-body">
+                <div class="card-body-ultra">
                     <form method="GET" id="filter-form">
                         <div class="row">
                             <div class="col-md-2 mb-3">
@@ -181,13 +181,13 @@
                             </div>
                             <div class="col-md-10 mb-3 d-flex align-items-end">
                                 <div class="d-flex gap-2">
-                                    <button type="submit" class="btn btn-primary">
+                                    <button type="submit" class="btn-ultra btn-primary-ultra">
                                         <i class="fas fa-search me-2"></i>Apply Filters
                                     </button>
-                                    <button type="button" class="btn btn-secondary" onclick="clearFilters()">
+                                    <button type="button" class="btn-ultra btn-secondary-ultra" onclick="clearFilters()">
                                         <i class="fas fa-times me-2"></i>Clear Filters
                                     </button>
-                                    <button type="button" class="btn btn-success" onclick="exportData()">
+                                    <button type="button" class="btn-ultra btn-success-ultra" onclick="exportData()">
                                         <i class="fas fa-download me-2"></i>Export Data
                                     </button>
                                 </div>
@@ -212,7 +212,7 @@
                         {{ attendance_stats|length }} classes • Period: {{ filters.date_from }} to {{ filters.date_to }}
                     </div>
                 </div>
-                <div class="card-body">
+                <div class="card-body-ultra">
                     {% if attendance_stats %}
                     <div class="table-responsive">
                         <table class="table table-hover" id="attendanceStatsTable">

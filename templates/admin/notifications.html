@@ -35,7 +35,7 @@
                         Add New Notification
                     </h5>
                 </div>
-                <div class="card-body">
+                <div class="card-body-ultra">
                     <form method="POST" class="needs-validation" novalidate>
                         {{ form.hidden_tag() }}
                         
@@ -91,10 +91,10 @@
                         </div>
                         
                         <div class="d-flex gap-2">
-                            <button type="submit" class="btn btn-primary">
+                            <button type="submit" class="btn-ultra btn-primary-ultra">
                                 <i class="fas fa-bell me-2"></i>Publish Notification
                             </button>
-                            <a href="{{ url_for('admin_notifications') }}" class="btn btn-secondary">
+                            <a href="{{ url_for('admin_notifications') }}" class="btn-ultra btn-secondary-ultra">
                                 <i class="fas fa-times me-2"></i>Cancel
                             </a>
                         </div>
@@ -111,7 +111,7 @@
     <div class="row mb-4">
         <div class="col-12">
             <div class="card-ultra">
-                <div class="card-body">
+                <div class="card-body-ultra">
                     <div class="row align-items-end">
                         <div class="col-md-4 mb-2">
                             <label class="form-label fw-semibold">Filter by Type</label>
@@ -218,7 +218,7 @@
                                             {{ notification.created_at.strftime('%b %d, %Y at %I:%M %p') }}
                                         </small>
                                         <div class="btn-group btn-group-sm" role="group">
-                                            <button class="btn btn-outline-info" title="View Details" 
+                                            <button class="btn-ultra btn-outline-info-ultra" title="View Details" 
                                                     onclick="showNotificationDetails({{ loop.index0 }})">
                                                 <i class="fas fa-eye"></i>
                                             </button>
@@ -228,11 +228,11 @@
                                                 <i class="fas fa-file-alt"></i>
                                             </a>
                                             {% endif %}
-                                            <button class="btn btn-outline-primary" title="Edit" 
+                                            <button class="btn-ultra btn-outline-primary-ultra" title="Edit" 
                                                     onclick="showToast('Notification editing feature coming soon', 'info')">
                                                 <i class="fas fa-edit"></i>
                                             </button>
-                                            <button class="btn btn-outline-danger" title="Delete" 
+                                            <button class="btn-ultra btn-outline-danger-ultra" title="Delete" 
                                                     onclick="showToast('Notification deletion feature coming soon', 'info')">
                                                 <i class="fas fa-trash"></i>
                                             </button>
@@ -248,7 +248,7 @@
                         <i class="fas fa-bell fa-3x text-muted mb-3"></i>
                         <h5>No Notifications Found</h5>
                         <p class="text-muted">No official notifications have been added yet. Create your first notification to get started.</p>
-                        <a href="{{ url_for('admin_add_notification') }}" class="btn btn-primary">
+                        <a href="{{ url_for('admin_add_notification') }}" class="btn-ultra btn-primary-ultra">
                             <i class="fas fa-plus me-2"></i>Add First Notification
                         </a>
                     </div>
@@ -274,8 +274,8 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" onclick="showToast('Edit feature coming soon', 'info')">
+                <button type="button" class="btn-ultra btn-secondary-ultra" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn-ultra btn-primary-ultra" onclick="showToast('Edit feature coming soon', 'info')">
                     <i class="fas fa-edit me-2"></i>Edit
                 </button>
             </div>
@@ -338,7 +338,7 @@ function showNotificationDetails(index) {
         ${notification.document_url ? `
         <div class="mb-3">
             <h6>Document</h6>
-            <a href="${notification.document_url}" target="_blank" class="btn btn-outline-primary">
+            <a href="${notification.document_url}" target="_blank" class="btn-ultra btn-outline-primary-ultra">
                 <i class="fas fa-external-link-alt me-2"></i>View Official Document
             </a>
         </div>` : ''}

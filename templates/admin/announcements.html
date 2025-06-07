@@ -167,15 +167,15 @@
                                             {{ announcement.created_at.strftime('%b %d, %Y at %I:%M %p') }}
                                         </small>
                                         <div class="btn-group btn-group-sm" role="group">
-                                            <button class="btn btn-outline-info" title="View Details" 
+                                            <button class="btn-ultra btn-outline-info-ultra" title="View Details" 
                                                     onclick="showAnnouncementDetails({{ loop.index0 }})">
                                                 <i class="fas fa-eye"></i>
                                             </button>
-                                            <button class="btn btn-outline-primary" title="Edit" 
+                                            <button class="btn-ultra btn-outline-primary-ultra" title="Edit" 
                                                     onclick="showToast('Announcement editing feature coming soon', 'info')">
                                                 <i class="fas fa-edit"></i>
                                             </button>
-                                            <button class="btn btn-outline-danger" title="Delete" 
+                                            <button class="btn-ultra btn-outline-danger-ultra" title="Delete" 
                                                     onclick="showToast('Announcement deletion feature coming soon', 'info')">
                                                 <i class="fas fa-trash"></i>
                                             </button>
@@ -217,8 +217,8 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" onclick="showToast('Edit feature coming soon', 'info')">
+                <button type="button" class="btn-ultra btn-secondary-ultra" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn-ultra btn-primary-ultra" onclick="showToast('Edit feature coming soon', 'info')">
                     <i class="fas fa-edit me-2"></i>Edit
                 </button>
             </div>

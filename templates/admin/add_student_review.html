@@ -36,7 +36,7 @@
                     </h3>
                     <p style="color: #6b7280; margin-bottom: 0;">Fill in the details below to manage student review</p>
                 </div>
-                <div class="card-body">
+                <div class="card-body-ultra">
                     <form method="POST" enctype="multipart/form-data">
                         {{ form.hidden_tag() }}
                         
@@ -106,10 +106,10 @@
                         </div>
 
                         <div class="d-flex justify-content-between">
-                            <a href="{{ url_for('admin_department_reviews', department_id=department.id) }}" class="btn btn-secondary">
+                            <a href="{{ url_for('admin_department_reviews', department_id=department.id) }}" class="btn-ultra btn-secondary-ultra">
                                 <i class="fas fa-arrow-left"></i> Back to Reviews
                             </a>
-                            {{ form.submit(class="btn btn-primary") }}
+                            {{ form.submit(class="btn-ultra btn-primary-ultra") }}
                         </div>
                     </form>
                 </div>
