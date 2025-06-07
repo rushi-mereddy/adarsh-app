@@ -145,19 +145,19 @@
                                 <div class="card-footer bg-transparent">
                                     <div class="btn-group w-100" role="group">
                                         {% if banner.link_url %}
-                                        <a href="{{ banner.link_url }}" target="_blank" class="btn btn-outline-success btn-sm">
+                                        <a href="{{ banner.link_url }}" target="_blank" class="btn-ultra btn-outline-success-ultra btn-sm">
                                             <i class="fas fa-external-link-alt"></i>
                                         </a>
                                         {% endif %}
-                                        <button class="btn btn-outline-primary btn-sm" title="Edit" 
+                                        <button class="btn-ultra btn-outline-primary-ultra btn-sm" title="Edit" 
                                                 onclick="showToast('Banner editing feature coming soon', 'info')">
                                             <i class="fas fa-edit"></i>
                                         </button>
-                                        <button class="btn btn-outline-info btn-sm" title="Preview" 
+                                        <button class="btn-ultra btn-outline-info-ultra btn-sm" title="Preview" 
                                                 onclick="previewBanner('{{ url_for('static', filename='uploads/' + banner.image_path) }}', '{{ banner.title }}')">
                                             <i class="fas fa-eye"></i>
                                         </button>
-                                        <button class="btn btn-outline-danger btn-sm" title="Delete" 
+                                        <button class="btn-ultra btn-outline-danger-ultra btn-sm" title="Delete" 
                                                 onclick="showToast('Banner deletion feature coming soon', 'info')">
                                             <i class="fas fa-trash"></i>
                                         </button>

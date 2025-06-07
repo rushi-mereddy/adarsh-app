@@ -139,7 +139,7 @@
                                         </td>
                                         <td>{{ enrollment.enrollment_date.strftime('%b %d, %Y') }}</td>
                                         <td>
-                                            <button class="btn btn-outline-danger btn-sm" 
+                                            <button class="btn-ultra btn-outline-danger-ultra btn-sm" 
                                                     onclick="confirmRemoveEnrollment({{ enrollment.id }}, '{{ enrollment.student.get_full_name() }}', '{{ enrollment.course.name }}')">
                                                 <i class="fas fa-times me-1"></i>Remove
                                             </button>

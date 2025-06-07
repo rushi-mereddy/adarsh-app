@@ -125,7 +125,7 @@
                                     <small class="text-muted">{{ student.student_id }}</small>
                                 </div>
                                 <a href="{{ url_for('admin_remove_from_classroom', classroom_id=classroom.id, user_id=student.id) }}" 
-                                   class="btn btn-outline-danger btn-sm"
+                                   class="btn-ultra btn-outline-danger-ultra btn-sm"
                                    onclick="return confirm('Remove {{ student.get_full_name() }} from this classroom?')">
                                     <i class="fas fa-times"></i>
                                 </a>
@@ -157,7 +157,7 @@
                                     <small class="text-muted">{{ faculty.faculty_id }}</small>
                                 </div>
                                 <a href="{{ url_for('admin_remove_from_classroom', classroom_id=classroom.id, user_id=faculty.id) }}" 
-                                   class="btn btn-outline-danger btn-sm"
+                                   class="btn-ultra btn-outline-danger-ultra btn-sm"
                                    onclick="return confirm('Remove {{ faculty.get_full_name() }} from this classroom?')">
                                     <i class="fas fa-times"></i>
                                 </a>
