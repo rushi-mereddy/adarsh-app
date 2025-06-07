@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+
+{% block title %}Enroll Students - Admin Panel{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-0">
+                        <i class="fas fa-user-plus text-primary me-2"></i>
+                        Enroll Students
+                    </h1>
+                    <p class="text-muted mb-0">Assign students to courses for attendance tracking</p>
+                </div>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="{{ url_for('admin_dashboard') }}">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="{{ url_for('admin_enrollments') }}">Enrollments</a></li>
+                        <li class="breadcrumb-item active">Add</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-edit me-2"></i>
+                        Bulk Student Enrollment
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info" role="alert">
+                        <div class="d-flex">
+                            <i class="fas fa-info-circle me-2 mt-1"></i>
+                            <div>
+                                <strong>Instructions:</strong>
+                                <ul class="mb-0 mt-2">
+                                    <li>Select a course from the dropdown</li>
+                                    <li>Choose multiple students to enroll (hold Ctrl/Cmd for multiple selection)</li>
+                                    <li>Students already enrolled in the course will be skipped</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <form method="POST" class="needs-validation" novalidate>
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="mb-4">
+                            {{ form.course_id.label(class="form-label fw-semibold") }}
+                            {{ form.course_id(class="form-select", id="courseSelect") }}
+                            <div class="invalid-feedback">
+                                Please select a course.
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            {{ form.student_ids.label(class="form-label fw-semibold") }}
+                            {{ form.student_ids(class="form-select", size="10", multiple=True, id="studentSelect") }}
+                            <div class="form-text">Hold Ctrl (Windows) or Cmd (Mac) and click to select multiple students</div>
+                            <div class="invalid-feedback">
+                                Please select at least one student.
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-user-plus me-2"></i>Enroll Students
+                            </button>
+                            <a href="{{ url_for('admin_enrollments') }}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Enrollments
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-bolt me-2"></i>
+                        Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <div class="d-grid">
+                                <button class="btn btn-outline-primary" onclick="selectAllStudents()">
+                                    <i class="fas fa-check-double me-2"></i>Select All Students
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="d-grid">
+                                <button class="btn btn-outline-secondary" onclick="clearSelection()">
+                                    <i class="fas fa-times me-2"></i>Clear Selection
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="d-grid">
+                                <a href="{{ url_for('admin_courses') }}" class="btn btn-outline-info">
+                                    <i class="fas fa-book me-2"></i>Manage Courses
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const courseSelect = document.getElementById('courseSelect');
+    const studentSelect = document.getElementById('studentSelect');
+    
+    // Focus first input
+    if (courseSelect) {
+        courseSelect.focus();
+    }
+    
+    // Form validation
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const selectedStudents = Array.from(studentSelect.selectedOptions);
+            if (selectedStudents.length === 0) {
+                e.preventDefault();
+                showToast('Please select at least one student to enroll', 'warning');
+                studentSelect.classList.add('is-invalid');
+                return false;
+            }
+            
+            // Show loading state
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                showLoading(submitBtn);
+            }
+        });
+        
+        // Remove validation classes on change
+        studentSelect.addEventListener('change', function() {
+            this.classList.remove('is-invalid');
+        });
+    }
+    
+    // Course selection handler
+    if (courseSelect) {
+        courseSelect.addEventListener('change', function() {
+            if (this.value) {
+                showToast('Course selected. Now choose students to enroll.', 'info');
+            }
+        });
+    }
+});
+
+function selectAllStudents() {
+    const studentSelect = document.getElementById('studentSelect');
+    if (studentSelect) {
+        for (let option of studentSelect.options) {
+            option.selected = true;
+        }
+        showToast(`Selected all ${studentSelect.options.length} students`, 'success');
+    }
+}
+
+function clearSelection() {
+    const studentSelect = document.getElementById('studentSelect');
+    if (studentSelect) {
+        for (let option of studentSelect.options) {
+            option.selected = false;
+        }
+        showToast('Selection cleared', 'info');
+    }
+}
+
+// Enhanced selection feedback
+document.addEventListener('DOMContentLoaded', function() {
+    const studentSelect = document.getElementById('studentSelect');
+    if (studentSelect) {
+        studentSelect.addEventListener('change', function() {
+            const selectedCount = this.selectedOptions.length;
+            if (selectedCount > 0) {
+                showToast(`${selectedCount} student${selectedCount > 1 ? 's' : ''} selected`, 'info');
+            }
+        });
+    }
+});
+</script>
+{% endblock %}
