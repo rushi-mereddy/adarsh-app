@@ -146,8 +146,11 @@ def create_students_from_data(valid_data):
     created_students = []
     failed_students = []
     
+    print(f"Excel Utils Debug: Starting creation of {len(valid_data)} students")
+    
     try:
-        for student_data in valid_data:
+        for i, student_data in enumerate(valid_data):
+            print(f"Excel Utils Debug: Processing student {i+1}: {student_data['first_name']} {student_data['last_name']}")
             try:
                 # Create new user
                 user = User(
@@ -170,8 +173,10 @@ def create_students_from_data(valid_data):
                     'email': student_data['email'],
                     'student_id': student_data['student_id']
                 })
+                print(f"Excel Utils Debug: Added student {student_data['username']} to session")
                 
             except Exception as e:
+                print(f"Excel Utils Debug: Failed to create student {student_data['first_name']} {student_data['last_name']}: {str(e)}")
                 failed_students.append({
                     'name': f"{student_data['first_name']} {student_data['last_name']}",
                     'email': student_data['email'],
@@ -179,7 +184,9 @@ def create_students_from_data(valid_data):
                 })
         
         # Commit all changes
+        print(f"Excel Utils Debug: Committing {len(created_students)} students to database")
         db.session.commit()
+        print(f"Excel Utils Debug: Successfully committed to database")
         
         return {
             'success': True,
@@ -190,6 +197,7 @@ def create_students_from_data(valid_data):
         }
         
     except Exception as e:
+        print(f"Excel Utils Debug: Database commit failed: {str(e)}")
         db.session.rollback()
         return {
             'success': False,

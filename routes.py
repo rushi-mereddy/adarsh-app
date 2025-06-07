@@ -1642,17 +1642,22 @@ def admin_confirm_import():
             )
             
             if result['success'] and result['valid_data']:
+                print(f"Excel Import Debug: Processing {len(result['valid_data'])} valid students")
                 # Create students
                 creation_result = create_students_from_data(result['valid_data'])
+                print(f"Excel Import Debug: Creation result - {creation_result}")
                 
                 if creation_result['success']:
                     flash(f"Successfully imported {creation_result['created_count']} students!", 'success')
                     if creation_result['failed_count'] > 0:
                         flash(f"Failed to import {creation_result['failed_count']} students", 'warning')
+                        print(f"Excel Import Debug: Failed students - {creation_result.get('failed_students', [])}")
                 else:
                     flash(f"Error creating students: {creation_result.get('error', 'Unknown error')}", 'error')
+                    print(f"Excel Import Debug: Creation failed - {creation_result.get('error', 'Unknown error')}")
             else:
                 flash('No valid student data to import', 'error')
+                print(f"Excel Import Debug: Result - {result}")
                 
         except Exception as e:
             flash(f'Error during import: {str(e)}', 'error')
