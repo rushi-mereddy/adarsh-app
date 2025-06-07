@@ -302,13 +302,27 @@ def faculty_attendance():
         if department:
             student_query = student_query.filter(User.department == department)
         if year:
-            student_query = student_query.filter(User.year == year)
+            try:
+                year_int = int(year)
+                student_query = student_query.filter(User.year == year_int)
+            except (ValueError, TypeError):
+                pass
         if semester:
-            student_query = student_query.filter(User.semester == semester)
+            try:
+                semester_int = int(semester)
+                student_query = student_query.filter(User.semester == semester_int)
+            except (ValueError, TypeError):
+                pass
         if section:
             student_query = student_query.filter(User.section == section)
             
         students = student_query.order_by(User.first_name, User.last_name).all()
+        
+        # Debug logging
+        print(f"Debug: Filter params - dept: {department}, year: {year}, sem: {semester}, sec: {section}")
+        print(f"Debug: Found {len(students)} students")
+        for s in students[:3]:  # Show first 3 students
+            print(f"Debug: Student - {s.first_name} {s.last_name}, dept: {s.department}, y: {s.year}, s: {s.semester}, sec: {s.section}")
     
     # Get existing attendance for the date if specified
     if attendance_date:
