@@ -40,7 +40,7 @@
                 <div class="col-md-6 col-lg-4 mb-4">
                     <div class="card h-100">
                         {% if department.image %}
-                        <img src="{{ url_for('static', filename='uploads/departments/' + department.image) }}" 
+                        <img src="{{ department.image }}" 
                              class="card-img-top" style="height: 200px; object-fit: cover;" 
                              alt="{{ department.name }}">
                         {% else %}

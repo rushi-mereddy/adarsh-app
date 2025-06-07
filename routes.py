@@ -1319,7 +1319,11 @@ def admin_edit_department(department_id):
         # Handle image upload
         if form.image.data:
             image_filename = save_uploaded_file(form.image.data, 'departments')
-            department.image = image_filename
+            # Ensure proper path format for web access
+            if image_filename and not image_filename.startswith('/static/'):
+                department.image = f'/static/uploads/{image_filename}'
+            else:
+                department.image = image_filename
         
         department.name = form.name.data
         department.code = form.code.data.upper()
