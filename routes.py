@@ -875,8 +875,19 @@ def admin_assign_classroom(classroom_id):
     form.classroom_id.choices = [(classroom.id, classroom.get_classroom_name())]
     form.classroom_id.data = classroom.id
     
-    if form.validate_on_submit():
-        user_type = form.user_type.data
+    # Get selected user type (default to students)
+    user_type = request.form.get('user_type', 'student')
+    form.user_type.data = user_type
+    
+    # Populate user choices based on selected type
+    if user_type == 'student':
+        users = User.query.filter_by(role='student', is_active=True, classroom_id=None).order_by(User.first_name, User.last_name).all()
+    else:
+        users = User.query.filter_by(role='faculty', is_active=True).order_by(User.first_name, User.last_name).all()
+    
+    form.user_ids.choices = [(u.id, f"{u.get_full_name()} ({u.student_id if u.role == 'student' else u.faculty_id})") for u in users]
+    
+    if request.method == 'POST' and form.validate_on_submit():
         user_ids = form.user_ids.data
         assigned_count = 0
         
@@ -898,17 +909,6 @@ def admin_assign_classroom(classroom_id):
         except Exception as e:
             db.session.rollback()
             flash('Error assigning users to classroom. Please try again.', 'error')
-    
-    # Populate user choices based on selected type
-    if request.method == 'GET' or not form.user_type.data:
-        form.user_type.data = 'student'  # Default to students
-    
-    if form.user_type.data == 'student':
-        users = User.query.filter_by(role='student', is_active=True, classroom_id=None).order_by(User.first_name, User.last_name).all()
-    else:
-        users = User.query.filter_by(role='faculty', is_active=True).order_by(User.first_name, User.last_name).all()
-    
-    form.user_ids.choices = [(u.id, f"{u.get_full_name()} ({u.student_id if u.role == 'student' else u.faculty_id})") for u in users]
     
     # Get current assignments
     current_students = User.query.filter_by(classroom_id=classroom.id, role='student').all()
