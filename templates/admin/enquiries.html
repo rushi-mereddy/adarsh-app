@@ -37,32 +37,34 @@
                 </div>
                 <div class="card-body-ultra">
                     <!-- Enquiry Details -->
-                    <div class="alert alert-light" role="alert">
-                        <div class="row">
-                            <div class="col-md-8">
-                                <h6 class="fw-bold">{{ enquiry.name }}</h6>
-                                <p class="mb-1">
-                                    <i class="fas fa-envelope me-1"></i>{{ enquiry.email }}
-                                    {% if enquiry.phone %}
-                                    • <i class="fas fa-phone me-1"></i>{{ enquiry.phone }}
+                    <div class="card-ultra mb-4">
+                        <div class="card-body-ultra">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <h6 class="fw-bold">{{ enquiry.name }}</h6>
+                                    <p class="mb-1">
+                                        <i class="fas fa-envelope me-1"></i>{{ enquiry.email }}
+                                        {% if enquiry.phone %}
+                                        • <i class="fas fa-phone me-1"></i>{{ enquiry.phone }}
+                                        {% endif %}
+                                    </p>
+                                    {% if enquiry.course_interested %}
+                                    <p class="mb-1">
+                                        <i class="fas fa-graduation-cap me-1"></i>
+                                        Interested in: {{ enquiry.course_interested }}
+                                    </p>
                                     {% endif %}
-                                </p>
-                                {% if enquiry.course_interested %}
-                                <p class="mb-1">
-                                    <i class="fas fa-graduation-cap me-1"></i>
-                                    Interested in: {{ enquiry.course_interested }}
-                                </p>
-                                {% endif %}
-                                <div class="mt-2">
-                                    <strong>Message:</strong>
-                                    <div class="mt-1">{{ enquiry.message }}</div>
+                                    <div class="mt-2">
+                                        <strong>Message:</strong>
+                                        <div class="mt-1">{{ enquiry.message }}</div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="col-md-4 text-end">
-                                <span class="badge bg-{{ 'primary' if enquiry.status == 'new' else 'info' if enquiry.status == 'contacted' else 'success' if enquiry.status == 'converted' else 'secondary' }} fs-6">
-                                    {{ enquiry.status.title() }}
-                                </span>
-                                <br><small class="text-muted">{{ enquiry.created_at.strftime('%b %d, %Y') }}</small>
+                                <div class="col-md-4 text-end">
+                                    <span class="badge-ultra badge-{{ 'primary' if enquiry.status == 'new' else 'info' if enquiry.status == 'contacted' else 'success' if enquiry.status == 'converted' else 'secondary' }}">
+                                        {{ enquiry.status.title() }}
+                                    </span>
+                                    <br><small class="text-muted">{{ enquiry.created_at.strftime('%b %d, %Y') }}</small>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -157,27 +159,39 @@
         {% set closed_count = enquiries | selectattr('status', 'equalto', 'closed') | list | length %}
         
         <div class="col-md-3 col-6 mb-3">
-            <div class="stat-card text-center">
-                <div class="stat-value text-primary">{{ new_count }}</div>
+            <div class="stat-card-ultra">
+                <div class="stat-number">{{ new_count }}</div>
                 <div class="stat-label">New Enquiries</div>
+                <div style="width: 60px; height: 60px; background: rgba(102, 126, 234, 0.1); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+                    <i class="fas fa-plus-circle" style="color: #667eea; font-size: 1.5rem;"></i>
+                </div>
             </div>
         </div>
         <div class="col-md-3 col-6 mb-3">
-            <div class="stat-card text-center">
-                <div class="stat-value text-info">{{ contacted_count }}</div>
+            <div class="stat-card-ultra">
+                <div class="stat-number">{{ contacted_count }}</div>
                 <div class="stat-label">Contacted</div>
+                <div style="width: 60px; height: 60px; background: rgba(59, 130, 246, 0.1); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+                    <i class="fas fa-phone" style="color: #3b82f6; font-size: 1.5rem;"></i>
+                </div>
             </div>
         </div>
         <div class="col-md-3 col-6 mb-3">
-            <div class="stat-card text-center">
-                <div class="stat-value text-success">{{ converted_count }}</div>
+            <div class="stat-card-ultra">
+                <div class="stat-number">{{ converted_count }}</div>
                 <div class="stat-label">Converted</div>
+                <div style="width: 60px; height: 60px; background: rgba(16, 185, 129, 0.1); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+                    <i class="fas fa-check-circle" style="color: #10b981; font-size: 1.5rem;"></i>
+                </div>
             </div>
         </div>
         <div class="col-md-3 col-6 mb-3">
-            <div class="stat-card text-center">
-                <div class="stat-value text-secondary">{{ closed_count }}</div>
+            <div class="stat-card-ultra">
+                <div class="stat-number">{{ closed_count }}</div>
                 <div class="stat-label">Closed</div>
+                <div style="width: 60px; height: 60px; background: rgba(107, 114, 128, 0.1); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+                    <i class="fas fa-times-circle" style="color: #6b7280; font-size: 1.5rem;"></i>
+                </div>
             </div>
         </div>
     </div>
@@ -185,7 +199,7 @@
     <div class="row">
         <div class="col-12">
             <div class="card-ultra">
-                <div class="card-header d-flex justify-content-between align-items-center">
+                <div class="card-header-ultra d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">
                         <i class="fas fa-list me-2"></i>
                         Admission Enquiries
@@ -194,7 +208,7 @@
                         <span class="text-muted">Total: {{ enquiries|length }} enquiries</span>
                     </div>
                 </div>
-                <div class="card-body p-0">
+                <div class="card-body-ultra p-0">
                     {% if enquiries %}
                     <div class="table-responsive">
                         <table class="table table-hover mb-0" id="enquiriesTable">
@@ -227,13 +241,13 @@
                                     </td>
                                     <td>
                                         {% if enquiry.course_interested %}
-                                            <span class="badge bg-light text-dark">{{ enquiry.course_interested }}</span>
+                                            <span class="badge-ultra badge-secondary">{{ enquiry.course_interested }}</span>
                                         {% else %}
                                             <span class="text-muted">-</span>
                                         {% endif %}
                                     </td>
                                     <td>
-                                        <span class="badge bg-{{ 'primary' if enquiry.status == 'new' else 'info' if enquiry.status == 'contacted' else 'success' if enquiry.status == 'converted' else 'secondary' }}">
+                                        <span class="badge-ultra badge-{{ 'primary' if enquiry.status == 'new' else 'info' if enquiry.status == 'contacted' else 'success' if enquiry.status == 'converted' else 'secondary' }}">
                                             {{ enquiry.status.title() }}
                                         </span>
                                         <br><small class="text-muted">{{ enquiry.source.title() }}</small>
