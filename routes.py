@@ -1020,6 +1020,7 @@ def admin_attendance_overview():
         date_to = datetime.now().strftime('%Y-%m-%d')
     
     # Base query for attendance records
+    from sqlalchemy import case
     query = db.session.query(
         Attendance.course_id,
         Course.name.label('course_name'),
@@ -1029,9 +1030,9 @@ def admin_attendance_overview():
         User.semester,
         User.section,
         func.count(Attendance.id).label('total_records'),
-        func.sum(func.case((Attendance.status == 'present', 1), else_=0)).label('present_count'),
-        func.sum(func.case((Attendance.status == 'absent', 1), else_=0)).label('absent_count'),
-        func.sum(func.case((Attendance.status == 'late', 1), else_=0)).label('late_count'),
+        func.sum(case((Attendance.status == 'present', 1), else_=0)).label('present_count'),
+        func.sum(case((Attendance.status == 'absent', 1), else_=0)).label('absent_count'),
+        func.sum(case((Attendance.status == 'late', 1), else_=0)).label('late_count'),
         func.count(distinct(Attendance.student_id)).label('total_students'),
         func.count(distinct(Attendance.date)).label('total_days')
     ).join(Course, Attendance.course_id == Course.id)\
