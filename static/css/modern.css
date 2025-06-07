@@ -473,7 +473,31 @@ body {
   }
 }
 
-/* Responsive Design */
+/* Enhanced Mobile Responsiveness */
+@media (max-width: 1200px) {
+  .stat-card-value {
+    font-size: 1.75rem;
+  }
+}
+
+@media (max-width: 992px) {
+  .navbar-modern .navbar-nav {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: var(--rounded-lg);
+    padding: var(--space-3);
+    margin-top: var(--space-3);
+    backdrop-filter: blur(10px);
+  }
+  
+  .stat-card {
+    padding: var(--space-5);
+  }
+  
+  .card-modern .card-body {
+    padding: var(--space-5);
+  }
+}
+
 @media (max-width: 768px) {
   .card-modern .card-body {
     padding: var(--space-4);
@@ -481,15 +505,114 @@ body {
   
   .stat-card {
     padding: var(--space-4);
+    margin-bottom: var(--space-4);
   }
   
   .stat-card-value {
     font-size: 1.5rem;
   }
   
+  .stat-card-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 1rem;
+  }
+  
   .btn-modern {
     padding: var(--space-3) var(--space-4);
+    font-size: 0.875rem;
+  }
+  
+  .btn-modern-lg {
+    padding: var(--space-3) var(--space-5);
+    font-size: 0.875rem;
+  }
+  
+  .navbar-modern .navbar-brand {
+    font-size: 1.1rem;
+  }
+  
+  .gradient-text {
+    font-size: 1.75rem;
+  }
+  
+  .table-modern {
+    font-size: 0.875rem;
+  }
+  
+  .form-modern .form-control,
+  .form-modern .form-select {
+    padding: var(--space-3);
+  }
+}
+
+@media (max-width: 576px) {
+  .stat-card {
+    padding: var(--space-3);
+  }
+  
+  .stat-card-value {
+    font-size: 1.25rem;
+  }
+  
+  .stat-card-icon {
+    width: 2rem;
+    height: 2rem;
+    font-size: 0.875rem;
+    margin-bottom: var(--space-2);
+  }
+  
+  .card-modern .card-body {
+    padding: var(--space-3);
+  }
+  
+  .card-modern .card-header {
+    padding: var(--space-4);
+  }
+  
+  .btn-modern {
+    padding: var(--space-2) var(--space-3);
     font-size: 0.75rem;
+  }
+  
+  .btn-modern-lg {
+    padding: var(--space-3) var(--space-4);
+    font-size: 0.8rem;
+  }
+  
+  .gradient-text {
+    font-size: 1.5rem;
+  }
+  
+  .navbar-modern {
+    padding: var(--space-3) 0;
+  }
+  
+  .pagination-modern .page-link {
+    padding: var(--space-2) var(--space-3);
+    font-size: 0.75rem;
+  }
+}
+
+/* Touch-friendly interactions */
+@media (hover: none) {
+  .btn-modern:hover {
+    transform: none;
+  }
+  
+  .card-modern:hover {
+    transform: none;
+  }
+  
+  .stat-card:hover {
+    transform: none;
+  }
+}
+
+/* High DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .navbar-modern {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   }
 }
 
