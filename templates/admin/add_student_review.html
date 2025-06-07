@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Edit' if action == 'edit' else 'Add' }} Student Review - {{ department.name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('admin_departments') }}">Departments</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('admin_department_reviews', department_id=department.id) }}">{{ department.name }} - Reviews</a></li>
+                    <li class="breadcrumb-item active">{{ 'Edit' if action == 'edit' else 'Add' }} Review</li>
+                </ol>
+            </nav>
+
+            <div class="card">
+                <div class="card-header">
+                    <h4>{{ 'Edit' if action == 'edit' else 'Add New' }} Student Review - {{ department.name }}</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="row">
+                            <div class="col-md-8 mb-3">
+                                {{ form.student_name.label(class="form-label") }}
+                                {{ form.student_name(class="form-control") }}
+                                {% if form.student_name.errors %}
+                                    <div class="text-danger">{{ form.student_name.errors[0] }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                {{ form.rating.label(class="form-label") }}
+                                {{ form.rating(class="form-select") }}
+                                {% if form.rating.errors %}
+                                    <div class="text-danger">{{ form.rating.errors[0] }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.photo.label(class="form-label") }}
+                            {{ form.photo(class="form-control") }}
+                            {% if form.photo.errors %}
+                                <div class="text-danger">{{ form.photo.errors[0] }}</div>
+                            {% endif %}
+                            <div class="form-text">Upload student photo (JPG, PNG, JPEG only)</div>
+                            
+                            {% if action == 'edit' and review.photo %}
+                            <div class="mt-2">
+                                <small class="text-muted">Current photo:</small><br>
+                                <img src="{{ url_for('static', filename='uploads/student_reviews/' + review.photo) }}" 
+                                     class="img-thumbnail" style="max-width: 150px; max-height: 150px;" 
+                                     alt="Current student photo">
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.review_text.label(class="form-label") }}
+                            {{ form.review_text(class="form-control", rows="5", placeholder="Enter student testimonial/review...") }}
+                            {% if form.review_text.errors %}
+                                <div class="text-danger">{{ form.review_text.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form.student_batch.label(class="form-label") }}
+                                {{ form.student_batch(class="form-control", placeholder="e.g., 2020-2024") }}
+                                {% if form.student_batch.errors %}
+                                    <div class="text-danger">{{ form.student_batch.errors[0] }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ form.current_position.label(class="form-label") }}
+                                {{ form.current_position(class="form-control", placeholder="e.g., Software Engineer at Google") }}
+                                {% if form.current_position.errors %}
+                                    <div class="text-danger">{{ form.current_position.errors[0] }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>Note:</strong> Reviews created by admin are automatically approved and will be visible on the website immediately.
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('admin_department_reviews', department_id=department.id) }}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Back to Reviews
+                            </a>
+                            {{ form.submit(class="btn btn-primary") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
