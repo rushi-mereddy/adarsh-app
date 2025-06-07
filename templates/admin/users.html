@@ -160,14 +160,15 @@
     {% else %}
     <!-- Users List -->
     
-    <!-- Ultra Modern Filters -->
+    <!-- Ultra Modern Enhanced Filters -->
     <div class="row mb-4">
         <div class="col-12">
             <div class="ultra-card">
                 <div style="padding: 1.5rem;">
                     <form method="GET" class="row align-items-end">
-                        <div class="col-md-3 mb-2">
-                            <label class="form-label" style="color: #1f2937; font-weight: 600;">Filter by Role</label>
+                        <!-- Role Filter -->
+                        <div class="col-xl-2 col-lg-3 col-md-4 mb-2">
+                            <label class="form-label" style="color: #1f2937; font-weight: 600;">Role</label>
                             <select name="role" class="form-control" onchange="this.form.submit()">
                                 <option value="all" {% if role_filter == 'all' %}selected{% endif %}>All Roles</option>
                                 <option value="student" {% if role_filter == 'student' %}selected{% endif %}>Students</option>
@@ -175,20 +176,79 @@
                                 <option value="admin" {% if role_filter == 'admin' %}selected{% endif %}>Administrators</option>
                             </select>
                         </div>
-                        <div class="col-md-4 mb-2">
+
+                        <!-- Department Filter -->
+                        <div class="col-xl-2 col-lg-3 col-md-4 mb-2">
+                            <label class="form-label" style="color: #1f2937; font-weight: 600;">Department</label>
+                            <select name="department" class="form-control" onchange="this.form.submit()">
+                                <option value="all" {% if department_filter == 'all' %}selected{% endif %}>All Departments</option>
+                                {% for dept in departments %}
+                                <option value="{{ dept }}" {% if department_filter == dept %}selected{% endif %}>{{ dept }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Year Filter -->
+                        <div class="col-xl-1 col-lg-2 col-md-4 mb-2">
+                            <label class="form-label" style="color: #1f2937; font-weight: 600;">Year</label>
+                            <select name="year" class="form-control" onchange="this.form.submit()">
+                                <option value="all" {% if year_filter == 'all' %}selected{% endif %}>All</option>
+                                {% for year in years %}
+                                <option value="{{ year }}" {% if year_filter == year|string %}selected{% endif %}>{{ year }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Semester Filter -->
+                        <div class="col-xl-1 col-lg-2 col-md-4 mb-2">
+                            <label class="form-label" style="color: #1f2937; font-weight: 600;">Semester</label>
+                            <select name="semester" class="form-control" onchange="this.form.submit()">
+                                <option value="all" {% if semester_filter == 'all' %}selected{% endif %}>All</option>
+                                {% for sem in semesters %}
+                                <option value="{{ sem }}" {% if semester_filter == sem|string %}selected{% endif %}>{{ sem }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Section Filter -->
+                        <div class="col-xl-1 col-lg-2 col-md-4 mb-2">
+                            <label class="form-label" style="color: #1f2937; font-weight: 600;">Section</label>
+                            <select name="section" class="form-control" onchange="this.form.submit()">
+                                <option value="all" {% if section_filter == 'all' %}selected{% endif %}>All</option>
+                                {% for section in sections %}
+                                <option value="{{ section }}" {% if section_filter == section %}selected{% endif %}>{{ section }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Classroom Filter -->
+                        <div class="col-xl-2 col-lg-3 col-md-4 mb-2">
+                            <label class="form-label" style="color: #1f2937; font-weight: 600;">Classroom</label>
+                            <select name="classroom" class="form-control" onchange="this.form.submit()">
+                                <option value="all" {% if classroom_filter == 'all' %}selected{% endif %}>All Classrooms</option>
+                                {% for classroom in classrooms %}
+                                <option value="{{ classroom.id }}" {% if classroom_filter == classroom.id|string %}selected{% endif %}>{{ classroom.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Search Field -->
+                        <div class="col-xl-2 col-lg-4 col-md-6 mb-2">
                             <label class="form-label" style="color: #1f2937; font-weight: 600;">Search</label>
                             <input type="text" name="search" class="form-control" 
-                                   placeholder="Search by name, email, or username" 
+                                   placeholder="Name, email, ID..." 
                                    value="{{ search }}">
                         </div>
-                        <div class="col-md-2 mb-2">
+
+                        <!-- Action Buttons -->
+                        <div class="col-xl-1 col-lg-2 col-md-3 mb-2">
                             <button type="submit" class="btn-ultra btn-primary-ultra w-100">
-                                <i class="fas fa-search"></i>Search
+                                <i class="fas fa-search"></i>
                             </button>
                         </div>
-                        <div class="col-md-2 mb-2">
+                        <div class="col-xl-1 col-lg-2 col-md-3 mb-2">
                             <a href="{{ url_for('admin_users') }}" class="btn-ultra btn-secondary-ultra w-100">
-                                <i class="fas fa-times"></i>Clear
+                                <i class="fas fa-times"></i>
                             </a>
                         </div>
                     </form>
@@ -208,9 +268,27 @@
                         {% if role_filter != 'all' %}
                         <span class="badge bg-primary ms-2">{{ role_filter.title() }}</span>
                         {% endif %}
+                        {% if department_filter != 'all' %}
+                        <span class="badge bg-info ms-2">{{ department_filter }}</span>
+                        {% endif %}
+                        {% if year_filter != 'all' %}
+                        <span class="badge bg-success ms-2">Year {{ year_filter }}</span>
+                        {% endif %}
+                        {% if semester_filter != 'all' %}
+                        <span class="badge bg-warning ms-2">Sem {{ semester_filter }}</span>
+                        {% endif %}
+                        {% if section_filter != 'all' %}
+                        <span class="badge bg-secondary ms-2">Sec {{ section_filter }}</span>
+                        {% endif %}
+                        {% if classroom_filter != 'all' %}
+                        <span class="badge bg-dark ms-2">Classroom {{ classroom_filter }}</span>
+                        {% endif %}
                     </h5>
                     <div>
                         <span style="color: #6b7280;">Total: {{ users.total }} users</span>
+                        {% if search %}
+                        <span style="color: #6b7280;"> • Search: "{{ search }}"</span>
+                        {% endif %}
                     </div>
                 </div>
                 <div class="card-body p-0">
@@ -223,6 +301,7 @@
                                     <th>User</th>
                                     <th>Role</th>
                                     <th>Department</th>
+                                    <th>Classroom Info</th>
                                     <th>Contact</th>
                                     <th>Status</th>
                                     <th>Created</th>
@@ -261,6 +340,16 @@
                                         </span>
                                     </td>
                                     <td>{{ user.department or '-' }}</td>
+                                    <td>
+                                        {% if user.assigned_classroom %}
+                                            <div>
+                                                <div class="fw-semibold" style="font-size: 0.875rem;">{{ user.assigned_classroom.name }}</div>
+                                                <small class="text-muted">Year {{ user.assigned_classroom.year }} • Sem {{ user.assigned_classroom.semester }} • Sec {{ user.assigned_classroom.section }}</small>
+                                            </div>
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
                                     <td>
                                         <div>
                                             <small class="text-muted d-block">{{ user.email }}</small>

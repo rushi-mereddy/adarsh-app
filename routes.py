@@ -396,26 +396,83 @@ def admin_dashboard():
 def admin_users():
     page = request.args.get('page', 1, type=int)
     role_filter = request.args.get('role', 'all')
+    department_filter = request.args.get('department', 'all')
+    year_filter = request.args.get('year', 'all')
+    semester_filter = request.args.get('semester', 'all')
+    section_filter = request.args.get('section', 'all')
+    classroom_filter = request.args.get('classroom', 'all')
     search = request.args.get('search', '')
     
-    query = User.query
+    query = User.query.outerjoin(Classroom, User.classroom_id == Classroom.id)
     
+    # Role filter
     if role_filter != 'all':
         query = query.filter(User.role == role_filter)
     
+    # Department filter
+    if department_filter != 'all':
+        query = query.filter(User.department == department_filter)
+    
+    # Year filter (for students in classrooms)
+    if year_filter != 'all':
+        query = query.filter(Classroom.year == int(year_filter))
+    
+    # Semester filter (for students in classrooms)
+    if semester_filter != 'all':
+        query = query.filter(Classroom.semester == int(semester_filter))
+    
+    # Section filter (for students in classrooms)
+    if section_filter != 'all':
+        query = query.filter(Classroom.section == section_filter)
+    
+    # Classroom filter
+    if classroom_filter != 'all':
+        query = query.filter(User.classroom_id == int(classroom_filter))
+    
+    # Search filter
     if search:
         query = query.filter(or_(
             User.username.contains(search),
             User.email.contains(search),
             User.first_name.contains(search),
-            User.last_name.contains(search)
+            User.last_name.contains(search),
+            User.student_id.contains(search),
+            User.faculty_id.contains(search)
         ))
     
     users = query.order_by(User.created_at.desc()).paginate(
         page=page, per_page=20, error_out=False
     )
     
-    return render_template('admin/users.html', users=users, role_filter=role_filter, search=search)
+    # Get filter options for dropdowns
+    departments = db.session.query(User.department.distinct()).filter(User.department.isnot(None)).all()
+    departments = [dept[0] for dept in departments if dept[0]]
+    
+    years = db.session.query(Classroom.year.distinct()).all()
+    years = [year[0] for year in years if year[0]]
+    
+    semesters = db.session.query(Classroom.semester.distinct()).all()
+    semesters = [sem[0] for sem in semesters if sem[0]]
+    
+    sections = db.session.query(Classroom.section.distinct()).all()
+    sections = [sec[0] for sec in sections if sec[0]]
+    
+    classrooms = Classroom.query.filter_by(is_active=True).order_by(Classroom.name).all()
+    
+    return render_template('admin/users.html', 
+                         users=users, 
+                         role_filter=role_filter,
+                         department_filter=department_filter,
+                         year_filter=year_filter,
+                         semester_filter=semester_filter,
+                         section_filter=section_filter,
+                         classroom_filter=classroom_filter,
+                         search=search,
+                         departments=departments,
+                         years=years,
+                         semesters=semesters,
+                         sections=sections,
+                         classrooms=classrooms)
 
 @app.route('/admin/users/add', methods=['GET', 'POST'])
 @login_required
