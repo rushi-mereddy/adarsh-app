@@ -3,25 +3,29 @@
 {% block title %}{{ department.name }} - Student Reviews{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-md-12">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ url_for('admin_departments') }}">Departments</a></li>
-                    <li class="breadcrumb-item active">{{ department.name }} - Reviews</li>
-                </ol>
-            </nav>
-
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h2>{{ department.name }} - Student Reviews</h2>
-                    <p class="text-muted">{{ department.code }} | {{ department.program }} | Average Rating: {{ department.get_average_rating() }}/5</p>
+<div class="fade-in">
+    <!-- Ultra Modern Page Header -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
+                <div class="mb-3 mb-md-0">
+                    <h1 class="title-ultra">
+                        <i class="fas fa-star me-3" style="color: #667eea;"></i>
+                        {{ department.name }} - Student Reviews
+                    </h1>
+                    <p class="subtitle-ultra">{{ department.code }} | {{ department.program }} | Average Rating: {{ department.get_average_rating() }}/5</p>
                 </div>
-                <a href="{{ url_for('admin_add_student_review', department_id=department.id) }}" class="btn btn-primary">
-                    <i class="fas fa-plus"></i> Add Review
-                </a>
+                <div class="d-flex gap-2 flex-wrap">
+                    <a href="{{ url_for('admin_add_student_review', department_id=department.id) }}" class="btn-ultra btn-primary-ultra">
+                        <i class="fas fa-plus"></i>Add Review
+                    </a>
+                    <a href="{{ url_for('admin_departments') }}" class="btn-ultra btn-secondary-ultra">
+                        <i class="fas fa-arrow-left"></i>Back to Departments
+                    </a>
+                </div>
             </div>
+        </div>
+    </div>
 
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
