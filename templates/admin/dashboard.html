@@ -4,134 +4,131 @@
 
 {% block content %}
 <div class="fade-in">
-    <!-- Page Header -->
-    <div class="row mb-4">
+    <!-- Modern Page Header -->
+    <div class="row mb-5">
         <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h1 class="h3 mb-0">
-                        <i class="fas fa-tachometer-alt text-primary me-2"></i>
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
+                <div class="mb-3 mb-md-0">
+                    <h1 class="h2 mb-2 gradient-text fw-bold">
+                        <i class="fas fa-tachometer-alt me-3"></i>
                         Admin Dashboard
                     </h1>
-                    <p class="text-muted mb-0">System overview and management</p>
+                    <p class="text-muted mb-0 fs-5">Welcome back, {{ current_user.get_full_name() }}! Here's your system overview.</p>
                 </div>
-                <div class="text-end">
-                    <small class="text-muted">Last login: {{ current_user.created_at.strftime('%b %d, %Y %H:%M') if current_user.created_at else 'N/A' }}</small><br>
-                    <small class="text-muted">Role: System Administrator</small>
+                <div class="glass-effect rounded-lg p-3 text-center text-md-end">
+                    <div class="small text-muted">Last Activity</div>
+                    <div class="fw-semibold">{{ current_user.created_at.strftime('%b %d, %Y %H:%M') if current_user.created_at else 'N/A' }}</div>
+                    <div class="badge badge-modern-primary mt-1">System Administrator</div>
                 </div>
             </div>
         </div>
     </div>
     
-    <!-- Key Statistics -->
-    <div class="row mb-4">
-        <div class="col-md-3 col-6 mb-3">
-            <div class="stat-card">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="stat-value text-primary">{{ total_students }}</div>
-                        <div class="stat-label">Total Students</div>
-                    </div>
-                    <div class="bg-primary bg-opacity-10 rounded-circle p-3">
-                        <i class="fas fa-user-graduate fa-2x text-primary"></i>
-                    </div>
+    <!-- Modern Statistics Cards -->
+    <div class="row mb-5">
+        <div class="col-lg-3 col-md-6 col-sm-6 mb-4">
+            <div class="stat-card stat-card-primary slide-in">
+                <div class="stat-card-icon">
+                    <i class="fas fa-user-graduate"></i>
                 </div>
-                <div class="mt-2">
-                    <a href="{{ url_for('admin_users') }}?role=student" class="btn btn-outline-primary btn-sm">
-                        <i class="fas fa-eye me-1"></i>View All
+                <div class="stat-card-value">{{ total_students }}</div>
+                <div class="stat-card-label">Total Students</div>
+                <div class="mt-3">
+                    <a href="{{ url_for('admin_users') }}?role=student" class="btn-modern btn-modern-sm btn-modern-primary">
+                        <i class="fas fa-arrow-right"></i>
+                        View All Students
                     </a>
                 </div>
             </div>
         </div>
         
-        <div class="col-md-3 col-6 mb-3">
-            <div class="stat-card">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="stat-value text-success">{{ total_faculty }}</div>
-                        <div class="stat-label">Faculty Members</div>
-                    </div>
-                    <div class="bg-success bg-opacity-10 rounded-circle p-3">
-                        <i class="fas fa-chalkboard-teacher fa-2x text-success"></i>
-                    </div>
+        <div class="col-lg-3 col-md-6 col-sm-6 mb-4">
+            <div class="stat-card stat-card-success slide-in" style="animation-delay: 0.1s;">
+                <div class="stat-card-icon">
+                    <i class="fas fa-chalkboard-teacher"></i>
                 </div>
-                <div class="mt-2">
-                    <a href="{{ url_for('admin_users') }}?role=faculty" class="btn btn-outline-success btn-sm">
-                        <i class="fas fa-eye me-1"></i>View All
+                <div class="stat-card-value">{{ total_faculty }}</div>
+                <div class="stat-card-label">Faculty Members</div>
+                <div class="mt-3">
+                    <a href="{{ url_for('admin_users') }}?role=faculty" class="btn-modern btn-modern-sm btn-modern-success">
+                        <i class="fas fa-arrow-right"></i>
+                        View All Faculty
                     </a>
                 </div>
             </div>
         </div>
         
-        <div class="col-md-3 col-6 mb-3">
-            <div class="stat-card">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="stat-value text-info">{{ total_departments }}</div>
-                        <div class="stat-label">Departments</div>
-                    </div>
-                    <div class="bg-info bg-opacity-10 rounded-circle p-3">
-                        <i class="fas fa-university fa-2x text-info"></i>
-                    </div>
+        <div class="col-lg-3 col-md-6 col-sm-6 mb-4">
+            <div class="stat-card stat-card-info slide-in" style="animation-delay: 0.2s;">
+                <div class="stat-card-icon">
+                    <i class="fas fa-university"></i>
                 </div>
-                <div class="mt-2">
-                    <a href="{{ url_for('admin_departments') }}" class="btn btn-outline-info btn-sm">
-                        <i class="fas fa-eye me-1"></i>Manage
+                <div class="stat-card-value">{{ total_departments }}</div>
+                <div class="stat-card-label">Active Departments</div>
+                <div class="mt-3">
+                    <a href="{{ url_for('admin_departments') }}" class="btn-modern btn-modern-sm" style="background: linear-gradient(135deg, var(--info) 0%, #0891b2 100%); color: white;">
+                        <i class="fas fa-cog"></i>
+                        Manage
                     </a>
                 </div>
             </div>
         </div>
         
-        <div class="col-md-3 col-6 mb-3">
-            <div class="stat-card">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="stat-value text-warning">{{ recent_enquiries|length }}</div>
-                        <div class="stat-label">New Enquiries</div>
-                    </div>
-                    <div class="bg-warning bg-opacity-10 rounded-circle p-3">
-                        <i class="fas fa-question-circle fa-2x text-warning"></i>
-                    </div>
+        <div class="col-lg-3 col-md-6 col-sm-6 mb-4">
+            <div class="stat-card stat-card-warning slide-in" style="animation-delay: 0.3s;">
+                <div class="stat-card-icon">
+                    <i class="fas fa-question-circle"></i>
                 </div>
-                <div class="mt-2">
-                    <a href="{{ url_for('admin_enquiries') }}" class="btn btn-outline-warning btn-sm">
-                        <i class="fas fa-eye me-1"></i>Review
+                <div class="stat-card-value">{{ recent_enquiries|length }}</div>
+                <div class="stat-card-label">Pending Enquiries</div>
+                <div class="mt-3">
+                    <a href="{{ url_for('admin_enquiries') }}" class="btn-modern btn-modern-sm" style="background: linear-gradient(135deg, var(--warning) 0%, #d97706 100%); color: white;">
+                        <i class="fas fa-eye"></i>
+                        Review Now
                     </a>
                 </div>
             </div>
         </div>
     </div>
     
-    <!-- Quick Actions -->
-    <div class="row mb-4">
+    <!-- Modern Quick Actions -->
+    <div class="row mb-5">
         <div class="col-12">
-            <div class="card">
+            <div class="card-modern">
                 <div class="card-header">
                     <h5 class="mb-0">
-                        <i class="fas fa-bolt text-primary me-2"></i>
+                        <i class="fas fa-bolt me-2" style="color: var(--accent);"></i>
                         Quick Actions
                     </h5>
                 </div>
                 <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-3 mb-2">
-                            <a href="{{ url_for('admin_classrooms') }}" class="btn btn-outline-primary w-100">
-                                <i class="fas fa-school me-2"></i>Manage Classrooms
+                    <div class="row g-3">
+                        <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6">
+                            <a href="{{ url_for('admin_add_user') }}" class="btn-modern btn-modern-primary w-100 h-100 d-flex flex-column align-items-center justify-content-center py-4">
+                                <i class="fas fa-user-plus fa-2x mb-3"></i>
+                                <span class="fw-semibold">Add New User</span>
+                                <small class="text-white-50 mt-1">Create student/faculty</small>
                             </a>
                         </div>
-                        <div class="col-md-3 mb-2">
-                            <a href="{{ url_for('admin_attendance_overview') }}" class="btn btn-outline-info w-100">
-                                <i class="fas fa-chart-bar me-2"></i>Attendance Overview
+                        <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6">
+                            <a href="{{ url_for('admin_classrooms') }}" class="btn-modern btn-modern-secondary w-100 h-100 d-flex flex-column align-items-center justify-content-center py-4">
+                                <i class="fas fa-school fa-2x mb-3"></i>
+                                <span class="fw-semibold">Manage Classrooms</span>
+                                <small class="opacity-75 mt-1">Organize classes</small>
                             </a>
                         </div>
-                        <div class="col-md-3 mb-2">
-                            <a href="{{ url_for('admin_users') }}" class="btn btn-outline-success w-100">
-                                <i class="fas fa-users me-2"></i>Manage Users
+                        <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6">
+                            <a href="{{ url_for('admin_attendance_overview') }}" class="btn-modern w-100 h-100 d-flex flex-column align-items-center justify-content-center py-4" style="background: linear-gradient(135deg, var(--info) 0%, #0891b2 100%); color: white;">
+                                <i class="fas fa-chart-line fa-2x mb-3"></i>
+                                <span class="fw-semibold">View Analytics</span>
+                                <small class="text-white-50 mt-1">Attendance insights</small>
                             </a>
                         </div>
-                        <div class="col-md-3 mb-2">
-                            <a href="{{ url_for('admin_courses') }}" class="btn btn-outline-warning w-100">
-                                <i class="fas fa-book me-2"></i>Manage Courses
+                        <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6">
+                            <a href="{{ url_for('admin_departments') }}" class="btn-modern w-100 h-100 d-flex flex-column align-items-center justify-content-center py-4" style="background: linear-gradient(135deg, var(--accent) 0%, #7c3aed 100%); color: white;">
+                                <i class="fas fa-university fa-2x mb-3"></i>
+                                <span class="fw-semibold">Departments</span>
+                                <small class="text-white-50 mt-1">Manage programs</small>
                             </a>
                         </div>
                     </div>
