@@ -118,21 +118,11 @@ jobs:
             if [ "$PKG_MANAGER" = "apt" ]; then
               $INSTALL_CMD docker-compose
             else
-              # For RHEL/CentOS/Amazon Linux, install via pip or direct download
-              if command -v pip3 &> /dev/null; then
-                sudo pip3 install docker-compose
-              else
-                # Install pip first, then docker-compose
-                $INSTALL_CMD python3-pip
-                sudo pip3 install docker-compose
-              fi
-              
-              # Create symlink for system-wide access
-              if [ -f "/usr/local/bin/docker-compose" ]; then
-                sudo ln -sf /usr/local/bin/docker-compose /usr/bin/docker-compose
-              elif [ -f "/home/${{ secrets.EC2_USERNAME }}/.local/bin/docker-compose" ]; then
-                sudo ln -sf /home/${{ secrets.EC2_USERNAME }}/.local/bin/docker-compose /usr/bin/docker-compose
-              fi
+              # For RHEL/CentOS/Amazon Linux, use direct download method to avoid pip conflicts
+              echo "📥 Downloading Docker Compose binary..."
+              sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+              sudo chmod +x /usr/local/bin/docker-compose
+              sudo ln -sf /usr/local/bin/docker-compose /usr/bin/docker-compose
             fi
             echo "✅ Docker Compose installed successfully"
           else
