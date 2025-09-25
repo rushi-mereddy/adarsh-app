@@ -165,9 +165,44 @@ jobs:
             git pull origin main || git pull origin master
           else
             echo "📥 Cloning repository..."
-            # Remove any existing files first
-            rm -rf * .* 2>/dev/null || true
-            git clone https://github.com/rushi-mereddy/adarsh-app.git .
+            # Remove any existing files first (but keep hidden files like .ssh)
+            find . -maxdepth 1 -name ".*" ! -name "." ! -name ".." ! -name ".ssh" -exec rm -rf {} + 2>/dev/null || true
+            rm -rf * 2>/dev/null || true
+            
+            # Clone repository (public repo, no auth needed)
+            git clone https://github.com/rushi-mereddy/adarsh-app.git . || {
+              echo "❌ Git clone failed, trying alternative method..."
+              
+              # Alternative: Download as ZIP and extract
+              echo "📦 Downloading repository as ZIP..."
+              curl -L https://github.com/rushi-mereddy/adarsh-app/archive/refs/heads/main.zip -o repo.zip
+              
+              if command -v unzip &> /dev/null; then
+                unzip -q repo.zip
+                mv adarsh-app-main/* . 2>/dev/null || true
+                mv adarsh-app-main/.* . 2>/dev/null || true
+                rm -rf adarsh-app-main repo.zip
+                echo "✅ Repository downloaded and extracted successfully"
+              else
+                echo "❌ unzip not available, installing..."
+                $INSTALL_CMD unzip
+                unzip -q repo.zip
+                mv adarsh-app-main/* . 2>/dev/null || true
+                mv adarsh-app-main/.* . 2>/dev/null || true
+                rm -rf adarsh-app-main repo.zip
+                echo "✅ Repository downloaded and extracted successfully"
+              fi
+            }
+          fi
+          
+          # Verify essential files exist
+          if [ ! -f "docker-compose.prod.yml" ]; then
+            echo "❌ docker-compose.prod.yml not found!"
+            echo "📋 Current directory contents:"
+            ls -la
+            exit 1
+          else
+            echo "✅ docker-compose.prod.yml found"
           fi
           
           # Create .env file if it doesn't exist
