@@ -239,13 +239,20 @@ jobs:
           
           echo "📍 Using Docker Compose: $DOCKER_COMPOSE"
           
-          # Stop existing services
+          # Stop existing services and free up ports
           echo "🛑 Stopping existing services..."
           sudo $DOCKER_COMPOSE -f docker-compose.prod.yml down || true
           
-          # Remove old images to free space
-          echo "🧹 Cleaning up old Docker images..."
+          # Kill any processes using port 80
+          echo "🔌 Freeing up port 80..."
+          sudo pkill -f nginx || true
+          sudo fuser -k 80/tcp || true
+          sleep 5
+          
+          # Remove old images and volumes to ensure fresh start
+          echo "🧹 Cleaning up old Docker images and volumes..."
           sudo docker system prune -f || true
+          sudo docker volume prune -f || true
           
           # Build and start services
           echo "🚀 Building and starting services..."
@@ -259,37 +266,79 @@ jobs:
           # Initialize database
           echo "🗄️ Initializing database..."
           sudo $DOCKER_COMPOSE -f docker-compose.prod.yml exec -T web python -c "
+          import sys
+          sys.path.append('/app')
+          
           from app import app, db
           from models import User
           from werkzeug.security import generate_password_hash
           
           with app.app_context():
               try:
-                  print('🔄 Creating database tables...')
-                  db.create_all()
-                  print('✅ Database tables created successfully!')
+                  print('🔄 Checking database connection...')
                   
-                  # Create admin user if not exists
-                  admin = User.query.filter_by(email='admin@college.edu').first()
-                  if not admin:
-                      admin_user = User(
-                          first_name='System',
-                          last_name='Administrator', 
-                          email='admin@college.edu',
-                          password=generate_password_hash('admin123'),
-                          role='admin',
-                          is_active=True,
-                          phone='1234567890',
-                          department='Administration'
-                      )
-                      db.session.add(admin_user)
-                      db.session.commit()
-                      print('✅ Admin user created: admin@college.edu / admin123')
-                  else:
-                      print('ℹ️ Admin user already exists')
+                  # Test database connection
+                  db.engine.execute('SELECT 1')
+                  print('✅ Database connection successful!')
+                  
+                  # Check if admin user exists (this will tell us if DB is initialized)
+                  try:
+                      admin = User.query.filter_by(email='admin@college.edu').first()
+                      if admin:
+                          print('ℹ️ Database already initialized - Admin user exists')
+                      else:
+                          print('🔄 Database needs initialization...')
+                          # Create tables if needed
+                          db.create_all()
+                          
+                          # Create admin user
+                          admin_user = User(
+                              first_name='System',
+                              last_name='Administrator', 
+                              email='admin@college.edu',
+                              password=generate_password_hash('admin123'),
+                              role='admin',
+                              is_active=True,
+                              phone='1234567890',
+                              department='Administration'
+                          )
+                          db.session.add(admin_user)
+                          db.session.commit()
+                          print('✅ Admin user created: admin@college.edu / admin123')
+                  except Exception as table_error:
+                      print(f'🔄 Tables may not exist, creating them: {table_error}')
+                      db.create_all()
+                      print('✅ Database tables created!')
+                      
+                      # Now try to create admin user
+                      try:
+                          admin = User.query.filter_by(email='admin@college.edu').first()
+                          if not admin:
+                              admin_user = User(
+                                  first_name='System',
+                                  last_name='Administrator', 
+                                  email='admin@college.edu',
+                                  password=generate_password_hash('admin123'),
+                                  role='admin',
+                                  is_active=True,
+                                  phone='1234567890',
+                                  department='Administration'
+                              )
+                              db.session.add(admin_user)
+                              db.session.commit()
+                              print('✅ Admin user created: admin@college.edu / admin123')
+                          else:
+                              print('ℹ️ Admin user already exists')
+                      except Exception as user_error:
+                          print(f'⚠️ Admin user creation skipped (may already exist): {user_error}')
+                  
+                  print('✅ Database initialization completed successfully!')
                       
               except Exception as e:
                   print(f'❌ Database initialization error: {e}')
+                  import traceback
+                  traceback.print_exc()
+                  sys.exit(1)
           " || echo "⚠️ Database initialization failed, but continuing..."
           
           # Health check
