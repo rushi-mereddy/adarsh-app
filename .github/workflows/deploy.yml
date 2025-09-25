@@ -126,10 +126,32 @@ jobs:
                 $INSTALL_CMD python3-pip
                 sudo pip3 install docker-compose
               fi
+              
+              # Create symlink for system-wide access
+              if [ -f "/usr/local/bin/docker-compose" ]; then
+                sudo ln -sf /usr/local/bin/docker-compose /usr/bin/docker-compose
+              elif [ -f "/home/${{ secrets.EC2_USERNAME }}/.local/bin/docker-compose" ]; then
+                sudo ln -sf /home/${{ secrets.EC2_USERNAME }}/.local/bin/docker-compose /usr/bin/docker-compose
+              fi
             fi
             echo "✅ Docker Compose installed successfully"
           else
             echo "✅ Docker Compose is already installed"
+          fi
+          
+          # Verify docker-compose is accessible
+          if ! command -v docker-compose &> /dev/null; then
+            echo "⚠️ Docker Compose not found in PATH, trying alternative methods..."
+            # Try to find docker-compose and create symlink
+            COMPOSE_PATH=$(find /usr/local /home/${{ secrets.EC2_USERNAME }}/.local -name "docker-compose" -type f 2>/dev/null | head -1)
+            if [ -n "$COMPOSE_PATH" ]; then
+              echo "📍 Found Docker Compose at: $COMPOSE_PATH"
+              sudo ln -sf "$COMPOSE_PATH" /usr/bin/docker-compose
+              echo "✅ Created symlink for Docker Compose"
+            else
+              echo "❌ Could not locate Docker Compose installation"
+              exit 1
+            fi
           fi
           
           # Ensure Docker service is running
@@ -153,6 +175,8 @@ jobs:
             git pull origin main || git pull origin master
           else
             echo "📥 Cloning repository..."
+            # Remove any existing files first
+            rm -rf * .* 2>/dev/null || true
             git clone https://github.com/rushi-mereddy/adarsh-app.git .
           fi
           
@@ -171,9 +195,28 @@ jobs:
           mkdir -p static/uploads ssl
           chmod 755 static/uploads
           
+          # Set docker-compose command (with fallback)
+          if command -v docker-compose &> /dev/null; then
+            DOCKER_COMPOSE="docker-compose"
+          else
+            # Try to find docker-compose in common locations
+            for path in "/usr/local/bin/docker-compose" "/home/${{ secrets.EC2_USERNAME }}/.local/bin/docker-compose"; do
+              if [ -f "$path" ]; then
+                DOCKER_COMPOSE="$path"
+                break
+              fi
+            done
+            if [ -z "$DOCKER_COMPOSE" ]; then
+              echo "❌ Docker Compose not found!"
+              exit 1
+            fi
+          fi
+          
+          echo "📍 Using Docker Compose: $DOCKER_COMPOSE"
+          
           # Stop existing services
           echo "🛑 Stopping existing services..."
-          sudo docker-compose -f docker-compose.prod.yml down || true
+          sudo $DOCKER_COMPOSE -f docker-compose.prod.yml down || true
           
           # Remove old images to free space
           echo "🧹 Cleaning up old Docker images..."
@@ -181,8 +224,8 @@ jobs:
           
           # Build and start services
           echo "🚀 Building and starting services..."
-          sudo docker-compose -f docker-compose.prod.yml build --no-cache
-          sudo docker-compose -f docker-compose.prod.yml up -d
+          sudo $DOCKER_COMPOSE -f docker-compose.prod.yml build --no-cache
+          sudo $DOCKER_COMPOSE -f docker-compose.prod.yml up -d
           
           # Wait for services to be ready
           echo "⏳ Waiting for services to start..."
@@ -190,7 +233,7 @@ jobs:
           
           # Initialize database
           echo "🗄️ Initializing database..."
-          sudo docker-compose -f docker-compose.prod.yml exec -T web python -c "
+          sudo $DOCKER_COMPOSE -f docker-compose.prod.yml exec -T web python -c "
           from app import app, db
           from models import User
           from werkzeug.security import generate_password_hash
@@ -233,15 +276,15 @@ jobs:
             
             # Show service status
             echo "📊 Service Status:"
-            sudo docker-compose -f docker-compose.prod.yml ps
+            sudo $DOCKER_COMPOSE -f docker-compose.prod.yml ps
             
             # Show recent logs
             echo "📋 Recent logs:"
-            sudo docker-compose -f docker-compose.prod.yml logs --tail=20
+            sudo $DOCKER_COMPOSE -f docker-compose.prod.yml logs --tail=20
             
           else
             echo "❌ Health check failed. Showing logs for debugging:"
-            sudo docker-compose -f docker-compose.prod.yml logs
+            sudo $DOCKER_COMPOSE -f docker-compose.prod.yml logs
             exit 1
           fi
 
