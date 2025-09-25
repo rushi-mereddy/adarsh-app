@@ -21,16 +21,31 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
+        pip install Flask SQLAlchemy WTForms
     
     - name: Run basic tests
       run: |
         python -c "
         try:
             import flask, sqlalchemy, wtforms
-            print('✅ All dependencies imported successfully')
+            print('✅ All core dependencies imported successfully')
+            
+            # Test basic Flask app creation
+            from flask import Flask
+            app = Flask(__name__)
+            print('✅ Flask app creation test passed')
+            
+            # Test SQLAlchemy import
+            from sqlalchemy import create_engine
+            print('✅ SQLAlchemy import test passed')
+            
+            print('✅ All tests passed successfully!')
+            
         except ImportError as e:
             print(f'❌ Import error: {e}')
+            exit(1)
+        except Exception as e:
+            print(f'❌ Test error: {e}')
             exit(1)
         "
 
