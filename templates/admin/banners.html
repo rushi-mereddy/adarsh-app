@@ -2,10 +2,153 @@
 
 {% block title %}Banner Management - Admin Dashboard{% endblock %}
 
+{% block extra_css %}
+<style>
+/* Text clamping utilities */
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.2em;
+}
+
+.line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.5em;
+}
+
+/* Card hover effects */
+.card-ultra:hover {
+    transform: translateY(-2px);
+    transition: transform 0.2s ease-in-out;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Ensure equal height cards */
+.banner-item .card-ultra {
+    transition: all 0.2s ease-in-out;
+}
+
+/* Badge improvements */
+.badge.rounded-pill {
+    font-size: 0.75rem;
+    padding: 0.35em 0.65em;
+}
+
+/* Button group improvements */
+.btn-group-vertical .btn {
+    border-radius: 0.375rem !important;
+    margin-bottom: 0.25rem;
+}
+
+.btn-group-vertical .btn:last-child {
+    margin-bottom: 0;
+}
+
+/* Search input improvements */
+.form-control:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+/* Statistics card hover */
+.statistics-card:hover {
+    transform: translateY(-1px);
+    transition: transform 0.2s ease-in-out;
+}
+
+/* Banner image styling */
+.banner-image {
+    height: 180px;
+    object-fit: cover;
+    border-radius: 0.5rem;
+    transition: transform 0.2s ease-in-out;
+}
+
+.banner-image:hover {
+    transform: scale(1.02);
+}
+
+/* Status toggle styling */
+.status-toggle {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+}
+
+.status-toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.status-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 24px;
+}
+
+.status-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .status-slider {
+    background-color: #28a745;
+}
+
+input:checked + .status-slider:before {
+    transform: translateX(26px);
+}
+
+/* Inactive banner overlay */
+.banner-inactive {
+    position: relative;
+}
+
+.banner-inactive::after {
+    content: 'INACTIVE';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(220, 53, 69, 0.9);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-weight: bold;
+    font-size: 0.875rem;
+}
+
+.banner-inactive img {
+    opacity: 0.5;
+    filter: grayscale(50%);
+}
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="fade-in">
     <!-- Ultra Modern Page Header -->
-    <div class="row mb-5">
+    <div class="row mb-4">
         <div class="col-12">
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
                 <div class="mb-3 mb-md-0">
@@ -16,68 +159,141 @@
                     <p class="subtitle-ultra">Upload and manage website banners</p>
                 </div>
                 <div class="d-flex gap-2 flex-wrap">
+                    {% if action != 'add' and action != 'edit' %}
+                    <button class="btn-ultra btn-outline-secondary-ultra btn-sm" onclick="toggleView('grid')" id="gridViewBtn">
+                        <i class="fas fa-th-large me-1"></i>Grid
+                    </button>
+                    <button class="btn-ultra btn-outline-secondary-ultra btn-sm active" onclick="toggleView('list')" id="listViewBtn">
+                        <i class="fas fa-list me-1"></i>List
+                    </button>
+                    {% endif %}
                     <a href="{{ url_for('admin_add_banner') }}" class="btn-ultra btn-primary-ultra">
-                        <i class="fas fa-plus"></i>Upload Banner
+                        <i class="fas fa-plus me-2"></i>Upload Banner
                     </a>
                 </div>
             </div>
         </div>
     </div>
     
-    {% if action == 'add' %}
-    <!-- Add Banner Form -->
+    {% if action == 'add' or action == 'edit' %}
+    <!-- Add/Edit Banner Form -->
     <div class="row">
         <div class="col-lg-8 mx-auto">
             <div class="card-ultra">
                 <div class="card-header-ultra">
                     <h5 class="mb-0">
+                        {% if action == 'edit' %}
+                        <i class="fas fa-edit me-2"></i>
+                        Edit Banner
+                        {% else %}
                         <i class="fas fa-upload me-2"></i>
                         Upload New Banner
+                        {% endif %}
                     </h5>
                 </div>
                 <div class="card-body-ultra">
-                    <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+                    <form method="POST" enctype="multipart/form-data" id="bannerForm">
                         {{ form.hidden_tag() }}
                         
                         <div class="mb-3">
                             {{ form.title.label(class="form-label fw-semibold") }}
-                            {{ form.title(class="form-control", placeholder="Enter banner title") }}
-                            <div class="invalid-feedback">
-                                Please provide a title for the banner.
+                            {{ form.title(class="form-control" + (" is-invalid" if form.title.errors else ""), placeholder="Enter banner title") }}
+                            {% if form.title.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.title.errors %}
+                                        <div>{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <small class="text-muted">Enter a descriptive title for your banner</small>
+                            {% endif %}
+                        </div>
+                        
+                        {% if action == 'edit' and banner %}
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Current Image</label>
+                            <div class="border rounded p-2 bg-light">
+                                <img src="{{ url_for('static', filename='uploads/' + banner.image_path) }}" 
+                                     alt="{{ banner.title }}" class="img-thumbnail" style="max-height: 100px;">
+                                <small class="text-muted d-block mt-1">Current banner image</small>
                             </div>
                         </div>
+                        {% endif %}
                         
                         <div class="mb-3">
                             {{ form.image.label(class="form-label fw-semibold") }}
+                            {% if action == 'edit' %}
+                                <span class="text-muted">(Leave empty to keep current image)</span>
+                            {% endif %}
                             <div class="file-upload-container">
-                                {{ form.image(class="form-control", accept="image/*") }}
+                                {{ form.image(class="form-control" + (" is-invalid" if form.image.errors else ""), accept="image/*") }}
                             </div>
-                            <div class="invalid-feedback">
-                                Please select an image file (JPG, PNG, JPEG only).
+                            {% if form.image.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.image.errors %}
+                                        <div>{{ error }}</div>
+                                    {% endfor %}
                             </div>
-                            <small class="text-muted">Recommended size: 1200x400 pixels for optimal display</small>
+                            {% else %}
+                                <small class="text-muted">
+                                    {% if action == 'edit' %}
+                                        Upload a new image to replace the current one (JPG, PNG, JPEG only)
+                                    {% else %}
+                                        Recommended size: 1200x400 pixels for optimal display (JPG, PNG, JPEG only)
+                                    {% endif %}
+                                </small>
+                            {% endif %}
                         </div>
                         
                         <div class="mb-3">
                             {{ form.link_url.label(class="form-label fw-semibold") }}
-                            {{ form.link_url(class="form-control", placeholder="https://example.com (optional)") }}
+                            {{ form.link_url(class="form-control" + (" is-invalid" if form.link_url.errors else ""), placeholder="https://example.com (optional)") }}
+                            {% if form.link_url.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.link_url.errors %}
+                                        <div>{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
                             <small class="text-muted">URL to redirect when banner is clicked (optional)</small>
+                            {% endif %}
                         </div>
                         
                         <div class="mb-3">
                             {{ form.description.label(class="form-label fw-semibold") }}
-                            {{ form.description(class="form-control", rows="3", placeholder="Enter banner description") }}
+                            {{ form.description(class="form-control" + (" is-invalid" if form.description.errors else ""), rows="3", placeholder="Enter banner description") }}
+                            {% if form.description.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.description.errors %}
+                                        <div>{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <small class="text-muted">Brief description of the banner (optional)</small>
+                            {% endif %}
                         </div>
                         
                         <div class="mb-4">
                             {{ form.display_order.label(class="form-label fw-semibold") }}
-                            {{ form.display_order(class="form-control", placeholder="0", value="0") }}
+                            {{ form.display_order(class="form-control" + (" is-invalid" if form.display_order.errors else ""), placeholder="0") }}
+                            {% if form.display_order.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.display_order.errors %}
+                                        <div>{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
                             <small class="text-muted">Lower numbers appear first (0 = highest priority)</small>
+                            {% endif %}
                         </div>
                         
                         <div class="d-flex gap-2">
                             <button type="submit" class="btn-ultra btn-primary-ultra">
+                                {% if action == 'edit' %}
+                                <i class="fas fa-save me-2"></i>Update Banner
+                                {% else %}
                                 <i class="fas fa-upload me-2"></i>Upload Banner
+                                {% endif %}
                             </button>
                             <a href="{{ url_for('admin_banners') }}" class="btn-ultra btn-secondary-ultra">
                                 <i class="fas fa-times me-2"></i>Cancel
@@ -90,44 +306,232 @@
     </div>
     
     {% else %}
+    <!-- Search and Filter Bar -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card-ultra">
+                <div class="card-body-ultra py-3">
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-0">
+                                    <i class="fas fa-search text-muted"></i>
+                                </span>
+                                <input type="text" class="form-control border-0 bg-light" 
+                                       id="searchInput" placeholder="Search banners...">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-select" id="statusFilter">
+                                <option value="">All Status</option>
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-select" id="orderFilter">
+                                <option value="">All Orders</option>
+                                <option value="0">Priority 0</option>
+                                <option value="1">Priority 1</option>
+                                <option value="2">Priority 2</option>
+                                <option value="3+">Priority 3+</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-select" id="linkFilter">
+                                <option value="">All Types</option>
+                                <option value="with-link">With Link</option>
+                                <option value="no-link">No Link</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn-ultra btn-outline-secondary-ultra w-100" onclick="clearFilters()">
+                                <i class="fas fa-times me-1"></i>Clear
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card-ultra h-100 statistics-card">
+                <div class="card-body-ultra text-center">
+                    <h3 class="mb-0 fw-bold">{{ banners|length }}</h3>
+                    <small class="text-muted">Total</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card-ultra h-100 statistics-card">
+                <div class="card-body-ultra text-center">
+                    <h3 class="mb-0 fw-bold text-success">{{ banners|selectattr('is_active')|list|length }}</h3>
+                    <small class="text-muted">Active</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card-ultra h-100 statistics-card">
+                <div class="card-body-ultra text-center">
+                    <h3 class="mb-0 fw-bold text-warning">{{ banners|rejectattr('is_active')|list|length }}</h3>
+                    <small class="text-muted">Inactive</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card-ultra h-100 statistics-card">
+                <div class="card-body-ultra text-center">
+                    <h3 class="mb-0 fw-bold text-info">{{ banners|selectattr('link_url')|list|length }}</h3>
+                    <small class="text-muted">With Links</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Banners List -->
     <div class="row">
         <div class="col-12">
             <div class="card-ultra">
-                <div class="card-header d-flex justify-content-between align-items-center">
+                <div class="card-header-ultra">
                     <h5 class="mb-0">
                         <i class="fas fa-list me-2"></i>
-                        Uploaded Banners
+                        Banner Management
                     </h5>
-                    <div>
-                        <span class="text-muted">Total: {{ banners|length }} banners</span>
-                    </div>
                 </div>
-                <div class="card-body p-0">
+                <div class="card-body-ultra p-0">
                     {% if banners %}
-                    <div class="row g-4 p-4">
+                    <!-- List View -->
+                    <div id="listView" class="d-block">
                         {% for banner in banners %}
-                        <div class="col-lg-6 col-xl-4">
-                            <div class="card h-100">
-                                <div class="position-relative">
+                        <div class="banner-item" data-title="{{ banner.title|lower }}" 
+                             data-status="{{ 'active' if banner.is_active else 'inactive' }}"
+                             data-order="{{ banner.display_order }}"
+                             data-link="{{ 'with-link' if banner.link_url else 'no-link' }}">
+                            <div class="card-ultra mb-3 mx-3 mt-3">
+                                <div class="row align-items-start g-0">
+                                    <div class="col-md-3">
+                                        <div class="position-relative {{ 'banner-inactive' if not banner.is_active else '' }}">
                                     <img src="{{ url_for('static', filename='uploads/' + banner.image_path) }}" 
-                                         class="card-img-top" alt="{{ banner.title }}" 
-                                         style="height: 200px; object-fit: cover;">
-                                    <div class="position-absolute top-0 end-0 m-2">
-                                        <span class="badge bg-primary">Order: {{ banner.display_order }}</span>
+                                                 class="banner-image w-100" alt="{{ banner.title }}">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="card-body-ultra">
+                                            <div class="d-flex align-items-start justify-content-between mb-2">
+                                                <h6 class="card-title mb-1 fw-bold">{{ banner.title }}</h6>
+                                                <div class="d-flex gap-2">
+                                                    <span class="badge rounded-pill {{ 'bg-success' if banner.is_active else 'bg-secondary' }}">
+                                                        {{ 'Active' if banner.is_active else 'Inactive' }}
+                                                    </span>
+                                                    <span class="badge rounded-pill bg-primary">
+                                                        Order: {{ banner.display_order }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            
+                                            {% if banner.description %}
+                                            <p class="card-text text-muted small line-clamp-2 mb-2">{{ banner.description }}</p>
+                                            {% endif %}
+                                            
+                                            {% if banner.link_url %}
+                                            <p class="card-text mb-2">
+                                                <small class="text-muted">
+                                                    <i class="fas fa-link me-1"></i>
+                                                    <a href="{{ banner.link_url }}" target="_blank" class="text-decoration-none">
+                                                        {{ banner.link_url[:50] }}{% if banner.link_url|length > 50 %}...{% endif %}
+                                                    </a>
+                                                </small>
+                                            </p>
+                                            {% endif %}
+                                            
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <small class="text-muted">
+                                                    <i class="fas fa-clock me-1"></i>
+                                                    {{ banner.created_at.strftime('%b %d, %Y') }}
+                                                </small>
+                                                <small class="text-muted">
+                                                    by {{ banner.creator.get_full_name() }}
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="card-body-ultra">
+                                            <!-- Status Toggle -->
+                                            <div class="mb-3">
+                                                <label class="status-toggle">
+                                                    <input type="checkbox" {{ 'checked' if banner.is_active else '' }}
+                                                           onchange="toggleBannerStatus({{ banner.id }}, this.checked)">
+                                                    <span class="status-slider"></span>
+                                                </label>
+                                                <small class="text-muted d-block">Status</small>
+                                            </div>
+                                            
+                                            <!-- Action Buttons -->
+                                            <div class="btn-group-vertical w-100">
+                                                {% if banner.link_url %}
+                                                <a href="{{ banner.link_url }}" target="_blank" 
+                                                   class="btn-ultra btn-outline-success-ultra btn-sm" title="Visit Link">
+                                                    <i class="fas fa-external-link-alt me-1"></i>Visit
+                                                </a>
+                                                {% endif %}
+                                                <a href="{{ url_for('admin_edit_banner', banner_id=banner.id) }}" 
+                                                   class="btn-ultra btn-outline-primary-ultra btn-sm" title="Edit Banner">
+                                                    <i class="fas fa-edit me-1"></i>Edit
+                                                </a>
+                                                <button class="btn-ultra btn-outline-info-ultra btn-sm" title="Preview" 
+                                                        onclick="previewBanner('{{ url_for('static', filename='uploads/' + banner.image_path) }}', '{{ banner.title }}')">
+                                                    <i class="fas fa-eye me-1"></i>Preview
+                                                </button>
+                                                <button class="btn-ultra btn-outline-danger-ultra btn-sm" title="Delete" 
+                                                        onclick="confirmDelete({{ banner.id }}, '{{ banner.title }}')">
+                                                    <i class="fas fa-trash me-1"></i>Delete
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Grid View -->
+                    <div id="gridView" class="d-none">
+                        <div class="row g-4 p-4">
+                            {% for banner in banners %}
+                            <div class="col-xl-4 col-lg-6 col-md-6 banner-item" 
+                                 data-title="{{ banner.title|lower }}" 
+                                 data-status="{{ 'active' if banner.is_active else 'inactive' }}"
+                                 data-order="{{ banner.display_order }}"
+                                 data-link="{{ 'with-link' if banner.link_url else 'no-link' }}">
+                                <div class="card-ultra h-100">
+                                    <div class="position-relative {{ 'banner-inactive' if not banner.is_active else '' }}">
+                                        <img src="{{ url_for('static', filename='uploads/' + banner.image_path) }}" 
+                                             class="banner-image w-100" alt="{{ banner.title }}">
+                                        <div class="position-absolute top-0 end-0 m-2">
+                                            <span class="badge rounded-pill {{ 'bg-success' if banner.is_active else 'bg-secondary' }}">
+                                                {{ 'Active' if banner.is_active else 'Inactive' }}
+                                            </span>
+                                        </div>
+                                        <div class="position-absolute top-0 start-0 m-2">
+                                            <span class="badge rounded-pill bg-primary">Order: {{ banner.display_order }}</span>
                                     </div>
                                 </div>
                                 <div class="card-body-ultra">
-                                    <h6 class="card-title">{{ banner.title }}</h6>
+                                        <h6 class="card-title line-clamp-2 mb-2">{{ banner.title }}</h6>
                                     {% if banner.description %}
-                                    <p class="card-text text-muted small">{{ banner.description[:100] }}{% if banner.description|length > 100 %}...{% endif %}</p>
+                                        <p class="card-text text-muted small line-clamp-3 mb-2">{{ banner.description }}</p>
                                     {% endif %}
                                     {% if banner.link_url %}
                                     <p class="card-text">
                                         <small class="text-muted">
                                             <i class="fas fa-link me-1"></i>
                                             <a href="{{ banner.link_url }}" target="_blank" class="text-decoration-none">
-                                                {{ banner.link_url[:40] }}{% if banner.link_url|length > 40 %}...{% endif %}
+                                                    {{ banner.link_url[:30] }}{% if banner.link_url|length > 30 %}...{% endif %}
                                             </a>
                                         </small>
                                     </p>
@@ -142,23 +546,32 @@
                                         </small>
                                     </div>
                                 </div>
-                                <div class="card-footer bg-transparent">
+                                    <div class="card-footer-ultra bg-transparent">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <small class="text-muted">Status:</small>
+                                            <label class="status-toggle">
+                                                <input type="checkbox" {{ 'checked' if banner.is_active else '' }}
+                                                       onchange="toggleBannerStatus({{ banner.id }}, this.checked)">
+                                                <span class="status-slider"></span>
+                                            </label>
+                                        </div>
                                     <div class="btn-group w-100" role="group">
                                         {% if banner.link_url %}
-                                        <a href="{{ banner.link_url }}" target="_blank" class="btn-ultra btn-outline-success-ultra btn-sm">
+                                            <a href="{{ banner.link_url }}" target="_blank" 
+                                               class="btn-ultra btn-outline-success-ultra btn-sm" title="Visit Link">
                                             <i class="fas fa-external-link-alt"></i>
                                         </a>
                                         {% endif %}
-                                        <button class="btn-ultra btn-outline-primary-ultra btn-sm" title="Edit" 
-                                                onclick="showToast('Banner editing feature coming soon', 'info')">
+                                            <a href="{{ url_for('admin_edit_banner', banner_id=banner.id) }}" 
+                                               class="btn-ultra btn-outline-primary-ultra btn-sm" title="Edit Banner">
                                             <i class="fas fa-edit"></i>
-                                        </button>
+                                            </a>
                                         <button class="btn-ultra btn-outline-info-ultra btn-sm" title="Preview" 
                                                 onclick="previewBanner('{{ url_for('static', filename='uploads/' + banner.image_path) }}', '{{ banner.title }}')">
                                             <i class="fas fa-eye"></i>
                                         </button>
                                         <button class="btn-ultra btn-outline-danger-ultra btn-sm" title="Delete" 
-                                                onclick="showToast('Banner deletion feature coming soon', 'info')">
+                                                    onclick="confirmDelete({{ banner.id }}, '{{ banner.title }}')">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </div>
@@ -166,6 +579,7 @@
                             </div>
                         </div>
                         {% endfor %}
+                        </div>
                     </div>
                     {% else %}
                     <div class="text-center py-5">
@@ -205,15 +619,191 @@
 
 {% block extra_js %}
 <script>
-function previewBanner(imageUrl, title) {
+// Define critical functions immediately in global scope
+window.previewBanner = function(imageUrl, title) {
     document.getElementById('previewImage').src = imageUrl;
     document.getElementById('previewImage').alt = title;
     document.querySelector('#bannerPreviewModal .modal-title').textContent = 'Preview: ' + title;
     
     const modal = new bootstrap.Modal(document.getElementById('bannerPreviewModal'));
     modal.show();
+};
+
+window.confirmDelete = function(bannerId, bannerTitle) {
+    console.log('confirmDelete called with:', bannerId, bannerTitle);
+    
+    try {
+        if (confirm('Are you sure you want to delete the banner "' + bannerTitle + '"?\n\nThis action cannot be undone and will permanently remove the banner file.')) {
+            console.log('User confirmed deletion');
+            
+            // Use the existing hidden form and update its action
+            var deleteForm = document.getElementById('deleteForm');
+            console.log('Delete form found:', deleteForm);
+            
+            if (deleteForm) {
+                deleteForm.action = '/admin/banners/' + bannerId + '/delete';
+                console.log('Form action set to:', deleteForm.action);
+                
+                console.log('About to submit form...');
+                deleteForm.submit();
+                console.log('Form submitted successfully');
+            } else {
+                console.log('Hidden form not found, creating new form');
+                
+                // Fallback: create a new form
+                var form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/admin/banners/' + bannerId + '/delete';
+                
+                // Add CSRF token
+                var csrfToken = document.querySelector('meta[name=csrf-token]');
+                console.log('CSRF token found:', csrfToken);
+                
+                if (csrfToken) {
+                    var csrfInput = document.createElement('input');
+                    csrfInput.type = 'hidden';
+                    csrfInput.name = 'csrf_token';
+                    csrfInput.value = csrfToken.getAttribute('content');
+                    form.appendChild(csrfInput);
+                    console.log('CSRF token added:', csrfInput.value);
+                } else {
+                    console.error('CSRF token not found!');
+                    alert('Error: CSRF token not found. Please refresh the page and try again.');
+                    return;
+                }
+                
+                document.body.appendChild(form);
+                console.log('Form created and added to body');
+                form.submit();
+                console.log('Form submitted');
+            }
+        } else {
+            console.log('User cancelled deletion');
+        }
+    } catch (error) {
+        console.error('Error in confirmDelete function:', error);
+        alert('An error occurred while trying to delete the banner. Please check the console for details.');
+    }
+};
+
+window.toggleBannerStatus = function(bannerId, isActive) {
+    console.log('toggleBannerStatus called with:', bannerId, isActive);
+    
+    try {
+        // Create form for status toggle
+        var form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/admin/banners/' + bannerId + '/toggle-status';
+        
+        // Add CSRF token
+        var csrfToken = document.querySelector('meta[name=csrf-token]');
+        if (csrfToken) {
+            var csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrf_token';
+            csrfInput.value = csrfToken.getAttribute('content');
+            form.appendChild(csrfInput);
+        } else {
+            console.error('CSRF token not found!');
+            alert('Error: CSRF token not found. Please refresh the page and try again.');
+            return;
+        }
+        
+        document.body.appendChild(form);
+        form.submit();
+        
+        console.log('Status toggle form submitted');
+    } catch (error) {
+        console.error('Error in toggleBannerStatus function:', error);
+        alert('An error occurred while updating banner status. Please try again.');
+    }
+};
+
+window.toggleView = function(viewType) {
+    const listView = document.getElementById('listView');
+    const gridView = document.getElementById('gridView');
+    const listBtn = document.getElementById('listViewBtn');
+    const gridBtn = document.getElementById('gridViewBtn');
+    
+    if (viewType === 'grid') {
+        listView.classList.add('d-none');
+        listView.classList.remove('d-block');
+        gridView.classList.add('d-block');
+        gridView.classList.remove('d-none');
+        
+        listBtn.classList.remove('active');
+        gridBtn.classList.add('active');
+    } else {
+        gridView.classList.add('d-none');
+        gridView.classList.remove('d-block');
+        listView.classList.add('d-block');
+        listView.classList.remove('d-none');
+        
+        gridBtn.classList.remove('active');
+        listBtn.classList.add('active');
+    }
+};
+
+window.clearFilters = function() {
+    document.getElementById('searchInput').value = '';
+    document.getElementById('statusFilter').value = '';
+    document.getElementById('orderFilter').value = '';
+    document.getElementById('linkFilter').value = '';
+    filterBanners();
+};
+
+function filterBanners() {
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    const statusFilter = document.getElementById('statusFilter').value;
+    const orderFilter = document.getElementById('orderFilter').value;
+    const linkFilter = document.getElementById('linkFilter').value;
+    
+    const bannerItems = document.querySelectorAll('.banner-item');
+    
+    bannerItems.forEach(function(item) {
+        const title = item.dataset.title;
+        const status = item.dataset.status;
+        const order = parseInt(item.dataset.order);
+        const link = item.dataset.link;
+        
+        let showItem = true;
+        
+        // Search filter
+        if (searchTerm && !title.includes(searchTerm)) {
+            showItem = false;
+        }
+        
+        // Status filter
+        if (statusFilter && status !== statusFilter) {
+            showItem = false;
+        }
+        
+        // Order filter
+        if (orderFilter) {
+            if (orderFilter === '3+' && order < 3) {
+                showItem = false;
+            } else if (orderFilter !== '3+' && order !== parseInt(orderFilter)) {
+                showItem = false;
+            }
+        }
+        
+        // Link filter
+        if (linkFilter && link !== linkFilter) {
+            showItem = false;
+        }
+        
+        if (showItem) {
+            item.style.display = '';
+        } else {
+            item.style.display = 'none';
+        }
+    });
 }
 
+console.log('Global banner functions defined successfully');
+</script>
+
+<script>
 document.addEventListener('DOMContentLoaded', function() {
     // Focus first input in forms
     const firstInput = document.querySelector('form input:not([type="hidden"])');
@@ -241,9 +831,95 @@ document.addEventListener('DOMContentLoaded', function() {
                     this.value = '';
                     return;
                 }
+                
+                // Show preview
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    // Create preview if it doesn't exist
+                    let preview = document.getElementById('imagePreview');
+                    if (!preview) {
+                        preview = document.createElement('div');
+                        preview.id = 'imagePreview';
+                        preview.className = 'mt-2';
+                        imageInput.parentNode.appendChild(preview);
+                    }
+                    
+                    preview.innerHTML = '<img src="' + e.target.result + '" class="img-thumbnail" style="max-height: 100px;"> <small class="text-muted d-block">Preview of selected image</small>';
+                };
+                reader.readAsDataURL(file);
             }
         });
     }
+    
+    // Add event listeners for search and filter
+    const searchInput = document.getElementById('searchInput');
+    const statusFilter = document.getElementById('statusFilter');
+    const orderFilter = document.getElementById('orderFilter');
+    const linkFilter = document.getElementById('linkFilter');
+    
+    if (searchInput) {
+        searchInput.addEventListener('input', filterBanners);
+    }
+    if (statusFilter) {
+        statusFilter.addEventListener('change', filterBanners);
+    }
+    if (orderFilter) {
+        orderFilter.addEventListener('change', filterBanners);
+    }
+    if (linkFilter) {
+        linkFilter.addEventListener('change', filterBanners);
+    }
+    
+    // Form validation
+    const bannerForm = document.getElementById('bannerForm');
+    if (bannerForm) {
+        bannerForm.addEventListener('submit', function(event) {
+            const title = document.getElementById('title');
+            const image = document.getElementById('image');
+            
+            let isValid = true;
+            
+            // Validate title
+            if (title && !title.value.trim()) {
+                title.classList.add('is-invalid');
+                isValid = false;
+            } else if (title) {
+                title.classList.remove('is-invalid');
+            }
+            
+            // Validate image (only for add form)
+            if (image && !image.files.length && bannerForm.action.includes('/add')) {
+                image.classList.add('is-invalid');
+                isValid = false;
+            } else if (image) {
+                image.classList.remove('is-invalid');
+            }
+            
+            if (!isValid) {
+                event.preventDefault();
+                console.log('Form validation failed');
+            } else {
+                console.log('Form validation passed, submitting...');
+            }
+        });
+        
+        // Real-time validation
+        const title = document.getElementById('title');
+        if (title) {
+            title.addEventListener('input', function() {
+                if (this.value.trim()) {
+                    this.classList.remove('is-invalid');
+                } else {
+                    this.classList.add('is-invalid');
+                }
+            });
+        }
+    }
 });
 </script>
+
+<!-- Hidden delete form for CSRF protection -->
+<form id="deleteForm" method="POST" style="display: none;">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+</form>
 {% endblock %}

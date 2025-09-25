@@ -385,6 +385,63 @@ function loadAttendanceView() {
 // Initialize course/date selection
 document.addEventListener('DOMContentLoaded', loadAttendanceView);
 
+// Mobile Navigation Functions
+function toggleMobileMenu() {
+    const nav = document.getElementById('mainNav');
+    const toggle = document.querySelector('.mobile-menu-toggle');
+    
+    if (nav) {
+        nav.classList.toggle('mobile-active');
+        nav.classList.toggle('mobile-hidden');
+        
+        // Update toggle icon
+        const icon = toggle.querySelector('i');
+        if (nav.classList.contains('mobile-active')) {
+            icon.className = 'fas fa-times';
+        } else {
+            icon.className = 'fas fa-bars';
+        }
+    }
+}
+
+function toggleMobileDropdown(dropdownElement) {
+    if (window.innerWidth <= 768) {
+        dropdownElement.classList.toggle('mobile-expanded');
+    }
+}
+
+// Close mobile menu when clicking outside
+document.addEventListener('click', function(e) {
+    const nav = document.getElementById('mainNav');
+    const toggle = document.querySelector('.mobile-menu-toggle');
+    
+    if (nav && toggle && window.innerWidth <= 768) {
+        if (!nav.contains(e.target) && !toggle.contains(e.target)) {
+            nav.classList.add('mobile-hidden');
+            nav.classList.remove('mobile-active');
+            
+            const icon = toggle.querySelector('i');
+            icon.className = 'fas fa-bars';
+        }
+    }
+});
+
+// Handle window resize
+window.addEventListener('resize', function() {
+    const nav = document.getElementById('mainNav');
+    const toggle = document.querySelector('.mobile-menu-toggle');
+    
+    if (nav && toggle) {
+        if (window.innerWidth > 768) {
+            nav.classList.remove('mobile-hidden', 'mobile-active');
+            const icon = toggle.querySelector('i');
+            icon.className = 'fas fa-bars';
+        } else {
+            nav.classList.add('mobile-hidden');
+        }
+    }
+});
+
 // Export functions for global access
 window.CollegeManagement = {
     showLoading,
@@ -393,3 +450,7 @@ window.CollegeManagement = {
     showToast,
     formatFileSize
 };
+
+// Export mobile functions globally
+window.toggleMobileMenu = toggleMobileMenu;
+window.toggleMobileDropdown = toggleMobileDropdown;

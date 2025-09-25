@@ -4,16 +4,16 @@
 
 {% block content %}
 <div class="fade-in">
-    <!-- Page Header -->
-    <div class="row mb-4">
+    <!-- Ultra Modern Page Header -->
+    <div class="row mb-5">
         <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h1 class="h3 mb-0">
-                        <i class="fas fa-calendar-check text-primary me-2"></i>
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
+                <div class="mb-3 mb-md-0">
+                    <h1 class="title-ultra">
+                        <i class="fas fa-calendar-check me-3" style="color: #667eea;"></i>
                         My Attendance
                     </h1>
-                    <p class="text-muted mb-0">Track your attendance across all courses</p>
+                    <p class="subtitle-ultra">Track your attendance across all courses</p>
                 </div>
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb mb-0">
@@ -29,43 +29,43 @@
         <!-- Overall Attendance Summary -->
         <div class="row mb-4">
             <div class="col-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="mb-0">
-                            <i class="fas fa-chart-pie me-2"></i>
+                <div class="card-ultra">
+                    <div class="card-header-ultra">
+                        <h5 class="mb-0" style="color: #1f2937; font-weight: 600;">
+                            <i class="fas fa-chart-pie me-2" style="color: #667eea;"></i>
                             Attendance Summary
                         </h5>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body-ultra">
                         <div class="row">
                             {% set total_classes = attendance_data | sum(attribute='total_classes') %}
                             {% set total_present = attendance_data | sum(attribute='present_classes') %}
                             {% set overall_percentage = (total_present / total_classes * 100) if total_classes > 0 else 0 %}
                             
                             <div class="col-md-3 col-6 mb-3">
-                                <div class="stat-card text-center">
-                                    <div class="stat-value text-primary">{{ total_classes }}</div>
-                                    <div class="stat-label">Total Classes</div>
+                                <div class="stat-card-ultra text-center">
+                                    <div class="stat-value-ultra" style="color: #667eea;">{{ total_classes }}</div>
+                                    <div class="stat-label-ultra">Total Classes</div>
                                 </div>
                             </div>
                             <div class="col-md-3 col-6 mb-3">
-                                <div class="stat-card text-center">
-                                    <div class="stat-value text-success">{{ total_present }}</div>
-                                    <div class="stat-label">Classes Attended</div>
+                                <div class="stat-card-ultra text-center">
+                                    <div class="stat-value-ultra" style="color: #10b981;">{{ total_present }}</div>
+                                    <div class="stat-label-ultra">Classes Attended</div>
                                 </div>
                             </div>
                             <div class="col-md-3 col-6 mb-3">
-                                <div class="stat-card text-center">
-                                    <div class="stat-value text-danger">{{ total_classes - total_present }}</div>
-                                    <div class="stat-label">Classes Missed</div>
+                                <div class="stat-card-ultra text-center">
+                                    <div class="stat-value-ultra" style="color: #ef4444;">{{ total_classes - total_present }}</div>
+                                    <div class="stat-label-ultra">Classes Missed</div>
                                 </div>
                             </div>
                             <div class="col-md-3 col-6 mb-3">
-                                <div class="stat-card text-center">
-                                    <div class="stat-value {% if overall_percentage >= 75 %}text-success{% elif overall_percentage >= 60 %}text-warning{% else %}text-danger{% endif %}">
+                                <div class="stat-card-ultra text-center">
+                                    <div class="stat-value-ultra" style="color: {% if overall_percentage >= 75 %}#10b981{% elif overall_percentage >= 60 %}#f59e0b{% else %}#ef4444{% endif %};">
                                         {{ "%.1f"|format(overall_percentage) }}%
                                     </div>
-                                    <div class="stat-label">Overall Attendance</div>
+                                    <div class="stat-label-ultra">Overall Attendance</div>
                                 </div>
                             </div>
                         </div>
@@ -78,85 +78,85 @@
         <div class="row">
             {% for item in attendance_data %}
             <div class="col-lg-6 mb-4">
-                <div class="card h-100">
-                    <div class="card-header d-flex justify-content-between align-items-center">
+                <div class="card-ultra h-100">
+                    <div class="card-header-ultra d-flex justify-content-between align-items-center">
                         <div>
-                            <h6 class="mb-0">{{ item.course.name }}</h6>
+                            <h6 class="mb-0" style="color: #1f2937; font-weight: 600;">{{ item.course.name }}</h6>
                             <small class="text-muted">{{ item.course.code }} • {{ item.course.department }}</small>
                         </div>
-                        <span class="badge fs-6 {% if item.percentage >= 75 %}bg-success{% elif item.percentage >= 60 %}bg-warning{% else %}bg-danger{% endif %}">
+                        <span class="badge-ultra badge-{% if item.percentage >= 75 %}success{% elif item.percentage >= 60 %}warning{% else %}danger{% endif %}">
                             {{ "%.1f"|format(item.percentage) }}%
                         </span>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body-ultra">
                         <!-- Progress Bar -->
-                        <div class="mb-3">
-                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                <small class="text-muted">Attendance Progress</small>
-                                <small class="text-muted">{{ item.present_classes }}/{{ item.total_classes }}</small>
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <small class="text-muted" style="font-weight: 500;">Attendance Progress</small>
+                                <small class="text-muted" style="font-weight: 500;">{{ item.present_classes }}/{{ item.total_classes }}</small>
                             </div>
-                            <div class="progress" style="height: 8px;">
+                            <div class="progress" style="height: 10px; background: rgba(102, 126, 234, 0.1); border-radius: 5px;">
                                 <div class="progress-bar {% if item.percentage >= 75 %}bg-success{% elif item.percentage >= 60 %}bg-warning{% else %}bg-danger{% endif %}" 
-                                     style="width: {{ item.percentage }}%"></div>
+                                     style="width: {{ item.percentage }}%; border-radius: 5px; transition: width 1s ease-in-out;"></div>
                             </div>
                         </div>
                         
                         <!-- Statistics -->
-                        <div class="row text-center">
+                        <div class="row text-center mb-3">
                             <div class="col-4">
-                                <div class="border-end">
-                                    <div class="fw-bold text-success">{{ item.present_classes }}</div>
+                                <div class="border-end" style="border-color: rgba(102, 126, 234, 0.1);">
+                                    <div class="fw-bold" style="color: #10b981; font-size: 1.2rem;">{{ item.present_classes }}</div>
                                     <small class="text-muted">Present</small>
                                 </div>
                             </div>
                             <div class="col-4">
-                                <div class="border-end">
-                                    <div class="fw-bold text-danger">{{ item.total_classes - item.present_classes }}</div>
+                                <div class="border-end" style="border-color: rgba(102, 126, 234, 0.1);">
+                                    <div class="fw-bold" style="color: #ef4444; font-size: 1.2rem;">{{ item.total_classes - item.present_classes }}</div>
                                     <small class="text-muted">Absent</small>
                                 </div>
                             </div>
                             <div class="col-4">
-                                <div class="fw-bold text-primary">{{ item.total_classes }}</div>
+                                <div class="fw-bold" style="color: #667eea; font-size: 1.2rem;">{{ item.total_classes }}</div>
                                 <small class="text-muted">Total</small>
                             </div>
                         </div>
                         
                         {% if item.percentage < 75 %}
-                        <div class="alert alert-warning mt-3 mb-0" role="alert">
-                            <i class="fas fa-exclamation-triangle me-2"></i>
-                            <strong>Attendance Warning:</strong> 
-                            You need {{ ((75 * item.total_classes / 100) - item.present_classes) | round | int }} more present days to reach 75%.
+                        <div class="alert alert-warning mt-3 mb-0" role="alert" style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.2); border-radius: 8px;">
+                            <i class="fas fa-exclamation-triangle me-2" style="color: #f59e0b;"></i>
+                            <strong style="color: #92400e;">Attendance Warning:</strong> 
+                            <span style="color: #92400e;">You need {{ ((75 * item.total_classes / 100) - item.present_classes) | round | int }} more present days to reach 75%.</span>
                         </div>
                         {% endif %}
                         
                         <!-- Recent Attendance Records -->
                         {% if item.records %}
                         <div class="mt-3">
-                            <button class="btn btn-outline-primary btn-sm w-100" type="button" data-bs-toggle="collapse" 
-                                    data-bs-target="#records-{{ loop.index }}" aria-expanded="false">
+                            <button class="btn-ultra btn-outline-primary-ultra btn-sm w-100" type="button" data-bs-toggle="collapse" 
+                                    data-bs-target="#records-{{ loop.index }}" aria-expanded="false" style="border-radius: 8px;">
                                 <i class="fas fa-list me-2"></i>View Recent Records
                             </button>
                             
                             <div class="collapse mt-3" id="records-{{ loop.index }}">
                                 <div class="table-responsive">
-                                    <table class="table table-sm">
-                                        <thead>
+                                    <table class="table table-sm" style="background: rgba(102, 126, 234, 0.02); border-radius: 8px;">
+                                        <thead style="background: rgba(102, 126, 234, 0.05);">
                                             <tr>
-                                                <th>Date</th>
-                                                <th>Status</th>
-                                                <th>Notes</th>
+                                                <th style="color: #1f2937; font-weight: 600; border: none;">Date</th>
+                                                <th style="color: #1f2937; font-weight: 600; border: none;">Status</th>
+                                                <th style="color: #1f2937; font-weight: 600; border: none;">Notes</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             {% for record in item.records[:10] %}
-                                            <tr>
-                                                <td>{{ record.date.strftime('%b %d, %Y') }}</td>
-                                                <td>
-                                                    <span class="attendance-status attendance-{{ record.status }}">
+                                            <tr style="border-color: rgba(102, 126, 234, 0.1);">
+                                                <td style="border: none; color: #374151;">{{ record.date.strftime('%b %d, %Y') }}</td>
+                                                <td style="border: none;">
+                                                    <span class="badge-ultra badge-{% if record.status == 'present' %}success{% elif record.status == 'late' %}warning{% else %}danger{% endif %}">
                                                         {{ record.status.title() }}
                                                     </span>
                                                 </td>
-                                                <td>
+                                                <td style="border: none;">
                                                     {% if record.notes %}
                                                         <small class="text-muted">{{ record.notes[:30] }}{% if record.notes|length > 30 %}...{% endif %}</small>
                                                     {% else %}
@@ -183,44 +183,44 @@
         <!-- Attendance Guidelines -->
         <div class="row">
             <div class="col-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="mb-0">
-                            <i class="fas fa-info-circle me-2"></i>
+                <div class="card-ultra">
+                    <div class="card-header-ultra">
+                        <h5 class="mb-0" style="color: #1f2937; font-weight: 600;">
+                            <i class="fas fa-info-circle me-2" style="color: #667eea;"></i>
                             Attendance Guidelines
                         </h5>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body-ultra">
                         <div class="row">
                             <div class="col-md-4 mb-3">
                                 <div class="d-flex align-items-center">
-                                    <div class="bg-success bg-opacity-10 rounded-circle p-2 me-3">
-                                        <i class="fas fa-check text-success"></i>
+                                    <div style="background: rgba(16, 185, 129, 0.1); border-radius: 50%; padding: 0.75rem; margin-right: 1rem;">
+                                        <i class="fas fa-check" style="color: #10b981;"></i>
                                     </div>
                                     <div>
-                                        <strong class="text-success">75% and above</strong><br>
+                                        <strong style="color: #10b981;">75% and above</strong><br>
                                         <small class="text-muted">Excellent attendance - eligible for all exams</small>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-md-4 mb-3">
                                 <div class="d-flex align-items-center">
-                                    <div class="bg-warning bg-opacity-10 rounded-circle p-2 me-3">
-                                        <i class="fas fa-exclamation-triangle text-warning"></i>
+                                    <div style="background: rgba(245, 158, 11, 0.1); border-radius: 50%; padding: 0.75rem; margin-right: 1rem;">
+                                        <i class="fas fa-exclamation-triangle" style="color: #f59e0b;"></i>
                                     </div>
                                     <div>
-                                        <strong class="text-warning">60% - 74%</strong><br>
+                                        <strong style="color: #f59e0b;">60% - 74%</strong><br>
                                         <small class="text-muted">Warning - improve attendance to avoid issues</small>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-md-4 mb-3">
                                 <div class="d-flex align-items-center">
-                                    <div class="bg-danger bg-opacity-10 rounded-circle p-2 me-3">
-                                        <i class="fas fa-times text-danger"></i>
+                                    <div style="background: rgba(239, 68, 68, 0.1); border-radius: 50%; padding: 0.75rem; margin-right: 1rem;">
+                                        <i class="fas fa-times" style="color: #ef4444;"></i>
                                     </div>
                                     <div>
-                                        <strong class="text-danger">Below 60%</strong><br>
+                                        <strong style="color: #ef4444;">Below 60%</strong><br>
                                         <small class="text-muted">Critical - may affect exam eligibility</small>
                                     </div>
                                 </div>
@@ -235,32 +235,34 @@
         <!-- No Attendance Data -->
         <div class="row">
             <div class="col-12">
-                <div class="card">
-                    <div class="card-body text-center py-5">
-                        <i class="fas fa-calendar-times fa-4x text-muted mb-4"></i>
-                        <h4>No Attendance Records Found</h4>
-                        <p class="text-muted mb-4">
+                <div class="card-ultra">
+                    <div class="card-body-ultra text-center py-5">
+                        <div style="width: 100px; height: 100px; background: rgba(102, 126, 234, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 2rem;">
+                            <i class="fas fa-calendar-times" style="color: #667eea; font-size: 3rem;"></i>
+                        </div>
+                        <h4 style="color: #1f2937; margin-bottom: 1rem;">No Attendance Records Found</h4>
+                        <p style="color: #6b7280; margin-bottom: 2rem;">
                             You don't have any attendance records yet. This could be because:
                         </p>
                         <div class="row justify-content-center">
                             <div class="col-md-6">
                                 <ul class="list-unstyled text-start">
-                                    <li class="mb-2">
-                                        <i class="fas fa-chevron-right text-primary me-2"></i>
-                                        You haven't been enrolled in any courses
+                                    <li class="mb-3 d-flex align-items-center">
+                                        <div style="width: 8px; height: 8px; background: #667eea; border-radius: 50%; margin-right: 1rem;"></div>
+                                        <span style="color: #374151;">You haven't been enrolled in any courses</span>
                                     </li>
-                                    <li class="mb-2">
-                                        <i class="fas fa-chevron-right text-primary me-2"></i>
-                                        Classes haven't started yet
+                                    <li class="mb-3 d-flex align-items-center">
+                                        <div style="width: 8px; height: 8px; background: #667eea; border-radius: 50%; margin-right: 1rem;"></div>
+                                        <span style="color: #374151;">Classes haven't started yet</span>
                                     </li>
-                                    <li class="mb-2">
-                                        <i class="fas fa-chevron-right text-primary me-2"></i>
-                                        Faculty hasn't marked attendance
+                                    <li class="mb-3 d-flex align-items-center">
+                                        <div style="width: 8px; height: 8px; background: #667eea; border-radius: 50%; margin-right: 1rem;"></div>
+                                        <span style="color: #374151;">Faculty hasn't marked attendance</span>
                                     </li>
                                 </ul>
                             </div>
                         </div>
-                        <a href="{{ url_for('student_dashboard') }}" class="btn btn-primary">
+                        <a href="{{ url_for('student_dashboard') }}" class="btn-ultra btn-primary-ultra">
                             <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
                         </a>
                     </div>

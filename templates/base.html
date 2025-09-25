@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{% block title %}College Management System{% endblock %}</title>
     
     <!-- Bootstrap 5 CSS -->
@@ -43,7 +44,7 @@
                                     <i class="fas fa-chart-line"></i>Dashboard
                                 </a>
                             </li>
-                            <li class="nav-item-ultra">
+                            <li class="nav-item-ultra  no-web">
                                 <a class="nav-link-ultra {{ 'active' if request.endpoint == 'student_profile' }}" href="{{ url_for('student_profile') }}">
                                     <i class="fas fa-user"></i>Profile
                                 </a>
@@ -58,6 +59,12 @@
                                     <i class="fas fa-comment"></i>Feedback
                                 </a>
                             </li>
+                            <li class="nav-item-ultra  no-web">
+                                <a class="dropdown-item-ultra" href="{{ url_for('logout') }}">
+                                    <i class="fas fa-sign-out-alt"></i>
+                                    Sign Out
+                                </a>
+                            </li>
                         {% elif current_user.role == 'faculty' %}
                             <li class="nav-item-ultra">
                                 <a class="nav-link-ultra {{ 'active' if request.endpoint == 'faculty_dashboard' }}" href="{{ url_for('faculty_dashboard') }}">
@@ -65,10 +72,27 @@
                                 </a>
                             </li>
                             <li class="nav-item-ultra">
+                                <a class="nav-link-ultra {{ 'active' if request.endpoint == 'faculty_students' }}" href="{{ url_for('faculty_students') }}">
+                                    <i class="fas fa-users"></i>My Students
+                                </a>
+                            </li>
+                            <li class="nav-item-ultra">
                                 <a class="nav-link-ultra {{ 'active' if request.endpoint == 'faculty_attendance' }}" href="{{ url_for('faculty_attendance') }}">
                                     <i class="fas fa-calendar-check"></i>Attendance
                                 </a>
                             </li>
+                            <li class="nav-item-ultra">
+                                <a class="nav-link-ultra {{ 'active' if request.endpoint == 'faculty_attendance_reports' }}" href="{{ url_for('faculty_attendance_reports') }}">
+                                    <i class="fas fa-chart-bar"></i>Reports
+                                </a>
+                            </li>
+                            <li class="nav-item-ultra no-web">
+                                <a class="dropdown-item-ultra" href="{{ url_for('logout') }}">
+                                    <i class="fas fa-sign-out-alt"></i>
+                                    Sign Out
+                                </a>
+                            </li>
+                            
                         {% elif current_user.role == 'admin' %}
                             <li class="nav-item-ultra">
                                 <a class="nav-link-ultra {{ 'active' if request.endpoint == 'admin_dashboard' }}" href="{{ url_for('admin_dashboard') }}">
@@ -89,10 +113,10 @@
                                         <i class="fas fa-school"></i>
                                         Classrooms
                                     </a>
-                                    <a class="dropdown-item-ultra" href="{{ url_for('admin_courses') }}">
+                                    <!-- <a class="dropdown-item-ultra" href="{{ url_for('admin_courses') }}">
                                         <i class="fas fa-book"></i>
                                         Courses
-                                    </a>
+                                    </a> -->
                                     <a class="dropdown-item-ultra" href="{{ url_for('admin_departments') }}">
                                         <i class="fas fa-university"></i>
                                         Departments
@@ -117,6 +141,10 @@
                                         <i class="fas fa-bell"></i>
                                         Notifications
                                     </a>
+                                    <a class="dropdown-item-ultra" href="{{ url_for('admin_banners') }}">
+                                        <i class="fas fa-bell"></i>
+                                        Banners
+                                    </a>
                                 </div>
                             </li>
                         {% endif %}
@@ -124,11 +152,11 @@
                     
                     <div class="user-menu-ultra">
                         <div class="dropdown-ultra">
-                            <div class="d-flex align-items-center nav-link-ultra" style="cursor: pointer;">
+                            <div class="d-flex align-items-center nav-link-ultra mobile-hidden" style="cursor: pointer;">
                                 <div class="user-avatar-ultra me-2">
                                     {{ current_user.get_full_name()[:1].upper() }}
                                 </div>
-                                <span style="color: white;">{{ current_user.get_full_name() }}</span>
+                                <span style="color: #000000;">{{ current_user.get_full_name() }}</span>
                                 <i class="fas fa-chevron-down ms-2"></i>
                             </div>
                             <div class="dropdown-menu-ultra">
@@ -186,7 +214,7 @@
     <footer class="bg-light text-center py-3 mt-5">
         <div class="container">
             <p class="mb-0 text-muted">
-                &copy; 2024 College Management System. All rights reserved.
+                &copy; 2025 Adarsh Educational Institutions. All rights reserved.
             </p>
         </div>
     </footer>

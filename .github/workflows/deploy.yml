@@ -1,0 +1,172 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Run basic tests
+      run: |
+        python -c "
+        try:
+            import flask, sqlalchemy, wtforms
+            print('✅ All dependencies imported successfully')
+        except ImportError as e:
+            print(f'❌ Import error: {e}')
+            exit(1)
+        "
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Deploy to EC2
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ${{ secrets.EC2_USERNAME }}
+        key: ${{ secrets.EC2_SSH_KEY }}
+        port: 22
+        script: |
+          # Navigate to project directory
+          cd /home/${{ secrets.EC2_USERNAME }}/adarsh-app || {
+            echo "❌ Project directory not found. Creating it..."
+            mkdir -p /home/${{ secrets.EC2_USERNAME }}/adarsh-app
+            cd /home/${{ secrets.EC2_USERNAME }}/adarsh-app
+          }
+          
+          # Clone or pull latest code
+          if [ -d ".git" ]; then
+            echo "🔄 Pulling latest changes..."
+            git pull origin main || git pull origin master
+          else
+            echo "📥 Cloning repository..."
+            git clone https://github.com/rushi-mereddy/adarsh-app.git .
+          fi
+          
+          # Create .env file if it doesn't exist
+          if [ ! -f ".env" ]; then
+            echo "📝 Creating .env file..."
+            cat > .env << 'EOF'
+          POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+          SESSION_SECRET=${{ secrets.SESSION_SECRET }}
+          FLASK_ENV=production
+          DOMAIN=${{ secrets.DOMAIN }}
+          EOF
+          fi
+          
+          # Create necessary directories
+          mkdir -p static/uploads ssl
+          chmod 755 static/uploads
+          
+          # Stop existing services
+          echo "🛑 Stopping existing services..."
+          docker-compose -f docker-compose.prod.yml down || true
+          
+          # Remove old images to free space
+          echo "🧹 Cleaning up old Docker images..."
+          docker system prune -f || true
+          
+          # Build and start services
+          echo "🚀 Building and starting services..."
+          docker-compose -f docker-compose.prod.yml build --no-cache
+          docker-compose -f docker-compose.prod.yml up -d
+          
+          # Wait for services to be ready
+          echo "⏳ Waiting for services to start..."
+          sleep 30
+          
+          # Initialize database
+          echo "🗄️ Initializing database..."
+          docker-compose -f docker-compose.prod.yml exec -T web python -c "
+          from app import app, db
+          from models import User
+          from werkzeug.security import generate_password_hash
+          
+          with app.app_context():
+              try:
+                  print('🔄 Creating database tables...')
+                  db.create_all()
+                  print('✅ Database tables created successfully!')
+                  
+                  # Create admin user if not exists
+                  admin = User.query.filter_by(email='admin@college.edu').first()
+                  if not admin:
+                      admin_user = User(
+                          first_name='System',
+                          last_name='Administrator', 
+                          email='admin@college.edu',
+                          password=generate_password_hash('admin123'),
+                          role='admin',
+                          is_active=True,
+                          phone='1234567890',
+                          department='Administration'
+                      )
+                      db.session.add(admin_user)
+                      db.session.commit()
+                      print('✅ Admin user created: admin@college.edu / admin123')
+                  else:
+                      print('ℹ️ Admin user already exists')
+                      
+              except Exception as e:
+                  print(f'❌ Database initialization error: {e}')
+          " || echo "⚠️ Database initialization failed, but continuing..."
+          
+          # Health check
+          echo "🔍 Performing health check..."
+          sleep 10
+          
+          if curl -f http://localhost/health > /dev/null 2>&1; then
+            echo "✅ Deployment successful! Application is running."
+            
+            # Show service status
+            echo "📊 Service Status:"
+            docker-compose -f docker-compose.prod.yml ps
+            
+            # Show recent logs
+            echo "📋 Recent logs:"
+            docker-compose -f docker-compose.prod.yml logs --tail=20
+            
+          else
+            echo "❌ Health check failed. Showing logs for debugging:"
+            docker-compose -f docker-compose.prod.yml logs
+            exit 1
+          fi
+
+  notify:
+    needs: [test, deploy]
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+    - name: Notify deployment status
+      run: |
+        if [ "${{ needs.deploy.result }}" == "success" ]; then
+          echo "✅ Deployment completed successfully!"
+          echo "🌐 Application URL: http://${{ secrets.EC2_HOST }}"
+          echo "👤 Admin Login: admin@college.edu / admin123"
+        else
+          echo "❌ Deployment failed!"
+        fi

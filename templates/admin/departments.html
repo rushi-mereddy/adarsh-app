@@ -62,17 +62,13 @@
                             
                             <div class="mt-auto">
                                 <div class="row text-center mb-3">
-                                    <div class="col-4">
+                                    <div class="col-6">
                                         <small class="text-muted">Lecturers</small><br>
                                         <strong>{{ department.get_lecturer_count() }}</strong>
                                     </div>
-                                    <div class="col-4">
+                                    <div class="col-6">
                                         <small class="text-muted">Rating</small><br>
                                         <strong>{{ department.get_average_rating() }}/5</strong>
-                                    </div>
-                                    <div class="col-4">
-                                        <small class="text-muted">Established</small><br>
-                                        <strong>{{ department.established_year or 'N/A' }}</strong>
                                     </div>
                                 </div>
                                 

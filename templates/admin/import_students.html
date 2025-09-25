@@ -35,6 +35,7 @@
                                     <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Fill in student data with required columns: first_name, last_name, email, student_id</li>
                                     <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Phone number is optional</li>
                                     <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Email addresses and Student IDs must be unique</li>
+                                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Select a classroom below to automatically assign year, semester, and section</li>
                                     <li class="mb-0"><i class="fas fa-check text-success me-2"></i>Upload the completed Excel file below</li>
                                 </ul>
                             </div>
@@ -88,7 +89,7 @@
 
                                 <div class="col-md-6 mb-3">
                                     <label for="{{ form.classroom_id.id }}" class="form-label fw-bold">
-                                        Assign to Classroom
+                                        Assign to Classroom <span class="text-danger">*</span>
                                     </label>
                                     {{ form.classroom_id(class="form-select") }}
                                     {% if form.classroom_id.errors %}
@@ -98,7 +99,6 @@
                                             {% endfor %}
                                         </div>
                                     {% endif %}
-                                    <small class="text-muted">Optional: Students can be assigned to a specific classroom</small>
                                 </div>
                             </div>
 
@@ -197,5 +197,53 @@
         });
     }, false);
 })();
+
+// Classroom filtering based on department
+document.addEventListener('DOMContentLoaded', function() {
+    const departmentSelect = document.getElementById('department');
+    const classroomSelect = document.getElementById('classroom_id');
+    
+    // Classroom data from backend
+    const classroomsData = {{ classrooms_data | tojson | safe }};
+    
+    // Store original classroom options
+    const originalClassroomOptions = Array.from(classroomSelect.options);
+    
+    function filterClassrooms() {
+        const selectedDepartment = departmentSelect.value;
+        
+        // Clear current options except the first one (No Classroom Assignment)
+        classroomSelect.innerHTML = '';
+        // classroomSelect.appendChild(originalClassroomOptions[0].cloneNode(true));
+        
+        if (selectedDepartment) {
+            // Filter classrooms by selected department
+            const filteredClassrooms = classroomsData.filter(classroom => 
+                classroom.department === selectedDepartment
+            );
+            
+            // Add filtered classrooms to dropdown
+            filteredClassrooms.forEach(classroom => {
+                const option = document.createElement('option');
+                option.value = classroom.id;
+                option.textContent = `${classroom.name} (${classroom.department} - Year ${classroom.year})`;
+                classroomSelect.appendChild(option);
+            });
+        } else {
+            // If no department selected, show all classrooms
+            originalClassroomOptions.slice(1).forEach(option => {
+                classroomSelect.appendChild(option.cloneNode(true));
+            });
+        }
+    }
+    
+    // Add event listener to department select
+    if (departmentSelect && classroomSelect) {
+        departmentSelect.addEventListener('change', filterClassrooms);
+        
+        // Initialize filtering on page load
+        filterClassrooms();
+    }
+});
 </script>
 {% endblock %}

@@ -5,54 +5,65 @@
 {% block content %}
 <div class="fade-in">
     <!-- Ultra Modern Page Header -->
-    <div class="row mb-5">
+    <div class="row mb-4 mb-md-5">
         <div class="col-12">
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mt-5">
                 <div class="mb-3 mb-md-0">
-                    <h1 class="title-ultra">
-                        <img src="https://adarsh.ac.in/images/logos/college_logo.png" alt="Adarsh Educational Institutions" style="height: 40px; margin-right: 15px;">
-                        Welcome back, {{ current_user.first_name }}!
+                    <h1 class="title-ultra d-flex flex-column flex-sm-row align-items-start align-items-sm-center">
+                        <span>Welcome back, {{ current_user.first_name }}!</span>
                     </h1>
                     <p class="subtitle-ultra">Here's what's happening at college today</p>
                 </div>
-                <div class="ultra-card" style="padding: 1rem;">
-                    <div style="color: #6b7280; font-size: 0.875rem;">Student ID: {{ current_user.student_id }}</div>
-                    <div style="color: #6b7280; font-size: 0.875rem;">Department: {{ current_user.department }}</div>
+                <div class="ultra-card" style="padding: 0.75rem 1rem;">
+                    <div style="color: #6b7280; font-size: 0.875rem;" class="mb-1">
+                        <strong>Student ID:</strong> {{ current_user.student_id }}
+                    </div>
+                    <div style="color: #6b7280; font-size: 0.875rem;">
+                        <strong>Department:</strong> {{ current_user.department }}
+                    </div>
                 </div>
             </div>
         </div>
     </div>
     
     <!-- Ultra Modern Attendance Summary -->
-    <div class="row mb-5">
+    <div class="row mb-4 mb-md-5">
         <div class="col-12">
-            <h3 style="color: #1f2937; font-size: 1.5rem; font-weight: 700; margin-bottom: 2rem; display: flex; align-items: center;">
-                <i class="fas fa-chart-bar me-3" style="color: #667eea;"></i>
-                Attendance Overview
+            <h3 style="color: #1f2937; font-size: 1.25rem; font-weight: 700; margin-bottom: 1.5rem;" class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center">
+                <i class="fas fa-chart-bar me-2 me-sm-3 mb-2 mb-sm-0" style="color: #667eea;"></i>
+                <span>Attendance Overview</span>
             </h3>
         </div>
         
         {% for item in attendance_summary %}
         <div class="col-lg-4 col-md-6 mb-3">
-            <div class="stat-card-ultra">
-                <div class="d-flex justify-content-between align-items-start mb-2">
-                    <div>
-                        <h6 class="fw-bold mb-1">{{ item.course.name }}</h6>
-                        <small class="text-muted">{{ item.course.code }}</small>
+            <div class="card-ultra">
+                <div class="card-body-ultra">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h6 class="fw-bold mb-1" style="color: #1f2937;">{{ item.course.name }}</h6>
+                            <small class="text-muted">{{ item.course.code }}</small>
+                        </div>
+                        <span class="badge-ultra badge-{% if item.percentage >= 75 %}success{% elif item.percentage >= 60 %}warning{% else %}danger{% endif %}">
+                            {{ item.percentage }}%
+                        </span>
                     </div>
-                    <span class="badge {% if item.percentage >= 75 %}bg-success{% elif item.percentage >= 60 %}bg-warning{% else %}bg-danger{% endif %}">
-                        {{ item.percentage }}%
-                    </span>
-                </div>
-                
-                <div class="progress mb-2" style="height: 8px;">
-                    <div class="progress-bar {% if item.percentage >= 75 %}bg-success{% elif item.percentage >= 60 %}bg-warning{% else %}bg-danger{% endif %}" 
-                         style="width: {{ item.percentage }}%"></div>
-                </div>
-                
-                <div class="d-flex justify-content-between">
-                    <small class="text-muted">Present: {{ item.present }}</small>
-                    <small class="text-muted">Total: {{ item.total }}</small>
+                    
+                    <div class="progress mb-3" style="height: 10px; background: rgba(102, 126, 234, 0.1); border-radius: 5px;">
+                        <div class="progress-bar {% if item.percentage >= 75 %}bg-success{% elif item.percentage >= 60 %}bg-warning{% else %}bg-danger{% endif %}" 
+                             style="width: {{ item.percentage }}%; border-radius: 5px; transition: width 1s ease-in-out;"></div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            <small class="text-muted">Present: <strong>{{ item.present }}</strong></small>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-calendar text-primary me-2"></i>
+                            <small class="text-muted">Total: <strong>{{ item.total }}</strong></small>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -60,11 +71,13 @@
         
         {% if not attendance_summary %}
         <div class="col-12">
-            <div class="card">
-                <div class="card-body text-center py-5">
-                    <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
-                    <h5>No Attendance Records</h5>
-                    <p class="text-muted">You don't have any attendance records yet. Check back once classes begin.</p>
+            <div class="card-ultra">
+                <div class="card-body-ultra text-center py-5">
+                    <div style="width: 80px; height: 80px; background: rgba(102, 126, 234, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+                        <i class="fas fa-calendar-times" style="color: #667eea; font-size: 2rem;"></i>
+                    </div>
+                    <h5 style="color: #1f2937; margin-bottom: 0.5rem;">No Attendance Records</h5>
+                    <p style="color: #6b7280; margin-bottom: 0;">You don't have any attendance records yet. Check back once classes begin.</p>
                 </div>
             </div>
         </div>
@@ -75,85 +88,71 @@
     <div class="row">
         <!-- Recent Announcements -->
         <div class="col-lg-8 mb-4">
-            <div class="card h-100">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">
-                        <i class="fas fa-bullhorn text-primary me-2"></i>
+            <div class="activity-feed">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3 style="color: #1f2937; font-size: 1.3rem; font-weight: 600; margin: 0;">
+                        <i class="fas fa-bullhorn me-2" style="color: #667eea;"></i>
                         Recent Announcements
-                    </h5>
+                    </h3>
                     {% if announcements|length > 5 %}
-                    <a href="#" class="btn btn-sm btn-outline-primary">View All</a>
+                    <a href="#" class="btn-ultra btn-outline-primary-ultra btn-sm">View All</a>
                     {% endif %}
                 </div>
-                <div class="card-body">
-                    {% if announcements %}
-                        {% for announcement in announcements %}
-                        <div class="d-flex mb-3 {% if not loop.last %}border-bottom pb-3{% endif %}">
-                            <div class="flex-shrink-0 me-3">
-                                <div class="bg-primary bg-opacity-10 rounded-circle p-2 d-inline-flex">
-                                    {% if announcement.category == 'urgent' %}
-                                        <i class="fas fa-exclamation-triangle text-danger"></i>
-                                    {% elif announcement.category == 'academic' %}
-                                        <i class="fas fa-graduation-cap text-primary"></i>
-                                    {% elif announcement.category == 'event' %}
-                                        <i class="fas fa-calendar text-success"></i>
-                                    {% else %}
-                                        <i class="fas fa-info-circle text-info"></i>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            <div class="flex-grow-1">
-                                <div class="d-flex justify-content-between align-items-start mb-1">
-                                    <h6 class="mb-0">{{ announcement.title }}</h6>
-                                    {% if announcement.is_pinned %}
-                                        <i class="fas fa-thumbtack text-warning" title="Pinned"></i>
-                                    {% endif %}
-                                </div>
-                                <p class="text-muted mb-2 small">{{ announcement.content[:150] }}{% if announcement.content|length > 150 %}...{% endif %}</p>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <small class="text-muted">
-                                        <i class="fas fa-clock me-1"></i>
-                                        {{ announcement.created_at.strftime('%b %d, %Y') }}
-                                    </small>
-                                    <span class="badge bg-secondary bg-opacity-25 text-dark">
-                                        {{ announcement.category.title() }}
-                                    </span>
-                                </div>
+                
+                {% if announcements %}
+                    {% for announcement in announcements %}
+                    <div class="activity-item">
+                        <div class="activity-icon">
+                            <i class="fas fa-{{ 'exclamation-triangle' if announcement.category == 'urgent' else 'graduation-cap' if announcement.category == 'academic' else 'calendar' if announcement.category == 'event' else 'info-circle' }}"></i>
+                        </div>
+                        <div class="activity-content flex-grow-1">
+                            <h6>{{ announcement.title }}</h6>
+                            <p>{{ announcement.content[:80] }}{% if announcement.content|length > 80 %}...{% endif %}</p>
+                            <div class="activity-meta">
+                                <span class="badge-ultra badge-{{ 'danger' if announcement.category == 'urgent' else 'primary' if announcement.category == 'academic' else 'success' if announcement.category == 'event' else 'primary' }}">
+                                    {{ announcement.category.title() }}
+                                </span>
+                                <span>{{ announcement.created_at.strftime('%b %d') }}</span>
+                                {% if announcement.is_pinned %}
+                                    <i class="fas fa-thumbtack" style="color: #f59e0b;"></i>
+                                {% endif %}
                             </div>
                         </div>
-                        {% endfor %}
-                    {% else %}
-                        <div class="text-center py-4">
-                            <i class="fas fa-bullhorn fa-3x text-muted mb-3"></i>
-                            <h6>No Announcements</h6>
-                            <p class="text-muted mb-0">No recent announcements available.</p>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-5">
+                        <div style="width: 60px; height: 60px; background: rgba(102, 126, 234, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
+                            <i class="fas fa-bullhorn" style="color: #667eea; font-size: 1.5rem;"></i>
                         </div>
-                    {% endif %}
-                </div>
+                        <h6 style="color: #1f2937; margin-bottom: 0.5rem;">No Announcements</h6>
+                        <p style="color: #6b7280; margin-bottom: 0;">No recent announcements available.</p>
+                    </div>
+                {% endif %}
             </div>
         </div>
         
         <!-- Upcoming Events -->
         <div class="col-lg-4 mb-4">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h5 class="mb-0">
-                        <i class="fas fa-calendar-alt text-success me-2"></i>
+            <div class="card-ultra h-100">
+                <div class="card-header-ultra">
+                    <h5 class="mb-0" style="color: #1f2937; font-weight: 600;">
+                        <i class="fas fa-calendar-alt me-2" style="color: #10b981;"></i>
                         Upcoming Events
                     </h5>
                 </div>
-                <div class="card-body">
+                <div class="card-body-ultra">
                     {% if events %}
                         {% for event in events %}
-                        <div class="d-flex mb-3 {% if not loop.last %}border-bottom pb-3{% endif %}">
+                        <div class="d-flex mb-3 {% if not loop.last %}border-bottom pb-3{% endif %}" style="border-color: rgba(102, 126, 234, 0.1);">
                             <div class="flex-shrink-0 me-3">
-                                <div class="text-center bg-primary bg-opacity-10 rounded p-2" style="min-width: 60px;">
-                                    <div class="fw-bold text-primary">{{ event.event_date.strftime('%d') }}</div>
+                                <div class="text-center" style="background: rgba(16, 185, 129, 0.1); border-radius: 8px; padding: 0.75rem; min-width: 60px;">
+                                    <div class="fw-bold" style="color: #10b981; font-size: 1.1rem;">{{ event.event_date.strftime('%d') }}</div>
                                     <small class="text-muted">{{ event.event_date.strftime('%b') }}</small>
                                 </div>
                             </div>
                             <div class="flex-grow-1">
-                                <h6 class="mb-1">{{ event.title }}</h6>
+                                <h6 class="mb-1" style="color: #1f2937;">{{ event.title }}</h6>
                                 {% if event.location %}
                                 <p class="text-muted mb-1 small">
                                     <i class="fas fa-map-marker-alt me-1"></i>
@@ -165,7 +164,7 @@
                                     {{ event.event_date.strftime('%I:%M %p') }}
                                 </small>
                                 <br>
-                                <span class="badge bg-success bg-opacity-25 text-dark mt-1">
+                                <span class="badge-ultra badge-success mt-1">
                                     {{ event.category.title() }}
                                 </span>
                             </div>
@@ -173,9 +172,11 @@
                         {% endfor %}
                     {% else %}
                         <div class="text-center py-4">
-                            <i class="fas fa-calendar-alt fa-3x text-muted mb-3"></i>
-                            <h6>No Upcoming Events</h6>
-                            <p class="text-muted mb-0">No events scheduled at the moment.</p>
+                            <div style="width: 60px; height: 60px; background: rgba(16, 185, 129, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
+                                <i class="fas fa-calendar-alt" style="color: #10b981; font-size: 1.5rem;"></i>
+                            </div>
+                            <h6 style="color: #1f2937; margin-bottom: 0.5rem;">No Upcoming Events</h6>
+                            <p style="color: #6b7280; margin-bottom: 0;">No events scheduled at the moment.</p>
                         </div>
                     {% endif %}
                 </div>
@@ -186,37 +187,37 @@
     <!-- Quick Actions -->
     <div class="row">
         <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">
-                        <i class="fas fa-bolt text-warning me-2"></i>
+            <div class="card-ultra">
+                <div class="card-header-ultra">
+                    <h5 class="mb-0" style="color: #1f2937; font-weight: 600;">
+                        <i class="fas fa-bolt me-2" style="color: #f59e0b;"></i>
                         Quick Actions
                     </h5>
                 </div>
-                <div class="card-body">
+                <div class="card-body-ultra">
                     <div class="row">
                         <div class="col-md-3 mb-3">
-                            <a href="{{ url_for('student_profile') }}" class="btn btn-outline-primary w-100 h-100 d-flex flex-column justify-content-center align-items-center py-3">
-                                <i class="fas fa-user fa-2x mb-2"></i>
-                                <span>Update Profile</span>
+                            <a href="{{ url_for('student_profile') }}" class="btn-ultra btn-outline-primary-ultra w-100 h-100 d-flex flex-column justify-content-center align-items-center py-4" style="border-radius: 12px; transition: all 0.3s ease;">
+                                <i class="fas fa-user fa-2x mb-3" style="color: #667eea;"></i>
+                                <span style="font-weight: 600;">Update Profile</span>
                             </a>
                         </div>
                         <div class="col-md-3 mb-3">
-                            <a href="{{ url_for('student_attendance') }}" class="btn btn-outline-success w-100 h-100 d-flex flex-column justify-content-center align-items-center py-3">
-                                <i class="fas fa-calendar-check fa-2x mb-2"></i>
-                                <span>View Attendance</span>
+                            <a href="{{ url_for('student_attendance') }}" class="btn-ultra btn-outline-success-ultra w-100 h-100 d-flex flex-column justify-content-center align-items-center py-4" style="border-radius: 12px; transition: all 0.3s ease;">
+                                <i class="fas fa-calendar-check fa-2x mb-3" style="color: #10b981;"></i>
+                                <span style="font-weight: 600;">View Attendance</span>
                             </a>
                         </div>
                         <div class="col-md-3 mb-3">
-                            <a href="{{ url_for('student_feedback') }}" class="btn btn-outline-info w-100 h-100 d-flex flex-column justify-content-center align-items-center py-3">
-                                <i class="fas fa-comment fa-2x mb-2"></i>
-                                <span>Give Feedback</span>
+                            <a href="{{ url_for('student_feedback') }}" class="btn-ultra btn-outline-info-ultra w-100 h-100 d-flex flex-column justify-content-center align-items-center py-4" style="border-radius: 12px; transition: all 0.3s ease;">
+                                <i class="fas fa-comment fa-2x mb-3" style="color: #06b6d4;"></i>
+                                <span style="font-weight: 600;">Give Feedback</span>
                             </a>
                         </div>
                         <div class="col-md-3 mb-3">
-                            <a href="{{ url_for('public_enquiry') }}" class="btn btn-outline-warning w-100 h-100 d-flex flex-column justify-content-center align-items-center py-3">
-                                <i class="fas fa-question-circle fa-2x mb-2"></i>
-                                <span>Make Enquiry</span>
+                            <a href="{{ url_for('public_enquiry') }}" class="btn-ultra btn-outline-warning-ultra w-100 h-100 d-flex flex-column justify-content-center align-items-center py-4" style="border-radius: 12px; transition: all 0.3s ease;">
+                                <i class="fas fa-question-circle fa-2x mb-3" style="color: #f59e0b;"></i>
+                                <span style="font-weight: 600;">Make Enquiry</span>
                             </a>
                         </div>
                     </div>

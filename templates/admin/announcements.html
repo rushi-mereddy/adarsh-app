@@ -2,6 +2,72 @@
 
 {% block title %}Announcement Management - Admin Dashboard{% endblock %}
 
+{% block extra_css %}
+<style>
+/* Text clamping utilities */
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.2em;
+}
+
+.line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.5em;
+}
+
+/* Card hover effects */
+.card-ultra:hover {
+    transform: translateY(-2px);
+    transition: transform 0.2s ease-in-out;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Ensure equal height cards */
+.announcement-item .card-ultra {
+    transition: all 0.2s ease-in-out;
+}
+
+/* Badge improvements */
+.badge.rounded-pill {
+    font-size: 0.75rem;
+    padding: 0.35em 0.65em;
+}
+
+/* Button group improvements */
+.btn-group-vertical .btn {
+    border-radius: 0.375rem !important;
+    margin-bottom: 0.25rem;
+}
+
+.btn-group-vertical .btn:last-child {
+    margin-bottom: 0;
+}
+
+/* Icon container improvements */
+.announcement-item .bg-opacity-10 {
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Search input improvements */
+.form-control:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+/* Statistics card hover */
+.statistics-card:hover {
+    transform: translateY(-1px);
+    transition: transform 0.2s ease-in-out;
+}
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="fade-in">
     <!-- Ultra Modern Page Header -->
@@ -24,24 +90,24 @@
         </div>
     </div>
     
-    {% if action == 'add' %}
+    {% if action in ['add', 'edit'] %}
     <!-- Add Announcement Form -->
     <div class="row">
         <div class="col-lg-8 mx-auto">
             <div class="card-ultra">
                 <div class="card-header-ultra">
                     <h5 class="mb-0">
-                        <i class="fas fa-plus-circle me-2"></i>
-                        Create New Announcement
+                        <i class="fas fa-{{ 'edit' if action == 'edit' else 'plus-circle' }} me-2"></i>
+                        {{ 'Edit Announcement' if action == 'edit' else 'Create New Announcement' }}
                     </h5>
                 </div>
                 <div class="card-body-ultra">
-                    <form method="POST" class="needs-validation" novalidate>
+                    <form method="POST" class="needs-validation" novalidate id="announcementForm">
                         {{ form.hidden_tag() }}
                         
                         <div class="mb-3">
                             {{ form.title.label(class="form-label fw-semibold") }}
-                            {{ form.title(class="form-control form-control-lg", placeholder="Enter announcement title") }}
+                            {{ form.title(class="form-control form-control-lg", placeholder="Enter announcement title", required=true) }}
                             <div class="invalid-feedback">
                                 Please provide a title for the announcement.
                             </div>
@@ -49,7 +115,7 @@
                         
                         <div class="mb-3">
                             {{ form.content.label(class="form-label fw-semibold") }}
-                            {{ form.content(class="form-control", rows="6", placeholder="Enter announcement content") }}
+                            {{ form.content(class="form-control", rows="6", placeholder="Enter announcement content", required=true) }}
                             <div class="invalid-feedback">
                                 Please provide content for the announcement.
                             </div>
@@ -66,8 +132,21 @@
                             </div>
                             <div class="col-md-4 mb-3">
                                 {{ form.expires_at.label(class="form-label fw-semibold") }}
-                                {{ form.expires_at(class="form-control", type="datetime-local") }}
+                                {{ form.expires_at(class="form-control", type="datetime-local", id="expires_at") }}
                                 <small class="text-muted">Leave blank for no expiration</small>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form.event_date.label(class="form-label fw-semibold") }}
+                                {{ form.event_date(class="form-control", type="datetime-local", id="event_date") }}
+                                <small class="text-muted">Optional: Set event date and time</small>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ form.link.label(class="form-label fw-semibold") }}
+                                {{ form.link(class="form-control", placeholder="https://example.com") }}
+                                <small class="text-muted">Optional: Add a related link</small>
                             </div>
                         </div>
                         
@@ -80,8 +159,9 @@
                         </div>
                         
                         <div class="d-flex gap-2">
-                            <button type="submit" class="btn-ultra btn-primary-ultra">
-                                <i class="fas fa-bullhorn me-2"></i>Publish Announcement
+                            <button type="submit" class="btn-ultra btn-primary-ultra" id="publishBtn">
+                                <i class="fas fa-{{ 'save' if action == 'edit' else 'bullhorn' }} me-2"></i>
+                                {{ 'Update Announcement' if action == 'edit' else 'Publish Announcement' }}
                             </button>
                             <a href="{{ url_for('admin_announcements') }}" class="btn-ultra btn-secondary-ultra">
                                 <i class="fas fa-times me-2"></i>Cancel
@@ -94,6 +174,121 @@
     </div>
     
     {% else %}
+    <!-- Search and Filter Bar -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card-ultra">
+                <div class="card-body-ultra">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-0">
+                                    <i class="fas fa-search text-muted"></i>
+                                </span>
+                                <input type="text" class="form-control border-0 bg-light" id="searchInput" 
+                                       placeholder="Search announcements...">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-select" id="categoryFilter">
+                                <option value="">All Categories</option>
+                                <option value="urgent">Urgent</option>
+                                <option value="academic">Academic</option>
+                                <option value="event">Event</option>
+                                <option value="general">General</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-select" id="audienceFilter">
+                                <option value="">All Audiences</option>
+                                <option value="students">Students</option>
+                                <option value="faculty">Faculty</option>
+                                <option value="all">All</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-select" id="statusFilter">
+                                <option value="">All Status</option>
+                                <option value="pinned">Pinned</option>
+                                <option value="active">Active</option>
+                                <option value="expired">Expired</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn-ultra btn-outline-secondary-ultra w-100" onclick="clearFilters()">
+                                <i class="fas fa-times me-1"></i>Clear
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card-ultra h-100 statistics-card">
+                <div class="card-body-ultra text-center">
+                    <div class="d-flex align-items-center justify-content-center mb-2">
+                        <div class="bg-primary bg-opacity-10 rounded-circle p-3 me-3">
+                            <i class="fas fa-bullhorn text-primary fa-lg"></i>
+                        </div>
+                        <div>
+                            <h3 class="mb-0 fw-bold">{{ announcements|length }}</h3>
+                            <small class="text-muted">Total</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card-ultra h-100 statistics-card">
+                <div class="card-body-ultra text-center">
+                    <div class="d-flex align-items-center justify-content-center mb-2">
+                        <div class="bg-warning bg-opacity-10 rounded-circle p-3 me-3">
+                            <i class="fas fa-thumbtack text-warning fa-lg"></i>
+                        </div>
+                        <div>
+                            <h3 class="mb-0 fw-bold">{{ announcements|selectattr('is_pinned')|list|length }}</h3>
+                            <small class="text-muted">Pinned</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card-ultra h-100 statistics-card">
+                <div class="card-body-ultra text-center">
+                    <div class="d-flex align-items-center justify-content-center mb-2">
+                        <div class="bg-danger bg-opacity-10 rounded-circle p-3 me-3">
+                            <i class="fas fa-exclamation-triangle text-danger fa-lg"></i>
+                        </div>
+                        <div>
+                            <h3 class="mb-0 fw-bold">{{ announcements|selectattr('category', 'equalto', 'urgent')|list|length }}</h3>
+                            <small class="text-muted">Urgent</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card-ultra h-100 statistics-card">
+                <div class="card-body-ultra text-center">
+                    <div class="d-flex align-items-center justify-content-center mb-2">
+                        <div class="bg-success bg-opacity-10 rounded-circle p-3 me-3">
+                            <i class="fas fa-calendar text-success fa-lg"></i>
+                        </div>
+                        <div>
+                            <h3 class="mb-0 fw-bold">{{ announcements|selectattr('category', 'equalto', 'event')|list|length }}</h3>
+                            <small class="text-muted">Events</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Announcements List -->
     <div class="row">
         <div class="col-12">
@@ -102,89 +297,237 @@
                     <h5 class="mb-0">
                         <i class="fas fa-list me-2"></i>
                         Announcements List
+                        <span class="badge bg-primary ms-2" id="filteredCount">{{ announcements|length }}</span>
                     </h5>
-                    <div>
-                        <span class="text-muted">Total: {{ announcements|length }} announcements</span>
+                    <div class="d-flex gap-2">
+                        <!-- <button class="btn-ultra btn-outline-secondary-ultra btn-sm" onclick="toggleView('grid')" id="gridViewBtn">
+                            <i class="fas fa-th"></i>
+                        </button>
+                        <button class="btn-ultra btn-outline-secondary-ultra btn-sm active" onclick="toggleView('list')" id="listViewBtn">
+                            <i class="fas fa-list"></i>
+                        </button> -->
                     </div>
                 </div>
                 <div class="card-body-ultra p-0">
                     {% if announcements %}
-                    <div class="list-group list-group-flush">
+                    <!-- List View -->
+                    <div id="listView" class="p-3">
                         {% for announcement in announcements %}
-                        <div class="list-group-item">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div class="flex-grow-1">
-                                    <div class="d-flex align-items-center mb-2">
-                                        <div class="me-3">
-                                            {% if announcement.category == 'urgent' %}
-                                                <div class="bg-danger bg-opacity-10 rounded-circle p-2 d-inline-flex">
-                                                    <i class="fas fa-exclamation-triangle text-danger"></i>
-                                                </div>
-                                            {% elif announcement.category == 'academic' %}
-                                                <div class="bg-primary bg-opacity-10 rounded-circle p-2 d-inline-flex">
-                                                    <i class="fas fa-graduation-cap text-primary"></i>
-                                                </div>
-                                            {% elif announcement.category == 'event' %}
-                                                <div class="bg-success bg-opacity-10 rounded-circle p-2 d-inline-flex">
-                                                    <i class="fas fa-calendar text-success"></i>
-                                                </div>
-                                            {% else %}
-                                                <div class="bg-info bg-opacity-10 rounded-circle p-2 d-inline-flex">
-                                                    <i class="fas fa-info-circle text-info"></i>
-                                                </div>
-                                            {% endif %}
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <h6 class="mb-1 d-flex align-items-center">
-                                                {{ announcement.title }}
-                                                {% if announcement.is_pinned %}
-                                                    <i class="fas fa-thumbtack text-warning ms-2" title="Pinned"></i>
-                                                {% endif %}
-                                            </h6>
-                                            <div class="d-flex gap-2 flex-wrap">
-                                                <span class="badge bg-{{ 'danger' if announcement.category == 'urgent' else 'primary' if announcement.category == 'academic' else 'success' if announcement.category == 'event' else 'secondary' }}">
-                                                    {{ announcement.category.title() }}
-                                                </span>
-                                                <span class="badge bg-light text-dark">
-                                                    {{ announcement.target_audience.title() }}
-                                                </span>
-                                                {% if announcement.expires_at %}
-                                                <span class="badge bg-warning">
-                                                    Expires: {{ announcement.expires_at.strftime('%b %d, %Y') }}
-                                                </span>
-                                                {% endif %}
+                        <div class="card-ultra mb-3 announcement-item" 
+                             data-category="{{ announcement.category }}" 
+                             data-audience="{{ announcement.target_audience }}"
+                             data-pinned="{{ announcement.is_pinned|lower }}"
+                             data-title="{{ announcement.title|lower }}"
+                             data-content="{{ announcement.content|lower }}">
+                            <div class="card-body-ultra">
+                                <div class="row align-items-start">
+                                    <!-- Icon Column -->
+                                    <div class="col-auto">
+                                        {% if announcement.category == 'urgent' %}
+                                            <div class="bg-danger bg-opacity-10 rounded-3 p-3 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                                                <i class="fas fa-exclamation-triangle text-danger fa-lg"></i>
                                             </div>
-                                        </div>
+                                        {% elif announcement.category == 'academic' %}
+                                            <div class="bg-primary bg-opacity-10 rounded-3 p-3 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                                                <i class="fas fa-graduation-cap text-primary fa-lg"></i>
+                                            </div>
+                                        {% elif announcement.category == 'event' %}
+                                            <div class="bg-success bg-opacity-10 rounded-3 p-3 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                                                <i class="fas fa-calendar text-success fa-lg"></i>
+                                            </div>
+                                        {% else %}
+                                            <div class="bg-info bg-opacity-10 rounded-3 p-3 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                                                <i class="fas fa-info-circle text-info fa-lg"></i>
+                                            </div>
+                                        {% endif %}
                                     </div>
                                     
-                                    <p class="mb-2 text-muted">{{ announcement.content[:200] }}{% if announcement.content|length > 200 %}...{% endif %}</p>
-                                    
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <small class="text-muted">
-                                            <i class="fas fa-user me-1"></i>
-                                            by {{ announcement.creator.get_full_name() }} • 
-                                            <i class="fas fa-clock me-1"></i>
-                                            {{ announcement.created_at.strftime('%b %d, %Y at %I:%M %p') }}
-                                        </small>
-                                        <div class="btn-group btn-group-sm" role="group">
-                                            <button class="btn-ultra btn-outline-info-ultra" title="View Details" 
-                                                    onclick="showAnnouncementDetails({{ loop.index0 }})">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
-                                            <button class="btn-ultra btn-outline-primary-ultra" title="Edit" 
-                                                    onclick="showToast('Announcement editing feature coming soon', 'info')">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button class="btn-ultra btn-outline-danger-ultra" title="Delete" 
-                                                    onclick="showToast('Announcement deletion feature coming soon', 'info')">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
+                                    <!-- Content Column -->
+                                    <div class="col">
+                                        <div class="d-flex justify-content-between align-items-start mb-3">
+                                            <div class="flex-grow-1">
+                                                <h5 class="mb-2 fw-bold d-flex align-items-center">
+                                                    {{ announcement.title }}
+                                                    {% if announcement.is_pinned %}
+                                                        <i class="fas fa-thumbtack text-warning ms-2 fs-6" title="Pinned"></i>
+                                                    {% endif %}
+                                                </h5>
+                                                <div class="d-flex gap-2 flex-wrap mb-2">
+                                                    <span class="badge rounded-pill bg-{{ 'danger' if announcement.category == 'urgent' else 'primary' if announcement.category == 'academic' else 'success' if announcement.category == 'event' else 'secondary' }}">
+                                                        {{ announcement.category.title() }}
+                                                    </span>
+                                                    <span class="badge rounded-pill bg-light text-dark">
+                                                        <i class="fas fa-users me-1"></i>{{ announcement.target_audience.title() }}
+                                                    </span>
+                                                    {% if announcement.event_date %}
+                                                    <span class="badge rounded-pill bg-info">
+                                                        <i class="fas fa-calendar-alt me-1"></i>
+                                                        {{ announcement.event_date.strftime('%b %d, %Y') }}
+                                                    </span>
+                                                    {% endif %}
+                                                    {% if announcement.expires_at %}
+                                                    <span class="badge rounded-pill bg-warning text-dark">
+                                                        <i class="fas fa-clock me-1"></i>
+                                                        Expires: {{ announcement.expires_at.strftime('%b %d, %Y') }}
+                                                    </span>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <p class="text-muted mb-2 lh-base">{{ announcement.content[:250] }}{% if announcement.content|length > 250 %}...{% endif %}</p>
+                                            {% if announcement.link %}
+                                            <a href="{{ announcement.link }}" target="_blank" class="btn-ultra btn-outline-primary-ultra btn-sm">
+                                                <i class="fas fa-external-link-alt me-1"></i>View Link
+                                            </a>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div class="text-muted small">
+                                                <div class="d-flex align-items-center mb-1">
+                                                    <i class="fas fa-user me-2"></i>
+                                                    <span class="fw-medium">{{ announcement.creator.get_full_name() }}</span>
+                                                </div>
+                                                <div class="d-flex align-items-center">
+                                                    <i class="fas fa-clock me-2"></i>
+                                                    <span>{{ announcement.created_at.strftime('%b %d, %Y at %I:%M %p') }}</span>
+                                                </div>
+                                            </div>
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <button class="btn-ultra btn-outline-info-ultra" title="View Details" 
+                                                        onclick="showAnnouncementDetails({{ loop.index0 }})">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <a href="{{ url_for('admin_edit_announcement', announcement_id=announcement.id) }}" 
+                                                   class="btn-ultra btn-outline-primary-ultra" title="Edit">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <button class="btn-ultra btn-outline-danger-ultra" title="Delete" 
+                                                        onclick="confirmDelete({{ announcement.id }}, '{{ announcement.title }}')">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         {% endfor %}
+                    </div>
+
+                    <!-- Grid View -->
+                    <div id="gridView" class="p-3" style="display: none;">
+                        <div class="row g-4">
+                            {% for announcement in announcements %}
+                            <div class="col-xl-4 col-lg-6 col-md-6 announcement-item" 
+                                 data-category="{{ announcement.category }}" 
+                                 data-audience="{{ announcement.target_audience }}"
+                                 data-pinned="{{ announcement.is_pinned|lower }}"
+                                 data-title="{{ announcement.title|lower }}"
+                                 data-content="{{ announcement.content|lower }}">
+                                <div class="card-ultra h-100 shadow-sm">
+                                    <!-- Card Header with Icon and Category -->
+                                    <div class="card-header-ultra border-0 pb-2">
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <div class="d-flex align-items-center">
+                                                {% if announcement.category == 'urgent' %}
+                                                    <div class="bg-danger bg-opacity-10 rounded-circle p-2 me-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                                        <i class="fas fa-exclamation-triangle text-danger"></i>
+                                                    </div>
+                                                {% elif announcement.category == 'academic' %}
+                                                    <div class="bg-primary bg-opacity-10 rounded-circle p-2 me-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                                        <i class="fas fa-graduation-cap text-primary"></i>
+                                                    </div>
+                                                {% elif announcement.category == 'event' %}
+                                                    <div class="bg-success bg-opacity-10 rounded-circle p-2 me-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                                        <i class="fas fa-calendar text-success"></i>
+                                                    </div>
+                                                {% else %}
+                                                    <div class="bg-info bg-opacity-10 rounded-circle p-2 me-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                                        <i class="fas fa-info-circle text-info"></i>
+                                                    </div>
+                                                {% endif %}
+                                                <span class="badge rounded-pill bg-{{ 'danger' if announcement.category == 'urgent' else 'primary' if announcement.category == 'academic' else 'success' if announcement.category == 'event' else 'secondary' }}">
+                                                    {{ announcement.category.title() }}
+                                                </span>
+                                            </div>
+                                            {% if announcement.is_pinned %}
+                                                <i class="fas fa-thumbtack text-warning" title="Pinned"></i>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Card Body -->
+                                    <div class="card-body-ultra flex-grow-1 d-flex flex-column">
+                                        <h6 class="card-title fw-bold mb-2 line-clamp-2" style="min-height: 2.4em;">{{ announcement.title }}</h6>
+                                        <p class="card-text text-muted small mb-3 flex-grow-1 line-clamp-3" style="min-height: 4.5em;">{{ announcement.content[:120] }}{% if announcement.content|length > 120 %}...{% endif %}</p>
+                                        
+                                        <!-- Badges -->
+                                        <div class="mb-3">
+                                            <div class="d-flex flex-wrap gap-1">
+                                                <span class="badge rounded-pill bg-light text-dark small">
+                                                    <i class="fas fa-users me-1"></i>{{ announcement.target_audience.title() }}
+                                                </span>
+                                                {% if announcement.event_date %}
+                                                <span class="badge rounded-pill bg-info small">
+                                                    <i class="fas fa-calendar-alt me-1"></i>
+                                                    {{ announcement.event_date.strftime('%b %d') }}
+                                                </span>
+                                                {% endif %}
+                                                {% if announcement.expires_at %}
+                                                <span class="badge rounded-pill bg-warning text-dark small">
+                                                    <i class="fas fa-clock me-1"></i>
+                                                    Expires {{ announcement.expires_at.strftime('%b %d') }}
+                                                </span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Link Button -->
+                                        {% if announcement.link %}
+                                        <a href="{{ announcement.link }}" target="_blank" class="btn-ultra btn-outline-primary-ultra btn-sm w-100 mb-3">
+                                            <i class="fas fa-external-link-alt me-1"></i>View Link
+                                        </a>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <!-- Card Footer -->
+                                    <div class="card-footer-ultra bg-light border-0 pt-2">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div class="text-muted small">
+                                                <div class="d-flex align-items-center">
+                                                    <i class="fas fa-user me-1"></i>
+                                                    <span class="text-truncate" style="max-width: 120px;">{{ announcement.creator.get_full_name() }}</span>
+                                                </div>
+                                                <div class="d-flex align-items-center mt-1">
+                                                    <i class="fas fa-clock me-1"></i>
+                                                    <span>{{ announcement.created_at.strftime('%b %d, %Y') }}</span>
+                                                </div>
+                                            </div>
+                                            <div class="btn-group-vertical btn-group-sm">
+                                                <button class="btn-ultra btn-outline-info-ultra btn-sm mb-1" title="View" 
+                                                        onclick="showAnnouncementDetails({{ loop.index0 }})">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <div class="btn-group btn-group-sm">
+                                                    <a href="{{ url_for('admin_edit_announcement', announcement_id=announcement.id) }}" 
+                                                       class="btn-ultra btn-outline-primary-ultra btn-sm" title="Edit">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <button class="btn-ultra btn-outline-danger-ultra btn-sm" title="Delete" 
+                                                            onclick="confirmDelete({{ announcement.id }}, '{{ announcement.title }}')">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
                     </div>
                     {% else %}
                     <div class="text-center py-5">
@@ -218,9 +561,9 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn-ultra btn-secondary-ultra" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn-ultra btn-primary-ultra" onclick="showToast('Edit feature coming soon', 'info')">
+                <!-- <button type="button" class="btn-ultra btn-primary-ultra" onclick="showToast('Edit feature coming soon', 'info')">
                     <i class="fas fa-edit me-2"></i>Edit
-                </button>
+                </button> -->
             </div>
         </div>
     </div>
@@ -237,6 +580,8 @@ const announcementsData = [
         content: {{ announcement.content|tojson }},
         category: {{ announcement.category|tojson }},
         target_audience: {{ announcement.target_audience|tojson }},
+        event_date: {{ (announcement.event_date.strftime('%B %d, %Y at %I:%M %p') if announcement.event_date else None)|tojson }},
+        link: {{ announcement.link|tojson }},
         is_pinned: {{ announcement.is_pinned|tojson }},
         created_at: {{ announcement.created_at.strftime('%B %d, %Y at %I:%M %p')|tojson }},
         creator: {{ announcement.creator.get_full_name()|tojson }},
@@ -244,6 +589,131 @@ const announcementsData = [
     }{% if not loop.last %},{% endif %}
     {% endfor %}
 ];
+
+// Search and Filter Functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    const categoryFilter = document.getElementById('categoryFilter');
+    const audienceFilter = document.getElementById('audienceFilter');
+    const statusFilter = document.getElementById('statusFilter');
+    const filteredCount = document.getElementById('filteredCount');
+    
+    function filterAnnouncements() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const categoryValue = categoryFilter.value;
+        const audienceValue = audienceFilter.value;
+        const statusValue = statusFilter.value;
+        
+        const items = document.querySelectorAll('.announcement-item');
+        let visibleCount = 0;
+        
+        items.forEach(item => {
+            const title = item.dataset.title;
+            const content = item.dataset.content;
+            const category = item.dataset.category;
+            const audience = item.dataset.audience;
+            const pinned = item.dataset.pinned;
+            
+            let show = true;
+            
+            // Search filter
+            if (searchTerm && !title.includes(searchTerm) && !content.includes(searchTerm)) {
+                show = false;
+            }
+            
+            // Category filter
+            if (categoryValue && category !== categoryValue) {
+                show = false;
+            }
+            
+            // Audience filter
+            if (audienceValue && audience !== audienceValue) {
+                show = false;
+            }
+            
+            // Status filter
+            if (statusValue) {
+                if (statusValue === 'pinned' && pinned !== 'true') {
+                    show = false;
+                } else if (statusValue === 'active' && pinned === 'true') {
+                    show = false;
+                } else if (statusValue === 'expired') {
+                    // Check if announcement has expired
+                    const expiresAt = item.querySelector('.badge.bg-warning');
+                    if (!expiresAt) {
+                        show = false;
+                    }
+                }
+            }
+            
+            if (show) {
+                item.style.display = '';
+                visibleCount++;
+            } else {
+                item.style.display = 'none';
+            }
+        });
+        
+        // Update filtered count
+        filteredCount.textContent = visibleCount;
+        
+        // Show/hide no results message
+        const noResults = document.getElementById('noResults');
+        if (visibleCount === 0) {
+            if (!noResults) {
+                const container = document.querySelector('#listView, #gridView');
+                const noResultsDiv = document.createElement('div');
+                noResultsDiv.id = 'noResults';
+                noResultsDiv.className = 'text-center py-5';
+                noResultsDiv.innerHTML = `
+                    <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                    <h5>No announcements found</h5>
+                    <p class="text-muted">Try adjusting your search or filter criteria.</p>
+                `;
+                container.appendChild(noResultsDiv);
+            }
+        } else {
+            if (noResults) {
+                noResults.remove();
+            }
+        }
+    }
+    
+    // Event listeners
+    if (searchInput) searchInput.addEventListener('input', filterAnnouncements);
+    if (categoryFilter) categoryFilter.addEventListener('change', filterAnnouncements);
+    if (audienceFilter) audienceFilter.addEventListener('change', filterAnnouncements);
+    if (statusFilter) statusFilter.addEventListener('change', filterAnnouncements);
+    
+    // Clear filters function
+    window.clearFilters = function() {
+        if (searchInput) searchInput.value = '';
+        if (categoryFilter) categoryFilter.value = '';
+        if (audienceFilter) audienceFilter.value = '';
+        if (statusFilter) statusFilter.value = '';
+        filterAnnouncements();
+    };
+    
+    // View toggle function
+    window.toggleView = function(view) {
+        const listView = document.getElementById('listView');
+        const gridView = document.getElementById('gridView');
+        const listBtn = document.getElementById('listViewBtn');
+        const gridBtn = document.getElementById('gridViewBtn');
+        
+        if (view === 'list') {
+            listView.style.display = '';
+            gridView.style.display = 'none';
+            listBtn.classList.add('active');
+            gridBtn.classList.remove('active');
+        } else {
+            listView.style.display = 'none';
+            gridView.style.display = '';
+            listBtn.classList.remove('active');
+            gridBtn.classList.add('active');
+        }
+    };
+});
 
 function showAnnouncementDetails(index) {
     const announcement = announcementsData[index];
@@ -267,6 +737,22 @@ function showAnnouncementDetails(index) {
             <h6>Content</h6>
             <div class="bg-light p-3 rounded">${announcement.content.replace(/\n/g, '<br>')}</div>
         </div>
+        
+        ${announcement.event_date ? `
+        <div class="mb-3">
+            <h6>Event Date</h6>
+            <p class="text-primary"><i class="fas fa-calendar me-2"></i>${announcement.event_date}</p>
+        </div>
+        ` : ''}
+        
+        ${announcement.link ? `
+        <div class="mb-3">
+            <h6>Related Link</h6>
+            <p><a href="${announcement.link}" target="_blank" class="text-decoration-none">
+                <i class="fas fa-external-link-alt me-2"></i>${announcement.link}
+            </a></p>
+        </div>
+        ` : ''}
         
         <div class="row">
             <div class="col-md-6">
@@ -293,14 +779,183 @@ document.addEventListener('DOMContentLoaded', function() {
         firstInput.focus();
     }
     
-    // Set minimum datetime for expires_at to current time
+    // Set minimum datetime for expires_at to current time and make it optional
     const expiresInput = document.getElementById('expires_at');
     if (expiresInput) {
         const now = new Date();
         const offset = now.getTimezoneOffset() * 60000;
         const localTime = new Date(now.getTime() - offset);
         expiresInput.min = localTime.toISOString().slice(0, 16);
+        
+        // Remove required attribute to make it truly optional
+        expiresInput.removeAttribute('required');
+        
+        // Add event listener to clear validation when field is empty
+        expiresInput.addEventListener('input', function() {
+            if (this.value === '') {
+                this.classList.remove('is-invalid');
+                this.classList.remove('is-valid');
+            }
+        });
+    }
+    
+    // Debug form submission
+    const announcementForm = document.getElementById('announcementForm');
+    const publishBtn = document.getElementById('publishBtn');
+    
+    if (announcementForm) {
+        // Add click handler to publish button
+        if (publishBtn) {
+            publishBtn.addEventListener('click', function(e) {
+                console.log('Publish button clicked');
+                
+                // Check if form has required fields filled
+                const titleField = document.getElementById('title');
+                const contentField = document.getElementById('content');
+                
+                if (titleField && contentField) {
+                    const titleValue = titleField.value.trim();
+                    const contentValue = contentField.value.trim();
+                    
+                    console.log('Title value:', titleValue);
+                    console.log('Content value:', contentValue);
+                    
+                    if (!titleValue || !contentValue) {
+                        console.log('Required fields are empty');
+                        e.preventDefault();
+                        
+                        // Show validation errors
+                        if (!titleValue) {
+                            titleField.classList.add('is-invalid');
+                        } else {
+                            titleField.classList.remove('is-invalid');
+                        }
+                        
+                        if (!contentValue) {
+                            contentField.classList.add('is-invalid');
+                        } else {
+                            contentField.classList.remove('is-invalid');
+                        }
+                        
+                        // Focus on first empty field
+                        if (!titleValue) {
+                            titleField.focus();
+                        } else if (!contentValue) {
+                            contentField.focus();
+                        }
+                        
+                        return false;
+                    }
+                }
+                
+                console.log('All required fields filled, proceeding with submission');
+            });
+        }
+        
+        announcementForm.addEventListener('submit', function(e) {
+            console.log('Form submission attempted');
+            
+            // Check each field manually
+            const titleField = document.getElementById('title');
+            const contentField = document.getElementById('content');
+            const expiresField = document.getElementById('expires_at');
+            
+            let isValid = true;
+            
+            if (titleField) {
+                console.log('Title field validity:', titleField.checkValidity());
+                console.log('Title value:', titleField.value);
+                if (!titleField.value.trim()) {
+                    titleField.classList.add('is-invalid');
+                    isValid = false;
+                } else {
+                    titleField.classList.remove('is-invalid');
+                }
+            }
+            
+            if (contentField) {
+                console.log('Content field validity:', contentField.checkValidity());
+                console.log('Content value:', contentField.value);
+                if (!contentField.value.trim()) {
+                    contentField.classList.add('is-invalid');
+                    isValid = false;
+                } else {
+                    contentField.classList.remove('is-invalid');
+                }
+            }
+            
+            if (expiresField) {
+                console.log('Expires field value:', expiresField.value);
+                // expires_at is optional, so we don't validate it
+                if (expiresField.value) {
+                    // Only validate if a value is provided
+                    if (!expiresField.checkValidity()) {
+                        expiresField.classList.add('is-invalid');
+                        isValid = false;
+                    } else {
+                        expiresField.classList.remove('is-invalid');
+                    }
+                } else {
+                    expiresField.classList.remove('is-invalid');
+                }
+            }
+            
+            if (!isValid) {
+                console.log('Form validation failed, preventing submission');
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Show validation errors
+                this.classList.add('was-validated');
+                
+                // Focus on first invalid field
+                const firstInvalid = this.querySelector('.is-invalid');
+                if (firstInvalid) {
+                    firstInvalid.focus();
+                    console.log('Focused on invalid field:', firstInvalid.id);
+                }
+            } else {
+                console.log('Form validation passed, submitting...');
+                // Allow form to submit normally
+            }
+        });
     }
 });
+
+// Delete confirmation function
+function confirmDelete(announcementId, announcementTitle) {
+    if (confirm(`Are you sure you want to delete the announcement "${announcementTitle}"?\n\nThis action cannot be undone.`)) {
+        // Use the existing hidden form and update its action
+        const deleteForm = document.getElementById('deleteForm');
+        if (deleteForm) {
+            deleteForm.action = `/admin/announcements/${announcementId}/delete`;
+            deleteForm.submit();
+        } else {
+            // Fallback: create a new form
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/admin/announcements/${announcementId}/delete`;
+            
+            // Add CSRF token
+            const csrfToken = document.querySelector('meta[name=csrf-token]');
+            if (csrfToken) {
+                const csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = 'csrf_token';
+                csrfInput.value = csrfToken.getAttribute('content');
+                form.appendChild(csrfInput);
+            }
+            
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+}
 </script>
+
+<!-- Hidden delete form for CSRF protection -->
+<form id="deleteForm" method="POST" style="display: none;">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+</form>
+
 {% endblock %}

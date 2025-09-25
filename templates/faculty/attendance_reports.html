@@ -1,0 +1,364 @@
+{% extends "base.html" %}
+
+{% block title %}Attendance Reports - Faculty Dashboard{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <!-- Ultra Modern Page Header -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
+                <div class="mb-3 mb-md-0">
+                    <h1 class="title-ultra">
+                        <i class="fas fa-chart-bar me-3" style="color: #667eea;"></i>
+                        Attendance Reports
+                    </h1>
+                    <p class="subtitle-ultra">Your class-wise attendance statistics and analytics</p>
+                </div>
+                <div class="d-flex gap-2 flex-wrap">
+                    <a href="{{ url_for('faculty_dashboard') }}" class="btn-ultra btn-secondary-ultra">
+                        <i class="fas fa-arrow-left"></i>Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Assigned Classrooms Info -->
+    {% if assigned_classrooms %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="alert alert-info d-flex align-items-center">
+                <i class="fas fa-info-circle me-3 fa-2x"></i>
+                <div>
+                    <h6 class="mb-1">Your Assigned Classrooms</h6>
+                    <p class="mb-0">Reports are filtered to show data only from: <strong>{{ assigned_classrooms|map(attribute='name')|join(', ') }}</strong></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Overall Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="stat-card-ultra">
+                <div class="stat-icon">
+                    <i class="fas fa-calendar-check" style="color: #667eea;"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 style="color: #1f2937;">{{ overall_stats.total_records|default(0) }}</h3>
+                    <p style="color: #6b7280;">Total Records</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card-ultra">
+                <div class="stat-icon">
+                    <i class="fas fa-user-check" style="color: #10b981;"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 style="color: #10b981;">{{ overall_stats.present_percentage|default(0) }}%</h3>
+                    <p style="color: #6b7280;">Present ({{ overall_stats.present_count|default(0) }} records)</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card-ultra">
+                <div class="stat-icon">
+                    <i class="fas fa-user-times" style="color: #ef4444;"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 style="color: #ef4444;">{{ overall_stats.absent_percentage|default(0) }}%</h3>
+                    <p style="color: #6b7280;">Absent ({{ overall_stats.absent_count|default(0) }} records)</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card-ultra">
+                <div class="stat-icon">
+                    <i class="fas fa-clock" style="color: #f59e0b;"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 style="color: #f59e0b;">{{ overall_stats.late_percentage|default(0) }}%</h3>
+                    <p style="color: #6b7280;">Late ({{ overall_stats.late_count|default(0) }} records)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card-ultra">
+                <div class="card-header-ultra">
+                    <h5 class="mb-0">
+                        <i class="fas fa-filter me-2"></i>
+                        Filter Reports
+                    </h5>
+                </div>
+                <div class="card-body-ultra">
+                    <form method="GET" class="row align-items-end">
+                        <div class="col-md-2 mb-3">
+                            <label for="department" class="form-label fw-semibold">Department</label>
+                            <select class="form-select" id="department" name="department">
+                                {% for dept in departments %}
+                                    <option value="{{ dept }}" {% if filters.department == dept %}selected{% endif %}>
+                                        {{ dept }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <label for="year" class="form-label fw-semibold">Year</label>
+                            <select class="form-select" id="year" name="year">
+                                {% for yr in years %}
+                                    <option value="{{ yr }}" {% if filters.year == yr %}selected{% endif %}>
+                                        Year {{ yr }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <label for="semester" class="form-label fw-semibold">Semester</label>
+                            <select class="form-select" id="semester" name="semester">
+                                {% for sem in semesters %}
+                                    <option value="{{ sem }}" {% if filters.semester == sem %}selected{% endif %}>
+                                        Sem {{ sem }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <label for="section" class="form-label fw-semibold">Section</label>
+                            <select class="form-select" id="section" name="section">
+                                {% for sec in sections %}
+                                    <option value="{{ sec }}" {% if filters.section == sec %}selected{% endif %}>
+                                        Section {{ sec }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <label for="date_from" class="form-label fw-semibold">From Date</label>
+                            <input type="date" class="form-control" id="date_from" name="date_from" 
+                                   value="{{ filters.date_from }}">
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <label for="date_to" class="form-label fw-semibold">To Date</label>
+                            <input type="date" class="form-control" id="date_to" name="date_to" 
+                                   value="{{ filters.date_to }}">
+                        </div>
+                        <div class="col-12">
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn-ultra btn-primary-ultra">
+                                    <i class="fas fa-search me-2"></i>Apply Filters
+                                </button>
+                                <a href="{{ url_for('faculty_attendance_reports') }}" class="btn-ultra btn-secondary-ultra">
+                                    <i class="fas fa-times me-2"></i>Clear Filters
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Attendance Statistics Table -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card-ultra">
+                <div class="card-header-ultra d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="mb-0">
+                            <i class="fas fa-table me-2"></i>
+                            Class-wise Attendance Statistics
+                        </h5>
+                        <small class="text-muted">
+                            Showing {{ attendance_stats|length }} of {{ total_count }} classrooms • {{ filters.date_from }} to {{ filters.date_to }}
+                            {% if total_pages > 1 %}
+                            • Page {{ page }} of {{ total_pages }}
+                            {% endif %}
+                        </small>
+                    </div>
+                </div>
+                <div class="card-body-ultra">
+                    {% if attendance_stats %}
+                    <div class="table-responsive">
+                        <table class="table table-hover" style="background: rgba(102, 126, 234, 0.02); border-radius: 8px;">
+                            <thead style="background: rgba(102, 126, 234, 0.05);">
+                                <tr>
+                                    <th style="color: #1f2937; font-weight: 600; border: none;">Classroom</th>
+                                    <th class="text-center" style="color: #1f2937; font-weight: 600; border: none;">Students</th>
+                                    <th class="text-center" style="color: #1f2937; font-weight: 600; border: none;">Days</th>
+                                    <th class="text-center" style="color: #1f2937; font-weight: 600; border: none;">Total Records</th>
+                                    <th class="text-center" style="color: #1f2937; font-weight: 600; border: none;">Present</th>
+                                    <th class="text-center" style="color: #1f2937; font-weight: 600; border: none;">Absent</th>
+                                    <th class="text-center" style="color: #1f2937; font-weight: 600; border: none;">Late</th>
+                                    <th class="text-center" style="color: #1f2937; font-weight: 600; border: none;">Attendance Rate</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for stat in attendance_stats %}
+                                <tr style="border-color: rgba(102, 126, 234, 0.1);">
+                                    <td style="border: none;">
+                                        <div class="fw-semibold" style="color: #1f2937;">{{ stat.classroom }}</div>
+                                        <small class="text-muted">{{ stat.department }} - Year {{ stat.year }}/Sem {{ stat.semester }}/{{ stat.section }}</small>
+                                    </td>
+                                    <td class="text-center" style="border: none;">
+                                        <span class="badge-ultra badge-info">{{ stat.total_students }}</span>
+                                    </td>
+                                    <td class="text-center" style="border: none;">
+                                        <span class="badge-ultra badge-secondary">{{ stat.total_days }}</span>
+                                    </td>
+                                    <td class="text-center" style="border: none;">
+                                        <strong style="color: #1f2937;">{{ stat.total_records }}</strong>
+                                    </td>
+                                    <td class="text-center" style="border: none;">
+                                        <div class="d-flex flex-column align-items-center">
+                                            <span class="fw-bold" style="color: #10b981;">{{ stat.present_percentage }}%</span>
+                                            <small class="text-muted">({{ stat.present_count }})</small>
+                                        </div>
+                                    </td>
+                                    <td class="text-center" style="border: none;">
+                                        <div class="d-flex flex-column align-items-center">
+                                            <span class="fw-bold" style="color: #ef4444;">{{ stat.absent_percentage }}%</span>
+                                            <small class="text-muted">({{ stat.absent_count }})</small>
+                                        </div>
+                                    </td>
+                                    <td class="text-center" style="border: none;">
+                                        <div class="d-flex flex-column align-items-center">
+                                            <span class="fw-bold" style="color: #f59e0b;">{{ stat.late_percentage }}%</span>
+                                            <small class="text-muted">({{ stat.late_count }})</small>
+                                        </div>
+                                    </td>
+                                    <td class="text-center" style="border: none;">
+                                        <div class="progress mb-2" style="height: 8px; background: rgba(102, 126, 234, 0.1); border-radius: 4px;">
+                                            <div class="progress-bar bg-success" style="width: {{ stat.present_percentage }}%; border-radius: 4px;"></div>
+                                            <div class="progress-bar bg-warning" style="width: {{ stat.late_percentage }}%; border-radius: 4px;"></div>
+                                        </div>
+                                        <small class="text-muted" style="font-weight: 500;">{{ stat.attendance_rate }}%</small>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <div style="width: 80px; height: 80px; background: rgba(102, 126, 234, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+                            <i class="fas fa-chart-bar" style="color: #667eea; font-size: 2rem;"></i>
+                        </div>
+                        <h5 style="color: #1f2937; margin-bottom: 0.5rem;">No Attendance Data Found</h5>
+                        <p style="color: #6b7280; margin-bottom: 1.5rem;">
+                            {% if filters.department or filters.year or filters.semester or filters.section %}
+                                No attendance records match your current filters. Try adjusting the filters or selecting different options.
+                            {% else %}
+                                Please select filters to view attendance reports. Choose department, year, semester, or section to see data.
+                            {% endif %}
+                        </p>
+                        <div class="d-flex gap-2 justify-content-center">
+                            <a href="{{ url_for('faculty_attendance') }}" class="btn-ultra btn-primary-ultra">
+                                <i class="fas fa-calendar-check me-2"></i>Mark Attendance
+                            </a>
+                            <a href="{{ url_for('faculty_attendance_reports') }}" class="btn-ultra btn-secondary-ultra">
+                                <i class="fas fa-times me-2"></i>Clear Filters
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if total_pages > 1 %}
+                    <div class="d-flex justify-content-center mt-4">
+                        <nav aria-label="Attendance reports pagination">
+                            <ul class="pagination">
+                                <!-- Previous page -->
+                                <li class="page-item {{ 'disabled' if page == 1 }}">
+                                    <a class="page-link" href="{{ url_for('faculty_attendance_reports', page=page-1, **filters) }}" aria-label="Previous">
+                                        <span aria-hidden="true">&laquo;</span>
+                                    </a>
+                                </li>
+                                
+                                <!-- First page -->
+                                {% if page > 3 %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ url_for('faculty_attendance_reports', page=1, **filters) }}">1</a>
+                                </li>
+                                {% if page > 4 %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">...</span>
+                                </li>
+                                {% endif %}
+                                {% endif %}
+                                
+                                <!-- Page numbers -->
+                                {% for p in range(max(1, page-2), min(total_pages+1, page+3)) %}
+                                <li class="page-item {{ 'active' if p == page }}">
+                                    <a class="page-link" href="{{ url_for('faculty_attendance_reports', page=p, **filters) }}">{{ p }}</a>
+                                </li>
+                                {% endfor %}
+                                
+                                <!-- Last page -->
+                                {% if page < total_pages-2 %}
+                                {% if page < total_pages-3 %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">...</span>
+                                </li>
+                                {% endif %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ url_for('faculty_attendance_reports', page=total_pages, **filters) }}">{{ total_pages }}</a>
+                                </li>
+                                {% endif %}
+                                
+                                <!-- Next page -->
+                                <li class="page-item {{ 'disabled' if page == total_pages }}">
+                                    <a class="page-link" href="{{ url_for('faculty_attendance_reports', page=page+1, **filters) }}" aria-label="Next">
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Set max date to today for date inputs
+    const today = new Date().toISOString().split('T')[0];
+    const dateFromInput = document.getElementById('date_from');
+    const dateToInput = document.getElementById('date_to');
+    
+    if (dateFromInput) {
+        dateFromInput.max = today;
+    }
+    if (dateToInput) {
+        dateToInput.max = today;
+    }
+    
+    // Validate date range
+    function validateDateRange() {
+        const fromDate = dateFromInput ? dateFromInput.value : '';
+        const toDate = dateToInput ? dateToInput.value : '';
+        
+        if (fromDate && toDate && fromDate > toDate) {
+            dateToInput.setCustomValidity('End date must be after start date');
+        } else {
+            dateToInput.setCustomValidity('');
+        }
+    }
+    
+    if (dateFromInput && dateToInput) {
+        dateFromInput.addEventListener('change', validateDateRange);
+        dateToInput.addEventListener('change', validateDateRange);
+    }
+});
+</script>
+{% endblock %}

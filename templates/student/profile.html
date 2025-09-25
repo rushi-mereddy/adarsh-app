@@ -27,14 +27,14 @@
     <div class="row">
         <!-- Profile Information Form -->
         <div class="col-lg-8 mb-4">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">
-                        <i class="fas fa-edit me-2"></i>
+            <div class="card-ultra">
+                <div class="card-header-ultra">
+                    <h5 class="mb-0" style="color: #1f2937; font-weight: 600;">
+                        <i class="fas fa-edit me-2" style="color: #667eea;"></i>
                         Edit Profile Information
                     </h5>
                 </div>
-                <div class="card-body">
+                <div class="card-body-ultra">
                     <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
                         {{ form.hidden_tag() }}
                         
@@ -72,7 +72,7 @@
                             <div class="col-md-6 mb-3">
                                 {{ form.last_name.label(class="form-label fw-semibold") }}
                                 {{ form.last_name(class="form-control", placeholder="Enter your last name") }}
-                                <div class="invalid-feedback">
+                                <dn iv class="invalid-feedback">
                                     Please provide your last name.
                                 </div>
                             </div>
@@ -92,7 +92,14 @@
                         
                         <div class="mb-3">
                             {{ form.department.label(class="form-label fw-semibold") }}
-                            {{ form.department(class="form-control", placeholder="Enter your department") }}
+                            {{ form.department(class="form-select") }}
+                            {% if form.department.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.department.errors %}
+                                        <div>{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
                         </div>
                         
                         <div class="mb-4">
@@ -101,10 +108,10 @@
                         </div>
                         
                         <div class="d-flex gap-2">
-                            <button type="submit" class="btn btn-primary">
+                            <button type="submit" class="btn-ultra btn-primary-ultra">
                                 <i class="fas fa-save me-2"></i>Save Changes
                             </button>
-                            <a href="{{ url_for('student_dashboard') }}" class="btn btn-secondary">
+                            <a href="{{ url_for('student_dashboard') }}" class="btn-ultra btn-secondary-ultra">
                                 <i class="fas fa-times me-2"></i>Cancel
                             </a>
                         </div>
@@ -115,14 +122,14 @@
         
         <!-- Profile Summary Card -->
         <div class="col-lg-4">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">
-                        <i class="fas fa-id-card me-2"></i>
+            <div class="card-ultra">
+                <div class="card-header-ultra">
+                    <h5 class="mb-0" style="color: #1f2937; font-weight: 600;">
+                        <i class="fas fa-id-card me-2" style="color: #667eea;"></i>
                         Profile Summary
                     </h5>
                 </div>
-                <div class="card-body text-center">
+                <div class="card-body-ultra text-center">
                     {% if current_user.profile_image %}
                         <img src="{{ url_for('static', filename='uploads/' + current_user.profile_image) }}" 
                              alt="Profile Picture" class="rounded-circle mb-3" width="120" height="120" style="object-fit: cover;">
@@ -133,59 +140,59 @@
                         </div>
                     {% endif %}
                     
-                    <h5 class="mb-1">{{ current_user.get_full_name() }}</h5>
+                    <h5 class="mb-1" style="color: #1f2937;">{{ current_user.get_full_name() }}</h5>
                     <p class="text-muted mb-3">{{ current_user.role.title() }}</p>
                     
                     <div class="row text-start">
-                        <div class="col-12 mb-2">
-                            <small class="text-muted">Student ID:</small><br>
-                            <strong>{{ current_user.student_id or 'Not set' }}</strong>
+                        <div class="col-12 mb-3">
+                            <small class="text-muted" style="font-weight: 500;">Student ID:</small><br>
+                            <strong style="color: #374151;">{{ current_user.student_id or 'Not set' }}</strong>
                         </div>
-                        <div class="col-12 mb-2">
-                            <small class="text-muted">Email:</small><br>
-                            <strong>{{ current_user.email }}</strong>
+                        <div class="col-12 mb-3">
+                            <small class="text-muted" style="font-weight: 500;">Email:</small><br>
+                            <strong style="color: #374151;">{{ current_user.email }}</strong>
                         </div>
-                        <div class="col-12 mb-2">
-                            <small class="text-muted">Department:</small><br>
-                            <strong>{{ current_user.department or 'Not set' }}</strong>
+                        <div class="col-12 mb-3">
+                            <small class="text-muted" style="font-weight: 500;">Department:</small><br>
+                            <strong style="color: #374151;">{{ current_user.department or 'Not set' }}</strong>
                         </div>
-                        <div class="col-12 mb-2">
-                            <small class="text-muted">Phone:</small><br>
-                            <strong>{{ current_user.phone or 'Not set' }}</strong>
+                        <div class="col-12 mb-3">
+                            <small class="text-muted" style="font-weight: 500;">Phone:</small><br>
+                            <strong style="color: #374151;">{{ current_user.phone or 'Not set' }}</strong>
                         </div>
                         <div class="col-12">
-                            <small class="text-muted">Member Since:</small><br>
-                            <strong>{{ current_user.created_at.strftime('%B %Y') }}</strong>
+                            <small class="text-muted" style="font-weight: 500;">Member Since:</small><br>
+                            <strong style="color: #374151;">{{ current_user.created_at.strftime('%B %Y') }}</strong>
                         </div>
                     </div>
                 </div>
             </div>
             
             <!-- Account Security -->
-            <div class="card mt-4">
-                <div class="card-header">
-                    <h5 class="mb-0">
-                        <i class="fas fa-shield-alt me-2"></i>
+            <div class="card-ultra mt-4">
+                <div class="card-header-ultra">
+                    <h5 class="mb-0" style="color: #1f2937; font-weight: 600;">
+                        <i class="fas fa-shield-alt me-2" style="color: #667eea;"></i>
                         Account Security
                     </h5>
                 </div>
-                <div class="card-body">
+                <div class="card-body-ultra">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <div>
-                            <strong>Password</strong><br>
+                            <strong style="color: #1f2937;">Password</strong><br>
                             <small class="text-muted">Last updated: Recently</small>
                         </div>
-                        <button class="btn btn-outline-primary btn-sm" onclick="showToast('Password change feature will be available soon', 'info')">
+                        <button class="btn-ultra btn-outline-primary-ultra btn-sm" onclick="showToast('Password change feature will be available soon', 'info')">
                             Change
                         </button>
                     </div>
                     
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <strong>Account Status</strong><br>
+                            <strong style="color: #1f2937;">Account Status</strong><br>
                             <small class="text-muted">Your account is active</small>
                         </div>
-                        <span class="badge bg-success">Active</span>
+                        <span class="badge-ultra badge-success">Active</span>
                     </div>
                 </div>
             </div>

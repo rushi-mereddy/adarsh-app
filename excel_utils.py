@@ -66,6 +66,8 @@ def process_excel_file(file_path, default_password, default_department, classroo
             student_id = str(row['student_id']).strip()
             phone = str(row.get('phone', '')).strip() if 'phone' in row else ''
             
+            # Year, semester, and section will be assigned from classroom selection
+            
             # Check if row is completely empty
             if not any([first_name, last_name, email, student_id]):
                 continue  # Skip empty rows
@@ -143,12 +145,36 @@ def process_excel_file(file_path, default_password, default_department, classroo
 
 def create_students_from_data(valid_data):
     """Create student users from validated data"""
+    from models import Classroom
+    
     created_students = []
     failed_students = []
     
+    print(f"DEBUG: create_students_from_data called with {len(valid_data)} students")
+    
     try:
-        for student_data in valid_data:
+        for i, student_data in enumerate(valid_data):
+            print(f"DEBUG: Processing student {i+1}: {student_data.get('first_name')} {student_data.get('last_name')}")
             try:
+                # Get classroom info if classroom_id is provided
+                year = None
+                semester = None
+                section = None
+                
+                print(f"DEBUG: Student classroom_id: {student_data.get('classroom_id')}")
+                if student_data.get('classroom_id'):
+                    classroom = Classroom.query.get(student_data['classroom_id'])
+                    print(f"DEBUG: Found classroom: {classroom}")
+                    if classroom:
+                        year = classroom.year
+                        semester = classroom.semester
+                        section = classroom.section
+                        print(f"DEBUG: Assigned year={year}, semester={semester}, section={section} from classroom {classroom.name}")
+                    else:
+                        print(f"DEBUG: Classroom not found for ID {student_data['classroom_id']}")
+                else:
+                    print("DEBUG: No classroom_id provided")
+                
                 # Create new user
                 user = User(
                     username=student_data['username'],
@@ -161,9 +187,13 @@ def create_students_from_data(valid_data):
                     student_id=student_data['student_id'],
                     role='student',
                     is_active=True,
-                    classroom_id=student_data['classroom_id']
+                    classroom_id=student_data['classroom_id'],
+                    year=year,
+                    semester=semester,
+                    section=section
                 )
                 
+                print(f"DEBUG: Created user object for {student_data['first_name']} {student_data['last_name']}")
                 db.session.add(user)
                 created_students.append({
                     'name': f"{student_data['first_name']} {student_data['last_name']}",
@@ -172,14 +202,17 @@ def create_students_from_data(valid_data):
                 })
                 
             except Exception as e:
+                print(f"DEBUG: Error creating student {i+1}: {str(e)}")
                 failed_students.append({
                     'name': f"{student_data['first_name']} {student_data['last_name']}",
                     'email': student_data['email'],
                     'error': str(e)
                 })
         
+        print(f"DEBUG: Committing {len(created_students)} students to database...")
         # Commit all changes
         db.session.commit()
+        print(f"DEBUG: Successfully committed {len(created_students)} students")
         
         return {
             'success': True,

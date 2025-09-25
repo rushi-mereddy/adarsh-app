@@ -164,6 +164,7 @@
                     <div class="d-flex gap-2">
                         {% if result.valid_count > 0 %}
                         <form method="POST" action="{{ url_for('admin_confirm_import') }}" class="d-inline">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                             <input type="hidden" name="action" value="confirm">
                             <input type="hidden" name="temp_file" value="{{ temp_file }}">
                             <input type="hidden" name="default_password" value="{{ form.default_password.data }}">
@@ -177,6 +178,7 @@
                         {% endif %}
                         
                         <form method="POST" action="{{ url_for('admin_confirm_import') }}" class="d-inline">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                             <input type="hidden" name="action" value="cancel">
                             <input type="hidden" name="temp_file" value="{{ temp_file }}">
                             <button type="submit" class="btn-ultra btn-outline-secondary-ultra btn-lg">

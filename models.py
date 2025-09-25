@@ -1,4 +1,4 @@
-from app import db
+from extensions import db
 from flask_login import UserMixin
 from datetime import datetime
 from sqlalchemy import func
@@ -24,11 +24,38 @@ class User(UserMixin, db.Model):
     classroom_id = db.Column(db.Integer, db.ForeignKey('classroom.id'))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     is_active = db.Column(db.Boolean, default=True)
+
+    # Add indexes for common queries
+    __table_args__ = (
+        # For role-based queries
+        db.Index('idx_user_role_active', role, is_active),
+        # For classroom student lists
+        db.Index('idx_user_classroom_role', classroom_id, role),
+        # For department filtering
+        db.Index('idx_user_department_role', department, role),
+        # For student filtering
+        db.Index('idx_user_year_semester_section', year, semester, section),
+        # For name searching
+        db.Index('idx_user_names', first_name, last_name),
+    )
     
     # Relationships
-    attendance_records = db.relationship('Attendance', backref='student', lazy=True, foreign_keys='Attendance.student_id')
     taught_courses = db.relationship('Course', backref='faculty', lazy=True, foreign_keys='Course.faculty_id')
-    feedback_given = db.relationship('Feedback', backref='student', lazy=True, foreign_keys='Feedback.student_id')
+    feedback_given = db.relationship('Feedback', backref='student_feedback', lazy=True, foreign_keys='Feedback.student_id')
+    attendance_as_student = db.relationship(
+        'Attendance',
+        primaryjoin='User.id==Attendance.student_id',
+        foreign_keys='Attendance.student_id',
+        lazy=True,
+        viewonly=True
+    )
+    attendance_as_marker = db.relationship(
+        'Attendance',
+        primaryjoin='User.id==Attendance.marked_by',
+        foreign_keys='Attendance.marked_by',
+        lazy=True,
+        viewonly=True
+    )
 
     def get_full_name(self):
         return f"{self.first_name} {self.last_name}"
@@ -43,7 +70,6 @@ class Department(db.Model):
     program = db.Column(db.String(20), nullable=False)  # UG, PG, Diploma
     description = db.Column(db.Text)
     image = db.Column(db.String(200))  # Department image for website
-    established_year = db.Column(db.Integer)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     is_active = db.Column(db.Boolean, default=True)
     
@@ -111,13 +137,22 @@ class Classroom(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     is_active = db.Column(db.Boolean, default=True)
     
+    # Add unique constraint to prevent duplicate classrooms
+    __table_args__ = (
+        db.UniqueConstraint('department', 'year', 'semester', 'section', 
+                           name='unique_classroom_params'),
+    )
+    
     # Relationships
     students = db.relationship('User', backref='assigned_classroom', lazy=True, 
                               foreign_keys='User.classroom_id',
                               primaryjoin='and_(Classroom.id==User.classroom_id, User.role=="student")')
     
     def get_classroom_name(self):
-        return f"{self.department} Year {self.year} Sem {self.semester} Section {self.section}"
+        # Get department code from department name
+        department = Department.query.filter_by(name=self.department).first()
+        dept_code = department.code if department else self.department[:3].upper()
+        return f"{dept_code} {self.section} {self.year}-{self.semester}"
     
     def __repr__(self):
         return f'<Classroom {self.get_classroom_name()}>'
@@ -135,7 +170,7 @@ class Course(db.Model):
     is_active = db.Column(db.Boolean, default=True)
     
     # Relationships
-    attendance_records = db.relationship('Attendance', backref='course', lazy=True)
+    course_attendance = db.relationship('Attendance', backref='course', lazy=True)
     enrollments = db.relationship('Enrollment', backref='course', lazy=True)
 
     def __repr__(self):
@@ -149,14 +184,14 @@ class Enrollment(db.Model):
     is_active = db.Column(db.Boolean, default=True)
     
     # Relationships
-    student = db.relationship('User', backref='enrollments', foreign_keys=[student_id])
+    student = db.relationship('User', backref=db.backref('course_enrollments', lazy=True), foreign_keys=[student_id])
 
     __table_args__ = (db.UniqueConstraint('student_id', 'course_id'),)
 
 class Attendance(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     student_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    course_id = db.Column(db.Integer, db.ForeignKey('course.id'), nullable=False)
+    course_id = db.Column(db.Integer, db.ForeignKey('course.id'), nullable=True)  # Made nullable for classroom-based attendance
     date = db.Column(db.Date, nullable=False)
     status = db.Column(db.String(20), nullable=False, default='present')  # present, absent, late
     marked_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
@@ -164,7 +199,22 @@ class Attendance(db.Model):
     notes = db.Column(db.Text)
     
     # Relationships
-    marker = db.relationship('User', foreign_keys=[marked_by])
+    marker = db.relationship('User', foreign_keys=[marked_by], viewonly=True)
+    student = db.relationship('User', foreign_keys=[student_id], viewonly=True)
+
+    # Add indexes for common queries
+    __table_args__ = (
+        # For date-based queries
+        db.Index('idx_attendance_date', date),
+        # For student attendance history
+        db.Index('idx_attendance_student_date', student_id, date),
+        # For faculty marking history
+        db.Index('idx_attendance_marked_by_date', marked_by, date),
+        # For status-based queries
+        db.Index('idx_attendance_status_date', status, date),
+        # For course attendance
+        db.Index('idx_attendance_course_date', course_id, date),
+    )
 
     def __repr__(self):
         return f'<Attendance {self.student_id}-{self.course_id}-{self.date}>'
@@ -175,6 +225,8 @@ class Announcement(db.Model):
     content = db.Column(db.Text, nullable=False)
     category = db.Column(db.String(50), default='general')  # general, academic, event, urgent
     target_audience = db.Column(db.String(50), default='all')  # all, students, faculty
+    event_date = db.Column(db.DateTime)  # Optional event date
+    link = db.Column(db.String(500))  # Optional link
     created_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     expires_at = db.Column(db.DateTime)
@@ -279,3 +331,36 @@ class Notification(db.Model):
 
     def __repr__(self):
         return f'<Notification {self.title}>'
+
+class ClassroomAssignment(db.Model):
+    """Many-to-many relationship between users and classrooms"""
+    __tablename__ = 'classroom_assignments'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    classroom_id = db.Column(db.Integer, db.ForeignKey('classroom.id'), nullable=False)
+    assigned_at = db.Column(db.DateTime, default=datetime.utcnow)
+    assigned_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    is_active = db.Column(db.Boolean, default=True)
+    
+    # Relationships
+    user = db.relationship('User', foreign_keys=[user_id], backref=db.backref('assigned_to_classrooms', lazy=True))
+    classroom = db.relationship('Classroom', backref=db.backref('assigned_users', lazy=True))
+    assigner = db.relationship('User', foreign_keys=[assigned_by], backref=db.backref('classroom_assignments_made', lazy=True))
+    
+    # Indexes and constraints
+    __table_args__ = (
+        # Unique constraint to prevent duplicate assignments
+        db.UniqueConstraint('user_id', 'classroom_id', name='unique_user_classroom'),
+        # For active assignment queries
+        db.Index('idx_assignment_user_active', user_id, is_active),
+        # For classroom assignment queries
+        db.Index('idx_assignment_classroom_active', classroom_id, is_active),
+        # For assignment history
+        db.Index('idx_assignment_assigned_at', assigned_at),
+        # For assigner queries
+        db.Index('idx_assignment_assigned_by', assigned_by),
+    )
+    
+    def __repr__(self):
+        return f'<ClassroomAssignment user_id={self.user_id} classroom_id={self.classroom_id}>'

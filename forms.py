@@ -17,7 +17,7 @@ class RegisterForm(FlaskForm):
     first_name = StringField('First Name', validators=[DataRequired(), Length(max=100)])
     last_name = StringField('Last Name', validators=[DataRequired(), Length(max=100)])
     phone = StringField('Phone Number', validators=[Optional(), Length(max=20)])
-    department = StringField('Department', validators=[DataRequired(), Length(max=100)])
+    department = SelectField('Department', validators=[DataRequired()], choices=[])
     student_id = StringField('Student ID', validators=[DataRequired(), Length(max=50)])
 
 class ProfileForm(FlaskForm):
@@ -26,7 +26,7 @@ class ProfileForm(FlaskForm):
     phone = StringField('Phone Number', validators=[Optional(), Length(max=20)])
     address = TextAreaField('Address', validators=[Optional()])
     date_of_birth = DateField('Date of Birth', validators=[Optional()])
-    department = StringField('Department', validators=[Optional(), Length(max=100)])
+    department = SelectField('Department', validators=[Optional()], choices=[])
     profile_image = FileField('Profile Image', 
                             validators=[FileAllowed(['jpg', 'png', 'jpeg'], 'Images only!')])
 
@@ -49,13 +49,16 @@ class AnnouncementForm(FlaskForm):
     content = TextAreaField('Content', validators=[DataRequired()], widget=TextArea())
     category = SelectField('Category', 
                          choices=[('general', 'General'), ('academic', 'Academic'), 
-                                ('event', 'Event'), ('urgent', 'Urgent')],
+                                ('event', 'Event'), ('urgent', 'Urgent'), ('circular', 'Circular')],
                          default='general')
     target_audience = SelectField('Target Audience',
                                 choices=[('all', 'All'), ('students', 'Students Only'), 
                                        ('faculty', 'Faculty Only')],
                                 default='all')
-    expires_at = DateTimeField('Expires At', validators=[Optional()])
+    event_date = DateTimeField('Event Date', validators=[Optional()], format='%Y-%m-%dT%H:%M')
+    link = StringField('Link (Optional)', validators=[Optional(), Length(max=500)], 
+                      render_kw={'placeholder': 'https://example.com'})
+    expires_at = DateTimeField('Expires At', validators=[Optional()], format='%Y-%m-%dT%H:%M')
     is_pinned = BooleanField('Pin this announcement')
 
 class EventForm(FlaskForm):
@@ -116,8 +119,7 @@ class NotificationForm(FlaskForm):
     title = StringField('Title', validators=[DataRequired(), Length(max=200)])
     content = TextAreaField('Content', validators=[DataRequired()], widget=TextArea())
     notification_type = SelectField('Type',
-                                  choices=[('aicte', 'AICTE'), ('jntu', 'JNTU'),
-                                         ('university', 'University'), ('government', 'Government')],
+                                  choices=[('aicte', 'AICTE'), ('jntu', 'JNTU')],
                                   validators=[DataRequired()])
     document_url = StringField('Document URL', validators=[Optional(), Length(max=500)])
     reference_number = StringField('Reference Number', validators=[Optional(), Length(max=100)])
@@ -133,7 +135,7 @@ class UserForm(FlaskForm):
                       choices=[('student', 'Student'), ('faculty', 'Faculty'), ('admin', 'Admin')],
                       validators=[DataRequired()])
     phone = StringField('Phone Number', validators=[Optional(), Length(max=20)])
-    department = StringField('Department', validators=[Optional(), Length(max=100)])
+    department = SelectField('Department', validators=[Optional()], choices=[])
     student_id = StringField('Student ID', validators=[Optional(), Length(max=50)])
     faculty_id = StringField('Faculty ID', validators=[Optional(), Length(max=50)])
     classroom_id = SelectField('Assign to Classroom (for Students)', coerce=int, validators=[Optional()],
@@ -151,13 +153,7 @@ class BulkEnrollmentForm(FlaskForm):
 
 class ClassroomForm(FlaskForm):
     name = StringField('Classroom Name', validators=[DataRequired(), Length(max=100)])
-    department = SelectField('Department', validators=[DataRequired()],
-                             choices=[('CSE', 'Computer Science Engineering'),
-                                    ('ECE', 'Electronics & Communication'),
-                                    ('EEE', 'Electrical & Electronics'),
-                                    ('MECH', 'Mechanical Engineering'),
-                                    ('CIVIL', 'Civil Engineering'),
-                                    ('IT', 'Information Technology')])
+    department = SelectField('Department', validators=[DataRequired()], choices=[])
     year = SelectField('Year', coerce=int, validators=[DataRequired()],
                       choices=[(1, '1st Year'), (2, '2nd Year'), (3, '3rd Year'), (4, '4th Year')])
     semester = SelectField('Semester', coerce=int, validators=[DataRequired()],
@@ -168,6 +164,26 @@ class ClassroomForm(FlaskForm):
                          choices=[('A', 'Section A'), ('B', 'Section B'), ('C', 'Section C'),
                                 ('D', 'Section D'), ('E', 'Section E')])
     academic_year = StringField('Academic Year', validators=[Optional(), Length(max=20)])
+    
+    def validate(self, extra_validators=None):
+        if not super().validate(extra_validators):
+            return False
+        
+        # Check for duplicate classroom
+        from models import Classroom
+        existing_classroom = Classroom.query.filter_by(
+            department=self.department.data,
+            year=self.year.data,
+            semester=self.semester.data,
+            section=self.section.data,
+            is_active=True
+        ).first()
+        
+        if existing_classroom:
+            self.section.errors.append(f'Classroom "{existing_classroom.get_classroom_name()}" already exists. Please choose different parameters.')
+            return False
+        
+        return True
 
 class ClassroomAssignmentForm(FlaskForm):
     classroom_id = SelectField('Classroom', coerce=int, validators=[DataRequired()])
@@ -183,7 +199,6 @@ class DepartmentForm(FlaskForm):
     description = TextAreaField('Description', validators=[Optional()])
     image = FileField('Department Image', 
                      validators=[FileAllowed(['jpg', 'png', 'jpeg'], 'Images only!')])
-    established_year = IntegerField('Established Year', validators=[Optional(), NumberRange(min=1900, max=2030)])
     submit = SubmitField('Save Department')
 
 class LecturerForm(FlaskForm):
@@ -205,13 +220,7 @@ class ExcelImportForm(FlaskForm):
                           validators=[DataRequired(), FileAllowed(['xlsx', 'xls'], 'Excel files only!')])
     default_password = StringField('Default Password', validators=[DataRequired(), Length(min=6)], 
                                  default='student123')
-    department = SelectField('Default Department', validators=[DataRequired()],
-                            choices=[('CSE', 'Computer Science Engineering'),
-                                   ('ECE', 'Electronics & Communication'),
-                                   ('EEE', 'Electrical & Electronics'),
-                                   ('MECH', 'Mechanical Engineering'),
-                                   ('CIVIL', 'Civil Engineering'),
-                                   ('IT', 'Information Technology')])
+    department = SelectField('Default Department', validators=[DataRequired()], choices=[])
     classroom_id = SelectField('Assign to Classroom (Optional)', coerce=int, validators=[Optional()],
                               choices=[(0, 'No Classroom Assignment')])
     submit = SubmitField('Import Students')

@@ -81,13 +81,17 @@
                                         {% endfor %}
                                     </div>
                                 {% endif %}
+                                <div id="duplicate-warning" class="text-warning small mt-1" style="display: none;">
+                                    <i class="fas fa-exclamation-triangle me-1"></i>
+                                    <span id="duplicate-message"></span>
+                                </div>
                             </div>
                         </div>
 
                         <div class="mb-3">
                             {{ form.name.label(class="form-label") }}
-                            {{ form.name(class="form-control", placeholder="Leave blank to auto-generate") }}
-                            <small class="text-muted">If left blank, will be auto-generated based on department, year, semester, and section</small>
+                            {{ form.name(class="form-control", id="classroom-name", readonly=true, placeholder="Auto-generated based on selections") }}
+                            <small class="text-muted">Classroom name is automatically generated based on department, year, semester, and section selections</small>
                             {% if form.name.errors %}
                                 <div class="text-danger small mt-1">
                                     {% for error in form.name.errors %}
@@ -174,17 +178,32 @@ document.addEventListener('DOMContentLoaded', function() {
         year: document.getElementById('year'),
         semester: document.getElementById('semester'),
         section: document.getElementById('section'),
-        name: document.getElementById('name'),
+        name: document.getElementById('classroom-name'),
         academic_year: document.getElementById('academic_year')
     };
+
+    // Department name to code mapping (extracted from form options)
+    const departmentCodes = {};
+    fields.department.querySelectorAll('option').forEach(option => {
+        if (option.value) {
+            // Extract code from display text like "Computer Science Engineering (CSE)"
+            const match = option.text.match(/\(([^)]+)\)$/);
+            if (match) {
+                departmentCodes[option.value] = match[1];
+            }
+        }
+    });
 
     function updatePreview() {
         const dept = fields.department.options[fields.department.selectedIndex]?.text || '-';
         const year = fields.year.options[fields.year.selectedIndex]?.text || '-';
         const semester = fields.semester.options[fields.semester.selectedIndex]?.text || '-';
         const section = fields.section.options[fields.section.selectedIndex]?.text || '-';
-        const name = fields.name.value || generateName();
+        const name = generateName();
         const academicYear = fields.academic_year.value || generateAcademicYear();
+
+        // Auto-fill the name field
+        fields.name.value = name;
 
         document.getElementById('preview-name').textContent = name;
         document.getElementById('preview-department').textContent = dept;
@@ -197,13 +216,63 @@ document.addEventListener('DOMContentLoaded', function() {
         if (fields.department.value || fields.year.value) {
             previewCard.style.display = 'block';
         }
+        
+        // Check for duplicates
+        checkForDuplicates();
+    }
+    
+    function checkForDuplicates() {
+        const duplicateWarning = document.getElementById('duplicate-warning');
+        const duplicateMessage = document.getElementById('duplicate-message');
+        const submitButton = document.querySelector('button[type="submit"]');
+        
+        // Only check if we have all required fields
+        if (fields.department.value && fields.year.value && fields.semester.value && fields.section.value) {
+            const classroomName = generateName();
+            
+            // Make AJAX request to check for duplicates
+            fetch('/admin/classrooms/check-duplicate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrf_token]').value
+                },
+                body: JSON.stringify({
+                    department: fields.department.value,
+                    year: parseInt(fields.year.value),
+                    semester: parseInt(fields.semester.value),
+                    section: fields.section.value
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.exists) {
+                    duplicateMessage.textContent = `Classroom "${classroomName}" already exists!`;
+                    duplicateWarning.style.display = 'block';
+                    duplicateWarning.className = 'text-danger small mt-1';
+                    submitButton.disabled = true;
+                } else {
+                    duplicateWarning.style.display = 'none';
+                    submitButton.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('Error checking for duplicates:', error);
+                duplicateWarning.style.display = 'none';
+                submitButton.disabled = false;
+            });
+        } else {
+            duplicateWarning.style.display = 'none';
+            submitButton.disabled = false;
+        }
     }
 
     function generateName() {
         if (fields.department.value && fields.year.value && fields.semester.value && fields.section.value) {
-            return `${fields.department.value} Year ${fields.year.value} Sem ${fields.semester.value} Section ${fields.section.value}`;
+            const deptCode = departmentCodes[fields.department.value] || fields.department.value.substring(0, 3).toUpperCase();
+            return `${deptCode} ${fields.section.value} ${fields.year.value}-${fields.semester.value}`;
         }
-        return '-';
+        return '';
     }
 
     function generateAcademicYear() {

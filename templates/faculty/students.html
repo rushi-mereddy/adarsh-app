@@ -1,0 +1,368 @@
+{% extends "base.html" %}
+
+{% block title %}My Students - Faculty Panel{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <!-- Ultra Modern Page Header -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
+                <div class="mb-3 mb-md-0">
+                    <h1 class="title-ultra">
+                        <i class="fas fa-users me-3" style="color: #667eea;"></i>
+                        My Students
+                    </h1>
+                    <p class="subtitle-ultra">
+                        {% if assigned_classrooms %}
+                            Students from assigned classrooms: {{ assigned_classrooms|map(attribute='get_classroom_name')|join(', ') }}
+                        {% else %}
+                            All students in the system
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="d-flex gap-2 flex-wrap">
+                    <a href="{{ url_for('faculty_dashboard') }}" class="btn-ultra btn-secondary-ultra">
+                        <i class="fas fa-arrow-left"></i>Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Classroom Filters -->
+    {% if assigned_classrooms %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card-ultra">
+                <div class="card-header-ultra">
+                    <h5 class="mb-0">
+                        <i class="fas fa-filter me-2"></i>
+                        Filter Students by Classroom
+                    </h5>
+                </div>
+                <div class="card-body-ultra">
+                    <form method="GET" id="filter-form">
+                        <div class="row align-items-end">
+                            <div class="col-md-4 mb-3">
+                                <label for="classroom_id" class="form-label fw-semibold">Select Classroom</label>
+                                <select class="form-select" id="classroom_id" name="classroom_id">
+                                    <option value="">All Assigned Classrooms</option>
+                                    {% for classroom in assigned_classrooms %}
+                                        <option value="{{ classroom.id }}" {% if filters.classroom_id == classroom.id %}selected{% endif %}>
+                                            {{ classroom.get_classroom_name() }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-2 mb-3">
+                                <label for="department" class="form-label fw-semibold">Department</label>
+                                <select class="form-select" id="department" name="department">
+                                    <option value="">All Departments</option>
+                                    {% for dept in assigned_classrooms|map(attribute='department')|unique %}
+                                        <option value="{{ dept }}" {% if filters.department == dept %}selected{% endif %}>
+                                            {{ dept }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-2 mb-3">
+                                <label for="year" class="form-label fw-semibold">Year</label>
+                                <select class="form-select" id="year" name="year">
+                                    <option value="">All Years</option>
+                                    {% for yr in assigned_classrooms|map(attribute='year')|unique|sort %}
+                                        <option value="{{ yr }}" {% if filters.year == yr %}selected{% endif %}>
+                                            Year {{ yr }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-2 mb-3">
+                                <label for="semester" class="form-label fw-semibold">Semester</label>
+                                <select class="form-select" id="semester" name="semester">
+                                    <option value="">All Semesters</option>
+                                    {% for sem in assigned_classrooms|map(attribute='semester')|unique|sort %}
+                                        <option value="{{ sem }}" {% if filters.semester == sem %}selected{% endif %}>
+                                            Sem {{ sem }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-2 mb-3">
+                                <label for="section" class="form-label fw-semibold">Section</label>
+                                <select class="form-select" id="section" name="section">
+                                    <option value="">All Sections</option>
+                                    {% for sec in assigned_classrooms|map(attribute='section')|unique|sort %}
+                                        <option value="{{ sec }}" {% if filters.section == sec %}selected{% endif %}>
+                                            Section {{ sec }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="d-flex gap-2">
+                                    <button type="submit" class="btn-ultra btn-primary-ultra">
+                                        <i class="fas fa-search me-2"></i>Apply Filters
+                                    </button>
+                                    <a href="{{ url_for('faculty_students') }}" class="btn-ultra btn-secondary-ultra">
+                                        <i class="fas fa-times me-2"></i>Clear Filters
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="stat-card-ultra bg-primary">
+                <div class="stat-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>{{ total_students }}</h3>
+                    <p>Total Students</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card-ultra bg-success">
+                <div class="stat-icon">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>{{ students_by_classroom|length }}</h3>
+                    <p>Classrooms</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card-ultra bg-info">
+                <div class="stat-icon">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>{{ recent_attendance|length }}</h3>
+                    <p>Recent Attendance</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card-ultra bg-warning">
+                <div class="stat-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>{{ assigned_classroom.department if assigned_classroom else 'All' }}</h3>
+                    <p>Department</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Students by Classroom -->
+    {% if students_by_classroom %}
+        {% for classroom_name, classroom_students in students_by_classroom.items() %}
+        <div class="ultra-card mb-4">
+            <div class="card-header-ultra">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chalkboard-teacher me-2" style="color: #667eea;"></i>
+                        {{ classroom_name }}
+                    </h5>
+                    <span class="badge-ultra badge-primary-ultra">{{ classroom_students|length }} students</span>
+                </div>
+            </div>
+            <div class="card-body-ultra">
+                <div class="table-responsive">
+                    <table class="table table-hover" style="background: rgba(102, 126, 234, 0.02); border-radius: 8px;">
+                        <thead style="background: rgba(102, 126, 234, 0.05);">
+                            <tr>
+                                <th style="color: #1f2937; font-weight: 600; border: none;">Student ID</th>
+                                <th style="color: #1f2937; font-weight: 600; border: none;">Name</th>
+                                <th style="color: #1f2937; font-weight: 600; border: none;">Email</th>
+                                <th style="color: #1f2937; font-weight: 600; border: none;">Phone</th>
+                                <th style="color: #1f2937; font-weight: 600; border: none;">Department</th>
+                                <th style="color: #1f2937; font-weight: 600; border: none;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for student in classroom_students %}
+                            <tr style="border-color: rgba(102, 126, 234, 0.1);">
+                                <td style="border: none;">
+                                    <span class="fw-semibold" style="color: #667eea;">{{ student.student_id or 'N/A' }}</span>
+                                </td>
+                                <td style="border: none;">
+                                    <div class="d-flex align-items-center">
+                                        {% if student.profile_image %}
+                                        <img src="{{ url_for('static', filename='uploads/profiles/' + student.profile_image) }}" 
+                                             class="rounded-circle me-2" width="32" height="32" 
+                                             alt="{{ student.get_full_name() }}">
+                                        {% else %}
+                                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" 
+                                             style="width: 32px; height: 32px; font-size: 14px;">
+                                            {{ student.first_name[0] }}{{ student.last_name[0] }}
+                                        </div>
+                                        {% endif %}
+                                        <div>
+                                            <div class="fw-semibold" style="color: #1f2937;">{{ student.get_full_name() }}</div>
+                                            <small class="text-muted">{{ student.faculty_id or 'N/A' }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td style="border: none;">
+                                    <a href="mailto:{{ student.email }}" class="text-decoration-none" style="color: #374151;">
+                                        {{ student.email }}
+                                    </a>
+                                </td>
+                                <td style="border: none;">
+                                    {% if student.phone %}
+                                        <a href="tel:{{ student.phone }}" class="text-decoration-none" style="color: #374151;">
+                                            {{ student.phone }}
+                                        </a>
+                                    {% else %}
+                                        <span class="text-muted">N/A</span>
+                                    {% endif %}
+                                </td>
+                                <td style="border: none;">
+                                    <span class="badge-ultra badge-secondary-ultra">{{ student.department or 'N/A' }}</span>
+                                </td>
+                                <td style="border: none;">
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ url_for('faculty_attendance') }}?student_id={{ student.id }}" 
+                                           class="btn-ultra btn-outline-primary-ultra btn-sm" 
+                                           title="Mark Attendance">
+                                            <i class="fas fa-calendar-check"></i>
+                                        </a>
+                                        <button type="button" class="btn-ultra btn-outline-info-ultra btn-sm" 
+                                                onclick="viewStudentDetails({{ student.id }})" 
+                                                title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <!-- No Students Found -->
+        <div class="ultra-card">
+            <div class="card-body-ultra text-center py-5">
+                <div style="width: 80px; height: 80px; background: rgba(102, 126, 234, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+                    <i class="fas fa-users" style="color: #667eea; font-size: 2rem;"></i>
+                </div>
+                <h5 class="text-muted mb-3">No Students Found</h5>
+                <p class="text-muted mb-4">
+                    {% if assigned_classroom %}
+                        No students are currently assigned to {{ assigned_classroom.get_classroom_name() }}.
+                    {% else %}
+                        No students are currently in the system.
+                    {% endif %}
+                </p>
+                <a href="{{ url_for('faculty_dashboard') }}" class="btn-ultra btn-primary-ultra">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                </a>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Recent Attendance Activity -->
+    {% if recent_attendance %}
+    <div class="ultra-card mt-4">
+        <div class="card-header-ultra">
+            <h5 class="mb-0">
+                <i class="fas fa-history me-2" style="color: #667eea;"></i>
+                Recent Attendance Activity
+            </h5>
+        </div>
+        <div class="card-body-ultra">
+            <div class="activity-feed">
+                {% for attendance in recent_attendance %}
+                <div class="activity-item">
+                    <div class="activity-icon">
+                        <i class="fas fa-{{ 'check-circle text-success' if attendance.status == 'present' else 'times-circle text-danger' if attendance.status == 'absent' else 'clock text-warning' }}"></i>
+                    </div>
+                    <div class="activity-content flex-grow-1">
+                        <h6>{{ attendance.student.get_full_name() }}</h6>
+                        <p>
+                            <span class="badge-ultra badge-{{ 'success' if attendance.status == 'present' else 'danger' if attendance.status == 'absent' else 'warning' }}">
+                                {{ attendance.status.title() }}
+                            </span>
+                            on {{ attendance.date.strftime('%B %d, %Y') }}
+                        </p>
+                        <div class="activity-meta">
+                            <span>{{ attendance.student.student_id or 'N/A' }}</span>
+                            <span>{{ attendance.date.strftime('%I:%M %p') }}</span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Student Details Modal -->
+<div class="modal fade" id="studentDetailsModal" tabindex="-1" aria-labelledby="studentDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="studentDetailsModalLabel">Student Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="studentDetailsContent">
+                <!-- Content will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-ultra btn-secondary-ultra" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function viewStudentDetails(studentId) {
+    // This would typically make an AJAX call to get student details
+    // For now, we'll show a placeholder
+    document.getElementById('studentDetailsContent').innerHTML = `
+        <div class="text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2">Loading student details...</p>
+        </div>
+    `;
+    
+    // Show the modal
+    const modal = new bootstrap.Modal(document.getElementById('studentDetailsModal'));
+    modal.show();
+    
+    // In a real implementation, you would make an AJAX call here
+    // to fetch detailed student information
+}
+
+// Mobile responsiveness
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle mobile menu if needed
+    if (window.innerWidth <= 768) {
+        // Add mobile-specific functionality here
+    }
+});
+</script>
+{% endblock %}

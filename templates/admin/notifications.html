@@ -2,6 +2,77 @@
 
 {% block title %}Notification Management - Admin Dashboard{% endblock %}
 
+{% block extra_css %}
+<style>
+/* Text clamping utilities */
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.2em;
+}
+
+.line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.5em;
+}
+
+/* Card hover effects */
+.card-ultra:hover {
+    transform: translateY(-2px);
+    transition: transform 0.2s ease-in-out;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Ensure equal height cards */
+.notification-item .card-ultra {
+    transition: all 0.2s ease-in-out;
+}
+
+/* Badge improvements */
+.badge.rounded-pill {
+    font-size: 0.75rem;
+    padding: 0.35em 0.65em;
+}
+
+/* Button group improvements */
+.btn-group-vertical .btn {
+    border-radius: 0.375rem !important;
+    margin-bottom: 0.25rem;
+}
+
+.btn-group-vertical .btn:last-child {
+    margin-bottom: 0;
+}
+
+/* Icon container improvements */
+.notification-item .bg-opacity-10 {
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Search input improvements */
+.form-control:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+/* Statistics card hover */
+.statistics-card:hover {
+    transform: translateY(-1px);
+    transition: transform 0.2s ease-in-out;
+}
+
+/* Important notification border */
+.important-notification {
+    border-left: 4px solid #dc3545 !important;
+}
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="fade-in">
     <!-- Ultra Modern Page Header -->
@@ -19,66 +90,116 @@
                     <a href="{{ url_for('admin_add_notification') }}" class="btn-ultra btn-primary-ultra">
                         <i class="fas fa-plus"></i>Add Notification
                     </a>
+                    <button onclick="testJavaScript()" class="btn-ultra btn-outline-secondary-ultra">
+                        <i class="fas fa-bug"></i>Test JS
+                    </button>
                 </div>
             </div>
         </div>
     </div>
     
-    {% if action == 'add' %}
+    {% if action in ['add', 'edit'] %}
     <!-- Add Notification Form -->
     <div class="row">
         <div class="col-lg-8 mx-auto">
             <div class="card-ultra">
                 <div class="card-header-ultra">
                     <h5 class="mb-0">
-                        <i class="fas fa-plus-circle me-2"></i>
-                        Add New Notification
+                        <i class="fas fa-{{ 'edit' if action == 'edit' else 'plus-circle' }} me-2"></i>
+                        {{ 'Edit Notification' if action == 'edit' else 'Add New Notification' }}
                     </h5>
                 </div>
                 <div class="card-body-ultra">
-                    <form method="POST" class="needs-validation" novalidate>
+                    <form method="POST" class="needs-validation" id="notificationForm">
                         {{ form.hidden_tag() }}
                         
                         <div class="mb-3">
                             {{ form.title.label(class="form-label fw-semibold") }}
-                            {{ form.title(class="form-control form-control-lg", placeholder="Enter notification title") }}
+                            {{ form.title(class="form-control form-control-lg" + (" is-invalid" if form.title.errors else ""), placeholder="Enter notification title") }}
+                            {% if form.title.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.title.errors %}
+                                        <div>{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
                             <div class="invalid-feedback">
                                 Please provide a title for the notification.
                             </div>
+                            {% endif %}
                         </div>
                         
                         <div class="mb-3">
                             {{ form.content.label(class="form-label fw-semibold") }}
-                            {{ form.content(class="form-control", rows="6", placeholder="Enter notification content") }}
+                            {{ form.content(class="form-control" + (" is-invalid" if form.content.errors else ""), rows="6", placeholder="Enter notification content") }}
+                            {% if form.content.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.content.errors %}
+                                        <div>{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
                             <div class="invalid-feedback">
                                 Please provide content for the notification.
                             </div>
+                            {% endif %}
                         </div>
                         
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 {{ form.notification_type.label(class="form-label fw-semibold") }}
-                                {{ form.notification_type(class="form-select") }}
+                                {{ form.notification_type(class="form-select" + (" is-invalid" if form.notification_type.errors else "")) }}
+                                {% if form.notification_type.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.notification_type.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
                                 <div class="invalid-feedback">
                                     Please select a notification type.
                                 </div>
+                                {% endif %}
                             </div>
                             <div class="col-md-6 mb-3">
                                 {{ form.issue_date.label(class="form-label fw-semibold") }}
-                                {{ form.issue_date(class="form-control") }}
+                                {{ form.issue_date(class="form-control" + (" is-invalid" if form.issue_date.errors else "")) }}
+                                {% if form.issue_date.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.issue_date.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
                             </div>
                         </div>
                         
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 {{ form.reference_number.label(class="form-label fw-semibold") }}
-                                {{ form.reference_number(class="form-control", placeholder="e.g., AICTE/2024/001") }}
+                                {{ form.reference_number(class="form-control" + (" is-invalid" if form.reference_number.errors else ""), placeholder="e.g., AICTE/2024/001") }}
+                                {% if form.reference_number.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.reference_number.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
                                 <small class="text-muted">Optional reference number for tracking</small>
+                                {% endif %}
                             </div>
                             <div class="col-md-6 mb-3">
                                 {{ form.document_url.label(class="form-label fw-semibold") }}
-                                {{ form.document_url(class="form-control", placeholder="https://example.com/document.pdf") }}
+                                {{ form.document_url(class="form-control" + (" is-invalid" if form.document_url.errors else ""), placeholder="https://example.com/document.pdf") }}
+                                {% if form.document_url.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.document_url.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
                                 <small class="text-muted">Link to official document (optional)</small>
+                                {% endif %}
                             </div>
                         </div>
                         
@@ -92,7 +213,8 @@
                         
                         <div class="d-flex gap-2">
                             <button type="submit" class="btn-ultra btn-primary-ultra">
-                                <i class="fas fa-bell me-2"></i>Publish Notification
+                                <i class="fas fa-{{ 'save' if action == 'edit' else 'bell' }} me-2"></i>
+                                {{ 'Update Notification' if action == 'edit' else 'Publish Notification' }}
                             </button>
                             <a href="{{ url_for('admin_notifications') }}" class="btn-ultra btn-secondary-ultra">
                                 <i class="fas fa-times me-2"></i>Cancel
@@ -105,35 +227,49 @@
     </div>
     
     {% else %}
-    <!-- Notifications List -->
-    
-    <!-- Filter Bar -->
+    <!-- Search and Filter Bar -->
     <div class="row mb-4">
         <div class="col-12">
             <div class="card-ultra">
                 <div class="card-body-ultra">
-                    <div class="row align-items-end">
-                        <div class="col-md-4 mb-2">
-                            <label class="form-label fw-semibold">Filter by Type</label>
-                            <select class="form-select" onchange="filterNotifications(this.value)">
-                                <option value="all">All Types</option>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-0">
+                                    <i class="fas fa-search text-muted"></i>
+                                </span>
+                                <input type="text" class="form-control border-0 bg-light" id="searchInput" 
+                                       placeholder="Search notifications...">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-select" id="typeFilter">
+                                <option value="">All Types</option>
                                 <option value="aicte">AICTE</option>
                                 <option value="jntu">JNTU</option>
                                 <option value="university">University</option>
                                 <option value="government">Government</option>
+                                <option value="circular">Circular</option>
                             </select>
                         </div>
-                        <div class="col-md-4 mb-2">
-                            <label class="form-label fw-semibold">Filter by Priority</label>
-                            <select class="form-select" onchange="filterByImportance(this.value)">
-                                <option value="all">All Priorities</option>
-                                <option value="important">Important Only</option>
-                                <option value="regular">Regular Only</option>
+                        <div class="col-md-2">
+                            <select class="form-select" id="priorityFilter">
+                                <option value="">All Priorities</option>
+                                <option value="important">Important</option>
+                                <option value="regular">Regular</option>
                             </select>
                         </div>
-                        <div class="col-md-4 mb-2">
-                            <button class="btn-ultra btn-secondary-ultra w-100" onclick="clearFilters()">
-                                <i class="fas fa-times me-1"></i>Clear Filters
+                        <div class="col-md-2">
+                            <select class="form-select" id="dateFilter">
+                                <option value="">All Dates</option>
+                                <option value="today">Today</option>
+                                <option value="week">This Week</option>
+                                <option value="month">This Month</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn-ultra btn-outline-secondary-ultra w-100" onclick="clearFilters()">
+                                <i class="fas fa-times me-1"></i>Clear
                             </button>
                         </div>
                     </div>
@@ -142,106 +278,304 @@
         </div>
     </div>
     
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card-ultra h-100 statistics-card">
+                <div class="card-body-ultra text-center">
+                    <div class="d-flex align-items-center justify-content-center mb-2">
+                        <div class="bg-primary bg-opacity-10 rounded-circle p-3 me-3">
+                            <i class="fas fa-bell text-primary fa-lg"></i>
+                        </div>
+                        <div>
+                            <h3 class="mb-0 fw-bold">{{ notifications|length }}</h3>
+                            <small class="text-muted">Total</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card-ultra h-100 statistics-card">
+                <div class="card-body-ultra text-center">
+                    <div class="d-flex align-items-center justify-content-center mb-2">
+                        <div class="bg-danger bg-opacity-10 rounded-circle p-3 me-3">
+                            <i class="fas fa-star text-danger fa-lg"></i>
+                        </div>
+                        <div>
+                            <h3 class="mb-0 fw-bold">{{ notifications|selectattr('is_important')|list|length }}</h3>
+                            <small class="text-muted">Important</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card-ultra h-100 statistics-card">
+                <div class="card-body-ultra text-center">
+                    <div class="d-flex align-items-center justify-content-center mb-2">
+                        <div class="bg-success bg-opacity-10 rounded-circle p-3 me-3">
+                            <i class="fas fa-university text-success fa-lg"></i>
+                        </div>
+                        <div>
+                            <h3 class="mb-0 fw-bold">{{ notifications|selectattr('notification_type', 'equalto', 'aicte')|list|length }}</h3>
+                            <small class="text-muted">AICTE</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card-ultra h-100 statistics-card">
+                <div class="card-body-ultra text-center">
+                    <div class="d-flex align-items-center justify-content-center mb-2">
+                        <div class="bg-info bg-opacity-10 rounded-circle p-3 me-3">
+                            <i class="fas fa-graduation-cap text-info fa-lg"></i>
+                        </div>
+                        <div>
+                            <h3 class="mb-0 fw-bold">{{ notifications|selectattr('notification_type', 'equalto', 'jntu')|list|length }}</h3>
+                            <small class="text-muted">JNTU</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Notifications List -->
     <div class="row">
         <div class="col-12">
             <div class="card-ultra">
-                <div class="card-header d-flex justify-content-between align-items-center">
+                <div class="card-header-ultra d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">
                         <i class="fas fa-list me-2"></i>
                         Official Notifications
+                        <span class="badge bg-primary ms-2" id="filteredCount">{{ notifications|length }}</span>
                     </h5>
-                    <div>
-                        <span class="text-muted">Total: {{ notifications|length }} notifications</span>
+                    <div class="d-flex gap-2">
+                        <button class="btn-ultra btn-outline-secondary-ultra btn-sm" onclick="toggleView('grid')" id="gridViewBtn">
+                            <i class="fas fa-th"></i>
+                        </button>
+                        <button class="btn-ultra btn-outline-secondary-ultra btn-sm active" onclick="toggleView('list')" id="listViewBtn">
+                            <i class="fas fa-list"></i>
+                        </button>
                     </div>
                 </div>
-                <div class="card-body p-0">
+                <div class="card-body-ultra p-0">
                     {% if notifications %}
-                    <div class="list-group list-group-flush" id="notificationsList">
+                    <!-- List View -->
+                    <div id="listView" class="p-3">
                         {% for notification in notifications %}
-                        <div class="list-group-item notification-item {% if notification.is_important %}border-start border-danger border-4{% endif %}" 
+                        <div class="card-ultra mb-3 notification-item {% if notification.is_important %}important-notification{% endif %}" 
                              data-type="{{ notification.notification_type }}" 
-                             data-important="{{ notification.is_important|lower }}">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div class="flex-grow-1">
-                                    <div class="d-flex align-items-center mb-2">
-                                        <div class="me-3">
+                             data-important="{{ notification.is_important|lower }}"
+                             data-title="{{ notification.title|lower }}"
+                             data-content="{{ notification.content|lower }}">
+                            <div class="card-body-ultra">
+                                <div class="row align-items-start">
+                                    <!-- Icon Column -->
+                                    <div class="col-auto">
                                             {% if notification.notification_type == 'aicte' %}
-                                                <div class="bg-primary bg-opacity-10 rounded-circle p-2 d-inline-flex">
-                                                    <i class="fas fa-university text-primary"></i>
+                                            <div class="bg-primary bg-opacity-10 rounded-3 p-3 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                                                <i class="fas fa-university text-primary fa-lg"></i>
                                                 </div>
                                             {% elif notification.notification_type == 'jntu' %}
-                                                <div class="bg-success bg-opacity-10 rounded-circle p-2 d-inline-flex">
-                                                    <i class="fas fa-graduation-cap text-success"></i>
+                                            <div class="bg-success bg-opacity-10 rounded-3 p-3 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                                                <i class="fas fa-graduation-cap text-success fa-lg"></i>
                                                 </div>
                                             {% elif notification.notification_type == 'university' %}
-                                                <div class="bg-info bg-opacity-10 rounded-circle p-2 d-inline-flex">
-                                                    <i class="fas fa-school text-info"></i>
+                                            <div class="bg-info bg-opacity-10 rounded-3 p-3 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                                                <i class="fas fa-school text-info fa-lg"></i>
+                                            </div>
+                                        {% elif notification.notification_type == 'government' %}
+                                            <div class="bg-warning bg-opacity-10 rounded-3 p-3 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                                                <i class="fas fa-building text-warning fa-lg"></i>
                                                 </div>
                                             {% else %}
-                                                <div class="bg-warning bg-opacity-10 rounded-circle p-2 d-inline-flex">
-                                                    <i class="fas fa-building text-warning"></i>
-                                                </div>
-                                            {% endif %}
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <h6 class="mb-1 d-flex align-items-center">
-                                                {{ notification.title }}
-                                                {% if notification.is_important %}
-                                                    <i class="fas fa-star text-danger ms-2" title="Important"></i>
-                                                {% endif %}
-                                            </h6>
-                                            <div class="d-flex gap-2 flex-wrap">
-                                                <span class="badge bg-{{ 'primary' if notification.notification_type == 'aicte' else 'success' if notification.notification_type == 'jntu' else 'info' if notification.notification_type == 'university' else 'warning' }}">
-                                                    {{ notification.notification_type.upper() }}
-                                                </span>
-                                                {% if notification.reference_number %}
-                                                <span class="badge bg-light text-dark">
-                                                    Ref: {{ notification.reference_number }}
-                                                </span>
-                                                {% endif %}
-                                                {% if notification.issue_date %}
-                                                <span class="badge bg-secondary">
-                                                    {{ notification.issue_date.strftime('%b %d, %Y') }}
-                                                </span>
-                                                {% endif %}
+                                            <div class="bg-secondary bg-opacity-10 rounded-3 p-3 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                                                <i class="fas fa-file-alt text-secondary fa-lg"></i>
                                             </div>
-                                        </div>
+                                        {% endif %}
                                     </div>
                                     
-                                    <p class="mb-2 text-muted">{{ notification.content[:200] }}{% if notification.content|length > 200 %}...{% endif %}</p>
-                                    
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <small class="text-muted">
-                                            <i class="fas fa-user me-1"></i>
-                                            by {{ notification.creator.get_full_name() }} • 
-                                            <i class="fas fa-clock me-1"></i>
-                                            {{ notification.created_at.strftime('%b %d, %Y at %I:%M %p') }}
-                                        </small>
-                                        <div class="btn-group btn-group-sm" role="group">
-                                            <button class="btn-ultra btn-outline-info-ultra" title="View Details" 
-                                                    onclick="showNotificationDetails({{ loop.index0 }})">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
+                                    <!-- Content Column -->
+                                    <div class="col">
+                                        <div class="d-flex justify-content-between align-items-start mb-3">
+                                            <div class="flex-grow-1">
+                                                <h5 class="mb-2 fw-bold d-flex align-items-center">
+                                                    {{ notification.title }}
+                                                    {% if notification.is_important %}
+                                                        <i class="fas fa-star text-danger ms-2 fs-6" title="Important"></i>
+                                                    {% endif %}
+                                                </h5>
+                                                <div class="d-flex gap-2 flex-wrap mb-2">
+                                                    <span class="badge rounded-pill bg-{{ 'primary' if notification.notification_type == 'aicte' else 'success' if notification.notification_type == 'jntu' else 'info' if notification.notification_type == 'university' else 'warning' if notification.notification_type == 'government' else 'secondary' }}">
+                                                        {{ notification.notification_type.upper() }}
+                                                    </span>
+                                                    {% if notification.reference_number %}
+                                                    <span class="badge rounded-pill bg-light text-dark">
+                                                        <i class="fas fa-hashtag me-1"></i>{{ notification.reference_number }}
+                                                    </span>
+                                                    {% endif %}
+                                                    {% if notification.issue_date %}
+                                                    <span class="badge rounded-pill bg-secondary">
+                                                        <i class="fas fa-calendar me-1"></i>{{ notification.issue_date.strftime('%b %d, %Y') }}
+                                                    </span>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <p class="text-muted mb-2 lh-base">{{ notification.content[:250] }}{% if notification.content|length > 250 %}...{% endif %}</p>
                                             {% if notification.document_url %}
-                                            <a href="{{ notification.document_url }}" target="_blank" 
-                                               class="btn-ultra btn-outline-success-ultra" title="View Document">
-                                                <i class="fas fa-file-alt"></i>
+                                            <a href="{{ notification.document_url }}" target="_blank" class="btn-ultra btn-outline-success-ultra btn-sm">
+                                                <i class="fas fa-file-alt me-1"></i>View Document
                                             </a>
                                             {% endif %}
-                                            <button class="btn-ultra btn-outline-primary-ultra" title="Edit" 
-                                                    onclick="showToast('Notification editing feature coming soon', 'info')">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button class="btn-ultra btn-outline-danger-ultra" title="Delete" 
-                                                    onclick="showToast('Notification deletion feature coming soon', 'info')">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
+                                        </div>
+                                        
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div class="text-muted small">
+                                                <div class="d-flex align-items-center mb-1">
+                                                    <i class="fas fa-user me-2"></i>
+                                                    <span class="fw-medium">{{ notification.creator.get_full_name() }}</span>
+                                                </div>
+                                                <div class="d-flex align-items-center">
+                                                    <i class="fas fa-clock me-2"></i>
+                                                    <span>{{ notification.created_at.strftime('%b %d, %Y at %I:%M %p') }}</span>
+                                                </div>
+                                            </div>
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <button class="btn-ultra btn-outline-info-ultra" title="View Details" 
+                                                        onclick="showNotificationDetails({{ loop.index0 }})">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <a href="{{ url_for('admin_edit_notification', notification_id=notification.id) }}" 
+                                                   class="btn-ultra btn-outline-primary-ultra" title="Edit">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <button class="btn-ultra btn-outline-danger-ultra" title="Delete" 
+                                                        onclick="confirmDelete({{ notification.id }}, '{{ notification.title }}')">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         {% endfor %}
+                    </div>
+
+                    <!-- Grid View -->
+                    <div id="gridView" class="p-3" style="display: none;">
+                        <div class="row g-4">
+                            {% for notification in notifications %}
+                            <div class="col-xl-4 col-lg-6 col-md-6 notification-item {% if notification.is_important %}important-notification{% endif %}" 
+                                 data-type="{{ notification.notification_type }}" 
+                                 data-important="{{ notification.is_important|lower }}"
+                                 data-title="{{ notification.title|lower }}"
+                                 data-content="{{ notification.content|lower }}">
+                                <div class="card-ultra h-100 shadow-sm">
+                                    <!-- Card Header -->
+                                    <div class="card-header-ultra border-0 pb-2">
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <div class="d-flex align-items-center">
+                                                {% if notification.notification_type == 'aicte' %}
+                                                    <div class="bg-primary bg-opacity-10 rounded-circle p-2 me-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                                        <i class="fas fa-university text-primary"></i>
+                                                    </div>
+                                                {% elif notification.notification_type == 'jntu' %}
+                                                    <div class="bg-success bg-opacity-10 rounded-circle p-2 me-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                                        <i class="fas fa-graduation-cap text-success"></i>
+                                                    </div>
+                                                {% elif notification.notification_type == 'university' %}
+                                                    <div class="bg-info bg-opacity-10 rounded-circle p-2 me-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                                        <i class="fas fa-school text-info"></i>
+                                                    </div>
+                                                {% elif notification.notification_type == 'government' %}
+                                                    <div class="bg-warning bg-opacity-10 rounded-circle p-2 me-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                                        <i class="fas fa-building text-warning"></i>
+                                                    </div>
+                                                {% else %}
+                                                    <div class="bg-secondary bg-opacity-10 rounded-circle p-2 me-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                                        <i class="fas fa-file-alt text-secondary"></i>
+                                                    </div>
+                                                {% endif %}
+                                                <span class="badge rounded-pill bg-{{ 'primary' if notification.notification_type == 'aicte' else 'success' if notification.notification_type == 'jntu' else 'info' if notification.notification_type == 'university' else 'warning' if notification.notification_type == 'government' else 'secondary' }}">
+                                                    {{ notification.notification_type.upper() }}
+                                                </span>
+                                            </div>
+                                            {% if notification.is_important %}
+                                                <i class="fas fa-star text-danger" title="Important"></i>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Card Body -->
+                                    <div class="card-body-ultra flex-grow-1 d-flex flex-column">
+                                        <h6 class="card-title fw-bold mb-2 line-clamp-2" style="min-height: 2.4em;">{{ notification.title }}</h6>
+                                        <p class="card-text text-muted small mb-3 flex-grow-1 line-clamp-3" style="min-height: 4.5em;">{{ notification.content[:120] }}{% if notification.content|length > 120 %}...{% endif %}</p>
+                                        
+                                        <!-- Badges -->
+                                        <div class="mb-3">
+                                            <div class="d-flex flex-wrap gap-1">
+                                                {% if notification.reference_number %}
+                                                <span class="badge rounded-pill bg-light text-dark small">
+                                                    <i class="fas fa-hashtag me-1"></i>{{ notification.reference_number }}
+                                                </span>
+                                                {% endif %}
+                                                {% if notification.issue_date %}
+                                                <span class="badge rounded-pill bg-secondary small">
+                                                    <i class="fas fa-calendar me-1"></i>{{ notification.issue_date.strftime('%b %d') }}
+                                                </span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Document Button -->
+                                        {% if notification.document_url %}
+                                        <a href="{{ notification.document_url }}" target="_blank" class="btn-ultra btn-outline-success-ultra btn-sm w-100 mb-3">
+                                            <i class="fas fa-file-alt me-1"></i>View Document
+                                        </a>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <!-- Card Footer -->
+                                    <div class="card-footer-ultra bg-light border-0 pt-2">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                            <div class="text-muted small">
+                                                <div class="d-flex align-items-center">
+                                            <i class="fas fa-user me-1"></i>
+                                                    <span class="text-truncate" style="max-width: 120px;">{{ notification.creator.get_full_name() }}</span>
+                                                </div>
+                                                <div class="d-flex align-items-center mt-1">
+                                            <i class="fas fa-clock me-1"></i>
+                                                    <span>{{ notification.created_at.strftime('%b %d, %Y') }}</span>
+                                                </div>
+                                            </div>
+                                            <div class="btn-group-vertical btn-group-sm">
+                                                <button class="btn-ultra btn-outline-info-ultra btn-sm mb-1" title="View" 
+                                                    onclick="showNotificationDetails({{ loop.index0 }})">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                                <div class="btn-group btn-group-sm">
+                                                    <a href="{{ url_for('admin_edit_notification', notification_id=notification.id) }}" 
+                                                       class="btn-ultra btn-outline-primary-ultra btn-sm" title="Edit">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <button class="btn-ultra btn-outline-danger-ultra btn-sm" title="Delete" 
+                                                            onclick="confirmDelete({{ notification.id }}, '{{ notification.title }}')">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
                     </div>
                     {% else %}
                     <div class="text-center py-5">
@@ -286,6 +620,90 @@
 
 {% block extra_js %}
 <script>
+// Define critical functions immediately in global scope
+window.confirmDelete = function(notificationId, notificationTitle) {
+    console.log('confirmDelete called with:', notificationId, notificationTitle);
+    
+    try {
+        if (confirm('Are you sure you want to delete the notification "' + notificationTitle + '"?\n\nThis action cannot be undone.')) {
+            console.log('User confirmed deletion');
+            
+            // Use the existing hidden form and update its action
+            var deleteForm = document.getElementById('deleteForm');
+            console.log('Delete form found:', deleteForm);
+            
+            if (deleteForm) {
+                deleteForm.action = '/admin/notifications/' + notificationId + '/delete';
+                console.log('Form action set to:', deleteForm.action);
+                
+                // Add notification ID as hidden input for extra safety
+                var notificationIdInput = deleteForm.querySelector('input[name="notification_id"]');
+                if (!notificationIdInput) {
+                    notificationIdInput = document.createElement('input');
+                    notificationIdInput.type = 'hidden';
+                    notificationIdInput.name = 'notification_id';
+                    deleteForm.appendChild(notificationIdInput);
+                }
+                notificationIdInput.value = notificationId;
+                
+                console.log('About to submit form...');
+                deleteForm.submit();
+                console.log('Form submitted successfully');
+            } else {
+                console.log('Hidden form not found, creating new form');
+                
+                // Fallback: create a new form
+                var form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/admin/notifications/' + notificationId + '/delete';
+                
+                // Add CSRF token
+                var csrfToken = document.querySelector('meta[name=csrf-token]');
+                console.log('CSRF token found:', csrfToken);
+                
+                if (csrfToken) {
+                    var csrfInput = document.createElement('input');
+                    csrfInput.type = 'hidden';
+                    csrfInput.name = 'csrf_token';
+                    csrfInput.value = csrfToken.getAttribute('content');
+                    form.appendChild(csrfInput);
+                    console.log('CSRF token added:', csrfInput.value);
+                } else {
+                    console.error('CSRF token not found!');
+                    alert('Error: CSRF token not found. Please refresh the page and try again.');
+                    return;
+                }
+                
+                // Add notification ID
+                var idInput = document.createElement('input');
+                idInput.type = 'hidden';
+                idInput.name = 'notification_id';
+                idInput.value = notificationId;
+                form.appendChild(idInput);
+                
+                document.body.appendChild(form);
+                console.log('Form created and added to body');
+                form.submit();
+                console.log('Form submitted');
+            }
+        } else {
+            console.log('User cancelled deletion');
+        }
+    } catch (error) {
+        console.error('Error in confirmDelete function:', error);
+        alert('An error occurred while trying to delete the notification. Please check the console for details.');
+    }
+};
+
+window.testJavaScript = function() {
+    alert('JavaScript is working!');
+    console.log('Test function called successfully');
+};
+
+console.log('Global functions defined successfully');
+</script>
+
+<script>
 // Store notifications data for modal display
 const notificationsData = [
     {% for notification in notifications %}
@@ -302,6 +720,138 @@ const notificationsData = [
     }{% if not loop.last %},{% endif %}
     {% endfor %}
 ];
+
+// Search and Filter Functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    const typeFilter = document.getElementById('typeFilter');
+    const priorityFilter = document.getElementById('priorityFilter');
+    const dateFilter = document.getElementById('dateFilter');
+    const filteredCount = document.getElementById('filteredCount');
+    
+    function filterNotifications() {
+        const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+        const typeValue = typeFilter ? typeFilter.value : '';
+        const priorityValue = priorityFilter ? priorityFilter.value : '';
+        const dateValue = dateFilter ? dateFilter.value : '';
+        
+        const items = document.querySelectorAll('.notification-item');
+        let visibleCount = 0;
+        
+        items.forEach(item => {
+            const title = item.dataset.title || '';
+            const content = item.dataset.content || '';
+            const type = item.dataset.type || '';
+            const important = item.dataset.important || '';
+            
+            let show = true;
+            
+            // Search filter
+            if (searchTerm && !title.includes(searchTerm) && !content.includes(searchTerm)) {
+                show = false;
+            }
+            
+            // Type filter
+            if (typeValue && type !== typeValue) {
+                show = false;
+            }
+            
+            // Priority filter
+            if (priorityValue) {
+                if (priorityValue === 'important' && important !== 'true') {
+                    show = false;
+                } else if (priorityValue === 'regular' && important === 'true') {
+                    show = false;
+                }
+            }
+            
+            // Date filter (basic implementation)
+            if (dateValue) {
+                // This is a simplified date filter - you can enhance it based on your needs
+                const today = new Date();
+                const itemDate = new Date(); // You'd need to extract this from the notification data
+                
+                if (dateValue === 'today') {
+                    // Filter for today's notifications
+                } else if (dateValue === 'week') {
+                    // Filter for this week's notifications
+                } else if (dateValue === 'month') {
+                    // Filter for this month's notifications
+                }
+            }
+            
+            if (show) {
+                item.style.display = '';
+                visibleCount++;
+            } else {
+                item.style.display = 'none';
+            }
+        });
+        
+        // Update filtered count
+        if (filteredCount) {
+            filteredCount.textContent = visibleCount;
+        }
+        
+        // Show/hide no results message
+        const noResults = document.getElementById('noResults');
+        if (visibleCount === 0) {
+            if (!noResults) {
+                const container = document.querySelector('#listView, #gridView');
+                if (container) {
+                    const noResultsDiv = document.createElement('div');
+                    noResultsDiv.id = 'noResults';
+                    noResultsDiv.className = 'text-center py-5';
+                    noResultsDiv.innerHTML = `
+                        <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                        <h5>No notifications found</h5>
+                        <p class="text-muted">Try adjusting your search or filter criteria.</p>
+                    `;
+                    container.appendChild(noResultsDiv);
+                }
+            }
+        } else {
+            if (noResults) {
+                noResults.remove();
+            }
+        }
+    }
+    
+    // Event listeners
+    if (searchInput) searchInput.addEventListener('input', filterNotifications);
+    if (typeFilter) typeFilter.addEventListener('change', filterNotifications);
+    if (priorityFilter) priorityFilter.addEventListener('change', filterNotifications);
+    if (dateFilter) dateFilter.addEventListener('change', filterNotifications);
+    
+    // Clear filters function
+    window.clearFilters = function() {
+        if (searchInput) searchInput.value = '';
+        if (typeFilter) typeFilter.value = '';
+        if (priorityFilter) priorityFilter.value = '';
+        if (dateFilter) dateFilter.value = '';
+        filterNotifications();
+    };
+    
+    // View toggle function
+    window.toggleView = function(view) {
+        const listView = document.getElementById('listView');
+        const gridView = document.getElementById('gridView');
+        const listBtn = document.getElementById('listViewBtn');
+        const gridBtn = document.getElementById('gridViewBtn');
+        
+        if (view === 'list') {
+            if (listView) listView.style.display = '';
+            if (gridView) gridView.style.display = 'none';
+            if (listBtn) listBtn.classList.add('active');
+            if (gridBtn) gridBtn.classList.remove('active');
+        } else {
+            if (listView) listView.style.display = 'none';
+            if (gridView) gridView.style.display = '';
+            if (listBtn) listBtn.classList.remove('active');
+            if (gridBtn) gridBtn.classList.add('active');
+        }
+    };
+});
 
 function showNotificationDetails(index) {
     const notification = notificationsData[index];
@@ -361,38 +911,6 @@ function showNotificationDetails(index) {
     modal.show();
 }
 
-function filterNotifications(type) {
-    const items = document.querySelectorAll('.notification-item');
-    items.forEach(item => {
-        if (type === 'all' || item.dataset.type === type) {
-            item.style.display = 'block';
-        } else {
-            item.style.display = 'none';
-        }
-    });
-}
-
-function filterByImportance(importance) {
-    const items = document.querySelectorAll('.notification-item');
-    items.forEach(item => {
-        const isImportant = item.dataset.important === 'true';
-        if (importance === 'all' || 
-            (importance === 'important' && isImportant) || 
-            (importance === 'regular' && !isImportant)) {
-            item.style.display = 'block';
-        } else {
-            item.style.display = 'none';
-        }
-    });
-}
-
-function clearFilters() {
-    const selects = document.querySelectorAll('.card-body select');
-    selects.forEach(select => select.value = 'all');
-    
-    const items = document.querySelectorAll('.notification-item');
-    items.forEach(item => item.style.display = 'block');
-}
 
 document.addEventListener('DOMContentLoaded', function() {
     // Focus first input in forms
@@ -407,6 +925,90 @@ document.addEventListener('DOMContentLoaded', function() {
         const today = new Date().toISOString().split('T')[0];
         issueDateInput.value = today;
     }
+    
+    // Form validation
+    const form = document.getElementById('notificationForm');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            console.log('Form submission started...');
+            
+            const titleField = document.getElementById('title');
+            const contentField = document.getElementById('content');
+            const notificationTypeField = document.getElementById('notification_type');
+            
+            let isValid = true;
+            
+            // Clear previous validation states
+            [titleField, contentField, notificationTypeField].forEach(field => {
+                if (field) {
+                    field.classList.remove('is-invalid');
+                }
+            });
+            
+            // Validate title
+            if (titleField) {
+                console.log('Title field validity:', titleField.checkValidity());
+                console.log('Title value:', titleField.value);
+                if (!titleField.value.trim()) {
+                    titleField.classList.add('is-invalid');
+                    isValid = false;
+                } else {
+                    titleField.classList.remove('is-invalid');
+                }
+            }
+            
+            // Validate content
+            if (contentField) {
+                console.log('Content field validity:', contentField.checkValidity());
+                console.log('Content value:', contentField.value);
+                if (!contentField.value.trim()) {
+                    contentField.classList.add('is-invalid');
+                    isValid = false;
+                } else {
+                    contentField.classList.remove('is-invalid');
+                }
+            }
+            
+            // Validate notification type
+            if (notificationTypeField) {
+                console.log('Notification type field validity:', notificationTypeField.checkValidity());
+                console.log('Notification type value:', notificationTypeField.value);
+                if (!notificationTypeField.value) {
+                    notificationTypeField.classList.add('is-invalid');
+                    isValid = false;
+                } else {
+                    notificationTypeField.classList.remove('is-invalid');
+                }
+            }
+            
+            if (!isValid) {
+                console.log('Form validation failed, preventing submission');
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Show validation errors
+                this.classList.add('was-validated');
+                
+                // Focus on first invalid field
+                const firstInvalid = this.querySelector('.is-invalid');
+                if (firstInvalid) {
+                    firstInvalid.focus();
+                    console.log('Focused on invalid field:', firstInvalid.id);
+                }
+            } else {
+                console.log('Form validation passed, submitting...');
+                // Allow form to submit normally
+            }
+        });
+    }
 });
+
+// Functions are now defined in the first script block above
 </script>
+
+<!-- Hidden delete form for CSRF protection -->
+<form id="deleteForm" method="POST" style="display: none;">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+</form>
+
 {% endblock %}

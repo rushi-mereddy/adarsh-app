@@ -27,28 +27,48 @@
     <!-- Classroom Info -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="card-ultra">
+            <div class="card-ultra" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
                 <div class="card-body-ultra">
-                    <div class="row">
-                        <div class="col-md-3">
-                            <small class="text-muted">Department</small>
-                            <div class="fw-semibold">{{ classroom.department }}</div>
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h4 class="mb-2 text-white">
+                                <i class="fas fa-graduation-cap me-2"></i>
+                                {{ classroom.name }}
+                            </h4>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <small class="text-white-50">Department</small>
+                                    <div class="fw-semibold text-white">{{ classroom.department }}</div>
+                                </div>
+                                <div class="col-md-2">
+                                    <small class="text-white-50">Year</small>
+                                    <div class="fw-semibold text-white">{{ classroom.year }}</div>
+                                </div>
+                                <div class="col-md-2">
+                                    <small class="text-white-50">Semester</small>
+                                    <div class="fw-semibold text-white">{{ classroom.semester }}</div>
+                                </div>
+                                <div class="col-md-2">
+                                    <small class="text-white-50">Section</small>
+                                    <div class="fw-semibold text-white">{{ classroom.section }}</div>
+                                </div>
+                                <div class="col-md-3">
+                                    <small class="text-white-50">Academic Year</small>
+                                    <div class="fw-semibold text-white">{{ classroom.academic_year or 'N/A' }}</div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-md-2">
-                            <small class="text-muted">Year</small>
-                            <div class="fw-semibold">{{ classroom.year }}</div>
-                        </div>
-                        <div class="col-md-2">
-                            <small class="text-muted">Semester</small>
-                            <div class="fw-semibold">{{ classroom.semester }}</div>
-                        </div>
-                        <div class="col-md-2">
-                            <small class="text-muted">Section</small>
-                            <div class="fw-semibold">{{ classroom.section }}</div>
-                        </div>
-                        <div class="col-md-3">
-                            <small class="text-muted">Academic Year</small>
-                            <div class="fw-semibold">{{ classroom.academic_year or 'N/A' }}</div>
+                        <div class="col-md-4 text-end">
+                            <div class="d-flex justify-content-end gap-3">
+                                <div class="text-center">
+                                    <div class="h3 mb-0 text-white">{{ current_students|length }}</div>
+                                    <small class="text-white-50">Students</small>
+                                </div>
+                                <div class="text-center">
+                                    <div class="h3 mb-0 text-white">{{ current_faculty|length }}</div>
+                                    <small class="text-white-50">Faculty</small>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -60,8 +80,10 @@
         <!-- Assignment Form -->
         <div class="col-lg-6 mb-4">
             <div class="card-ultra">
-                <div class="card-header-ultra">
-                    <h5 class="mb-0">Assign Users</h5>
+                <div class="card-header-ultra" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
+                    <h5 class="mb-0 text-white">
+                        <i class="fas fa-user-plus me-2"></i>Assign Users
+                    </h5>
                 </div>
                 <div class="card-body-ultra">
                     <form method="POST" id="assignment-form">
@@ -69,9 +91,12 @@
                         
                         {{ form.classroom_id(type="hidden") }}
                         
-                        <div class="mb-3">
-                            {{ form.user_type.label(class="form-label") }}
-                            {{ form.user_type(class="form-select", id="user-type") }}
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-users me-2 text-primary"></i>User Type
+                            </label>
+                            {{ form.user_type(class="form-select form-select-lg", id="user-type") }}
+                            <small class="text-muted">Current selection: {{ form.user_type.data }}</small>
                             {% if form.user_type.errors %}
                                 <div class="text-danger small mt-1">
                                     {% for error in form.user_type.errors %}
@@ -81,9 +106,19 @@
                             {% endif %}
                         </div>
 
-                        <div class="mb-3">
-                            {{ form.user_ids.label(class="form-label") }}
-                            {{ form.user_ids(class="form-select", size="8", multiple=True) }}
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-list me-2 text-success"></i>Available Users
+                                <span class="badge bg-primary ms-2">{{ form.user_ids.choices|length }}</span>
+                            </label>
+                            <div class="position-relative">
+                                {{ form.user_ids(class="form-select", size="8", multiple=True, style="min-height: 200px;") }}
+                                <div class="position-absolute top-0 end-0 p-2">
+                                    <button type="button" id="select-all-btn" class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-check-square me-1"></i>Select All
+                                    </button>
+                                </div>
+                            </div>
                             <small class="text-muted">Hold Ctrl/Cmd to select multiple users</small>
                             {% if form.user_ids.errors %}
                                 <div class="text-danger small mt-1">
@@ -95,10 +130,10 @@
                         </div>
 
                         <div class="d-flex gap-2">
-                            <button type="submit" class="btn-ultra btn-primary-ultra">
+                            <button type="submit" class="btn-ultra btn-primary-ultra btn-lg">
                                 <i class="fas fa-user-plus me-2"></i>Assign Selected
                             </button>
-                            <a href="{{ url_for('admin_classrooms') }}" class="btn-ultra btn-secondary-ultra">
+                            <a href="{{ url_for('admin_classrooms') }}" class="btn-ultra btn-secondary-ultra btn-lg">
                                 <i class="fas fa-arrow-left me-2"></i>Back to Classrooms
                             </a>
                         </div>
@@ -110,19 +145,30 @@
         <!-- Current Assignments -->
         <div class="col-lg-6">
             <!-- Current Students -->
-            <div class="card mb-4">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h6 class="mb-0">Current Students</h6>
-                    <span class="badge bg-primary">{{ current_students|length }}</span>
+            <div class="card-ultra mb-4">
+                <div class="card-header-ultra" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0 text-white">
+                            <i class="fas fa-user-graduate me-2"></i>Current Students
+                        </h6>
+                        <span class="badge bg-white text-primary fs-6">{{ current_students|length }}</span>
+                    </div>
                 </div>
                 <div class="card-body-ultra">
                     {% if current_students %}
                         <div class="list-group list-group-flush">
                             {% for student in current_students %}
-                            <div class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                <div>
-                                    <div class="fw-semibold">{{ student.get_full_name() }}</div>
-                                    <small class="text-muted">{{ student.student_id }}</small>
+                            <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-3 border-0" style="border-bottom: 1px solid #e9ecef !important;">
+                                <div class="d-flex align-items-center">
+                                    <div class="me-3">
+                                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="fw-semibold text-dark">{{ student.get_full_name() }}</div>
+                                        <small class="text-muted">{{ student.student_id }}</small>
+                                    </div>
                                 </div>
                                 <a href="{{ url_for('admin_remove_from_classroom', classroom_id=classroom.id, user_id=student.id) }}" 
                                    class="btn-ultra btn-outline-danger-ultra btn-sm"
@@ -133,9 +179,10 @@
                             {% endfor %}
                         </div>
                     {% else %}
-                        <div class="text-center text-muted py-3">
-                            <i class="fas fa-user-graduate fa-2x mb-2"></i>
-                            <div>No students assigned</div>
+                        <div class="text-center text-muted py-5">
+                            <i class="fas fa-user-graduate fa-3x mb-3" style="color: #dee2e6;"></i>
+                            <div class="h5">No students assigned</div>
+                            <small>Use the form on the left to assign students to this classroom</small>
                         </div>
                     {% endif %}
                 </div>
@@ -143,18 +190,29 @@
 
             <!-- Current Faculty -->
             <div class="card-ultra">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h6 class="mb-0">Current Faculty</h6>
-                    <span class="badge bg-success">{{ current_faculty|length }}</span>
+                <div class="card-header-ultra" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white;">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0 text-white">
+                            <i class="fas fa-chalkboard-teacher me-2"></i>Current Faculty
+                        </h6>
+                        <span class="badge bg-white text-warning fs-6">{{ current_faculty|length }}</span>
+                    </div>
                 </div>
                 <div class="card-body-ultra">
                     {% if current_faculty %}
                         <div class="list-group list-group-flush">
                             {% for faculty in current_faculty %}
-                            <div class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                <div>
-                                    <div class="fw-semibold">{{ faculty.get_full_name() }}</div>
-                                    <small class="text-muted">{{ faculty.faculty_id }}</small>
+                            <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-3 border-0" style="border-bottom: 1px solid #e9ecef !important;">
+                                <div class="d-flex align-items-center">
+                                    <div class="me-3">
+                                        <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                            <i class="fas fa-chalkboard-teacher"></i>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="fw-semibold text-dark">{{ faculty.get_full_name() }}</div>
+                                        <small class="text-muted">{{ faculty.faculty_id }}</small>
+                                    </div>
                                 </div>
                                 <a href="{{ url_for('admin_remove_from_classroom', classroom_id=classroom.id, user_id=faculty.id) }}" 
                                    class="btn-ultra btn-outline-danger-ultra btn-sm"
@@ -165,9 +223,10 @@
                             {% endfor %}
                         </div>
                     {% else %}
-                        <div class="text-center text-muted py-3">
-                            <i class="fas fa-chalkboard-teacher fa-2x mb-2"></i>
-                            <div>No faculty assigned</div>
+                        <div class="text-center text-muted py-5">
+                            <i class="fas fa-chalkboard-teacher fa-3x mb-3" style="color: #dee2e6;"></i>
+                            <div class="h5">No faculty assigned</div>
+                            <small>Use the form on the left to assign faculty to this classroom</small>
                         </div>
                     {% endif %}
                 </div>
@@ -182,6 +241,8 @@
 document.addEventListener('DOMContentLoaded', function() {
     const userTypeSelect = document.getElementById('user-type');
     const form = document.getElementById('assignment-form');
+    const selectAllBtn = document.getElementById('select-all-btn');
+    const userSelect = document.querySelector('#user_ids');
 
     // Auto-submit form when user type changes to update available users
     userTypeSelect.addEventListener('change', function() {
@@ -200,22 +261,63 @@ document.addEventListener('DOMContentLoaded', function() {
         tempForm.submit();
     });
 
-    // Add select all functionality
-    const selectAllBtn = document.createElement('button');
-    selectAllBtn.type = 'button';
-    selectAllBtn.className = 'btn btn-outline-secondary btn-sm mb-2';
-    selectAllBtn.innerHTML = '<i class="fas fa-check-square me-1"></i>Select All';
-    
-    const userSelect = document.querySelector('#user_ids');
-    if (userSelect && userSelect.options.length > 0) {
-        userSelect.parentNode.insertBefore(selectAllBtn, userSelect);
-        
+    // Select all functionality
+    if (selectAllBtn && userSelect) {
         selectAllBtn.addEventListener('click', function() {
-            for (let option of userSelect.options) {
-                option.selected = true;
+            const allSelected = Array.from(userSelect.options).every(option => option.selected);
+            
+            if (allSelected) {
+                // Deselect all
+                for (let option of userSelect.options) {
+                    option.selected = false;
+                }
+                this.innerHTML = '<i class="fas fa-check-square me-1"></i>Select All';
+                this.classList.remove('btn-success');
+                this.classList.add('btn-outline-primary');
+            } else {
+                // Select all
+                for (let option of userSelect.options) {
+                    option.selected = true;
+                }
+                this.innerHTML = '<i class="fas fa-square me-1"></i>Deselect All';
+                this.classList.remove('btn-outline-primary');
+                this.classList.add('btn-success');
             }
         });
+
+        // Update button state when manual selection changes
+        userSelect.addEventListener('change', function() {
+            const selectedCount = Array.from(this.options).filter(option => option.selected).length;
+            const totalCount = this.options.length;
+            
+            if (selectedCount === 0) {
+                selectAllBtn.innerHTML = '<i class="fas fa-check-square me-1"></i>Select All';
+                selectAllBtn.classList.remove('btn-success');
+                selectAllBtn.classList.add('btn-outline-primary');
+            } else if (selectedCount === totalCount) {
+                selectAllBtn.innerHTML = '<i class="fas fa-square me-1"></i>Deselect All';
+                selectAllBtn.classList.remove('btn-outline-primary');
+                selectAllBtn.classList.add('btn-success');
+            } else {
+                selectAllBtn.innerHTML = `<i class="fas fa-check-square me-1"></i>Select All (${selectedCount}/${totalCount})`;
+                selectAllBtn.classList.remove('btn-success');
+                selectAllBtn.classList.add('btn-outline-primary');
+            }
+        });
+
+        // Initialize button state
+        userSelect.dispatchEvent(new Event('change'));
     }
+
+    // Form validation
+    form.addEventListener('submit', function(e) {
+        const selectedUsers = Array.from(userSelect.options).filter(option => option.selected);
+        if (selectedUsers.length === 0) {
+            e.preventDefault();
+            alert('Please select at least one user to assign.');
+            return false;
+        }
+    });
 });
 </script>
 {% endblock %}

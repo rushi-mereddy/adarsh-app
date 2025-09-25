@@ -46,7 +46,7 @@
                     </p>
                 </div>
                 <div style="padding: 0 2rem 2rem;">
-                    <form method="POST" class="needs-validation" novalidate>
+                    <form method="POST" class="needs-validation">
                         {{ form.hidden_tag() }}
                         
                         <!-- Personal Information Section -->
@@ -57,49 +57,100 @@
                             </h6>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    {{ form.first_name.label(class="form-label") }}
-                                    {{ form.first_name(class="form-control", placeholder="Enter first name") }}
-                                    <div class="invalid-feedback">
-                                        Please provide a first name.
-                                    </div>
+                                    {{ form.first_name.label(class="form-label fw-semibold") }}
+                                    {{ form.first_name(class="form-control" + (" is-invalid" if form.first_name.errors else ""), placeholder="Enter first name") }}
+                                    {% if form.first_name.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {% for error in form.first_name.errors %}
+                                                <div>{{ error }}</div>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        <div class="text-muted small mt-1">
+                                            Please provide a first name.
+                                        </div>
+                                    {% endif %}
                                 </div>
                                 <div class="col-md-6 mb-3">
                                 {{ form.last_name.label(class="form-label fw-semibold") }}
-                                {{ form.last_name(class="form-control", placeholder="Enter last name") }}
-                                <div class="invalid-feedback">
-                                    Please provide a last name.
-                                </div>
+                                {{ form.last_name(class="form-control" + (" is-invalid" if form.last_name.errors else ""), placeholder="Enter last name") }}
+                                {% if form.last_name.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.last_name.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    <div class="text-muted small mt-1">
+                                        Please provide a last name.
+                                    </div>
+                                {% endif %}
                             </div>
                         </div>
                         
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 {{ form.username.label(class="form-label fw-semibold") }}
-                                {{ form.username(class="form-control", placeholder="Enter username") }}
-                                <div class="invalid-feedback">
-                                    Username must be 4-20 characters long.
-                                </div>
+                                {{ form.username(class="form-control" + (" is-invalid" if form.username.errors else ""), placeholder="Enter username") }}
+                                {% if form.username.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.username.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    <div class="text-muted small mt-1">
+                                        Username must be 4-20 characters long.
+                                    </div>
+                                {% endif %}
                             </div>
                             <div class="col-md-6 mb-3">
                                 {{ form.email.label(class="form-label fw-semibold") }}
-                                {{ form.email(class="form-control", placeholder="Enter email address") }}
-                                <div class="invalid-feedback">
-                                    Please provide a valid email address.
-                                </div>
+                                {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else ""), placeholder="Enter email address") }}
+                                {% if form.email.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.email.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    <div class="text-muted small mt-1">
+                                        Please provide a valid email address.
+                                    </div>
+                                {% endif %}
                             </div>
                         </div>
                         
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 {{ form.role.label(class="form-label fw-semibold") }}
-                                {{ form.role(class="form-select", onchange="toggleRoleFields()") }}
-                                <div class="invalid-feedback">
-                                    Please select a role.
-                                </div>
+                                {{ form.role(class="form-select" + (" is-invalid" if form.role.errors else ""), onchange="toggleRoleFields()") }}
+                                {% if form.role.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.role.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    <div class="text-muted small mt-1">
+                                        Please select a role.
+                                    </div>
+                                {% endif %}
                             </div>
                             <div class="col-md-6 mb-3">
                                 {{ form.department.label(class="form-label fw-semibold") }}
-                                {{ form.department(class="form-control", placeholder="Enter department") }}
+                                {{ form.department(class="form-select" + (" is-invalid" if form.department.errors else "")) }}
+                                {% if form.department.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.department.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    <div class="text-muted small mt-1">
+                                        Select department (optional).
+                                    </div>
+                                {% endif %}
                             </div>
                         </div>
                         
@@ -131,9 +182,19 @@
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 {{ form.password.label(class="form-label fw-semibold") }}
-                                {{ form.password(class="form-control", placeholder="Enter password") }}
-                                {% if action == 'edit' %}
-                                <small class="text-muted">Leave blank to keep current password</small>
+                                {{ form.password(class="form-control" + (" is-invalid" if form.password.errors else ""), placeholder="Enter password") }}
+                                {% if form.password.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.password.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {% if action == 'edit' %}
+                                    <div class="text-muted small mt-1">Leave blank to keep current password</div>
+                                    {% else %}
+                                    <div class="text-muted small mt-1">Password must be at least 6 characters long</div>
+                                    {% endif %}
                                 {% endif %}
                             </div>
                             <div class="col-md-6 mb-3">
@@ -226,7 +287,7 @@
                         </div>
 
                         <!-- Classroom Filter -->
-                        <div class="col-xl-2 col-lg-3 col-md-4 mb-2">
+                        <!-- <div class="col-xl-2 col-lg-3 col-md-4 mb-2">
                             <label class="form-label" style="color: #1f2937; font-weight: 600;">Classroom</label>
                             <select name="classroom" class="form-control" onchange="this.form.submit()">
                                 <option value="all" {% if classroom_filter == 'all' %}selected{% endif %}>All Classrooms</option>
@@ -234,7 +295,7 @@
                                 <option value="{{ classroom.id }}" {% if classroom_filter == classroom.id|string %}selected{% endif %}>{{ classroom.name }}</option>
                                 {% endfor %}
                             </select>
-                        </div>
+                        </div> -->
 
                         <!-- Search Field -->
                         <div class="col-xl-2 col-lg-4 col-md-6 mb-2">
@@ -504,6 +565,95 @@ document.addEventListener('DOMContentLoaded', function() {
     if (firstInput) {
         firstInput.focus();
     }
+    
+    // Add real-time validation
+    const form = document.querySelector('form.needs-validation');
+    if (form) {
+        // Username validation
+        const usernameField = document.getElementById('username');
+        if (usernameField) {
+            usernameField.addEventListener('input', function() {
+                validateUsername(this);
+            });
+        }
+        
+        // Email validation
+        const emailField = document.getElementById('email');
+        if (emailField) {
+            emailField.addEventListener('input', function() {
+                validateEmail(this);
+            });
+        }
+        
+        // Password validation
+        const passwordField = document.getElementById('password');
+        if (passwordField) {
+            passwordField.addEventListener('input', function() {
+                validatePassword(this);
+            });
+        }
+        
+        // Form submission validation
+        form.addEventListener('submit', function(event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        });
+    }
 });
+
+function validateUsername(field) {
+    const value = field.value.trim();
+    const isValid = value.length >= 4 && value.length <= 20;
+    
+    if (value.length > 0) {
+        if (isValid) {
+            field.classList.remove('is-invalid');
+            field.classList.add('is-valid');
+        } else {
+            field.classList.remove('is-valid');
+            field.classList.add('is-invalid');
+        }
+    } else {
+        field.classList.remove('is-valid', 'is-invalid');
+    }
+}
+
+function validateEmail(field) {
+    const value = field.value.trim();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const isValid = emailRegex.test(value);
+    
+    if (value.length > 0) {
+        if (isValid) {
+            field.classList.remove('is-invalid');
+            field.classList.add('is-valid');
+        } else {
+            field.classList.remove('is-valid');
+            field.classList.add('is-invalid');
+        }
+    } else {
+        field.classList.remove('is-valid', 'is-invalid');
+    }
+}
+
+function validatePassword(field) {
+    const value = field.value;
+    const isValid = value.length === 0 || value.length >= 6; // Optional field
+    
+    if (value.length > 0) {
+        if (isValid) {
+            field.classList.remove('is-invalid');
+            field.classList.add('is-valid');
+        } else {
+            field.classList.remove('is-valid');
+            field.classList.add('is-invalid');
+        }
+    } else {
+        field.classList.remove('is-valid', 'is-invalid');
+    }
+}
 </script>
 {% endblock %}

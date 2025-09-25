@@ -13,7 +13,13 @@
                         <i class="fas fa-calendar-check me-3" style="color: #667eea;"></i>
                         Attendance Management
                     </h1>
-                    <p class="subtitle-ultra">Filter students by classroom parameters and mark attendance</p>
+                    <p class="subtitle-ultra">
+                        {% if assigned_classrooms %}
+                            You are assigned to {{ assigned_classrooms|map(attribute='name')|join(', ') }}. Only students from these classrooms are shown below.
+                        {% else %}
+                            Filter students by classroom parameters and mark attendance
+                        {% endif %}
+                    </p>
                 </div>
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb mb-0">
@@ -38,6 +44,21 @@
                 <div class="card-body-ultra">
                     <form method="GET" id="filter-form">
                         <div class="row align-items-end">
+                            {% if assigned_classrooms %}
+                            <!-- Classroom Selection Filter -->
+                            <div class="col-md-3 mb-3">
+                                <label for="classroom_id" class="form-label fw-semibold">Select Classroom</label>
+                                <select class="form-select" id="classroom_id" name="classroom_id">
+                                    <option value="">All Assigned Classrooms</option>
+                                    {% for classroom in assigned_classrooms %}
+                                        <option value="{{ classroom.id }}" {% if filters.classroom_id == classroom.id %}selected{% endif %}>
+                                            {{ classroom.name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            {% endif %}
+                            
                             <div class="col-md-2 mb-3">
                                 <label for="department" class="form-label fw-semibold">Department</label>
                                 <select class="form-select" id="department" name="department">
@@ -83,7 +104,7 @@
                                 </select>
                             </div>
 
-                            <div class="col-md-2 mb-3">
+                            <div class="col-md-1 mb-3">
                                 <label for="date" class="form-label fw-semibold">Date</label>
                                 <input type="date" class="form-control" id="date" name="date" 
                                        value="{{ selected_date or '' }}">
@@ -107,6 +128,21 @@
             </div>
         </div>
     </div>
+    
+    <!-- Assigned Classrooms Info -->
+    {% if assigned_classrooms %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="alert alert-info d-flex align-items-center">
+                <i class="fas fa-info-circle me-3 fa-2x"></i>
+                <div>
+                    <h6 class="mb-1">Assigned Classrooms</h6>
+                    <p class="mb-0">You are assigned to <strong>{{ assigned_classrooms|map(attribute='name')|join(', ') }}</strong>. Only students from these classrooms are shown below.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
     
     {% if students %}
     <!-- Attendance Form -->
@@ -134,6 +170,7 @@
                 </div>
                 <div class="card-body-ultra">
                     <form method="POST" id="attendanceForm">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                         <input type="hidden" name="date" value="{{ selected_date }}" />
                         
                         <div class="table-responsive">
@@ -142,10 +179,11 @@
                                     <tr>
                                         <th style="width: 60px;">#</th>
                                         <th>Student Name</th>
-                                        <th>Student ID</th>
-                                        <th>Department</th>
-                                        <th>Year/Sem/Sec</th>
-                                        <th style="width: 200px;">Status</th>
+                                        <th class="d-none d-md-table-cell">Student ID</th>
+                                        <th class="d-none d-md-table-cell">Department</th>
+                                        <th class="d-none d-md-table-cell">Year/Sem/Sec</th>
+                                        <th class="d-none d-md-table-cell" style="width: 200px;">Status</th>
+                                        <th class="d-md-none" style="width: 60px;">Status</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -155,11 +193,12 @@
                                         <td>
                                             <div class="fw-semibold">{{ student.get_full_name() }}</div>
                                         </td>
-                                        <td>{{ student.student_id or '-' }}</td>
-                                        <td>{{ student.department or '-' }}</td>
-                                        <td>{{ student.year or '-' }}/{{ student.semester or '-' }}/{{ student.section or '-' }}</td>
+                                        <td class="d-none d-md-table-cell">{{ student.student_id or '-' }}</td>
+                                        <td class="d-none d-md-table-cell">{{ student.department or '-' }}</td>
+                                        <td class="d-none d-md-table-cell">{{ student.year or '-' }}/{{ student.semester or '-' }}/{{ student.section or '-' }}</td>
                                         <td>
-                                            <div class="btn-group btn-group-sm" role="group">
+                                            <!-- Desktop View: Full buttons with text -->
+                                            <div class="btn-group btn-group-sm d-none d-md-flex" role="group">
                                                 <input type="radio" class="btn-check" name="attendance_{{ student.id }}" 
                                                        id="present_{{ student.id }}" value="present" 
                                                        {% if existing_attendance.get(student.id|string) == 'present' %}checked{% endif %}>
@@ -180,6 +219,32 @@
                                                 <label class="btn btn-outline-warning" for="late_{{ student.id }}">
                                                     <i class="fas fa-clock me-1"></i>Late
                                                 </label>
+                                            </div>
+                                            
+                                            <!-- Mobile View: Compact vertical buttons with icons only -->
+                                            <div class="d-flex d-md-none flex-column gap-1">
+                                                <div class="btn-group-vertical btn-group-sm" role="group">
+                                                    <input type="radio" class="btn-check" name="attendance_{{ student.id }}" 
+                                                           id="present_mobile_{{ student.id }}" value="present" 
+                                                           {% if existing_attendance.get(student.id|string) == 'present' %}checked{% endif %}>
+                                                    <label class="btn btn-outline-success btn-sm px-2 py-1" for="present_mobile_{{ student.id }}" title="Present">
+                                                        <i class="fas fa-check"></i>
+                                                    </label>
+                                                    
+                                                    <input type="radio" class="btn-check" name="attendance_{{ student.id }}" 
+                                                           id="absent_mobile_{{ student.id }}" value="absent" 
+                                                           {% if existing_attendance.get(student.id|string) == 'absent' %}checked{% endif %}>
+                                                    <label class="btn btn-outline-danger btn-sm px-2 py-1" for="absent_mobile_{{ student.id }}" title="Absent">
+                                                        <i class="fas fa-times"></i>
+                                                    </label>
+                                                    
+                                                    <input type="radio" class="btn-check" name="attendance_{{ student.id }}" 
+                                                           id="late_mobile_{{ student.id }}" value="late" 
+                                                           {% if existing_attendance.get(student.id|string) == 'late' %}checked{% endif %}>
+                                                    <label class="btn btn-outline-warning btn-sm px-2 py-1" for="late_mobile_{{ student.id }}" title="Late">
+                                                        <i class="fas fa-clock"></i>
+                                                    </label>
+                                                </div>
                                             </div>
                                         </td>
                                     </tr>
@@ -278,19 +343,24 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Handle form submission
+    // Handle form submission - no need for additional processing as form data is handled server-side
     const attendanceForm = document.getElementById('attendanceForm');
     if (attendanceForm) {
         attendanceForm.addEventListener('submit', function(e) {
-            const attendanceData = {};
+            // Check if at least one student has attendance marked
             const radioButtons = document.querySelectorAll('input[type="radio"]:checked');
+            if (radioButtons.length === 0) {
+                e.preventDefault();
+                alert('Please mark attendance for at least one student.');
+                return false;
+            }
             
-            radioButtons.forEach(radio => {
-                const studentId = radio.name.replace('attendance_', '');
-                attendanceData[studentId] = radio.value;
-            });
-            
-            document.getElementById('student_attendances').value = JSON.stringify(attendanceData);
+            // Show loading state
+            const submitBtn = this.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Saving...';
+                submitBtn.disabled = true;
+            }
         });
     }
 });
