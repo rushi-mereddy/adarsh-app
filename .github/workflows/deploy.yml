@@ -68,13 +68,36 @@ jobs:
           # First, ensure all required software is installed
           echo "🔧 Setting up required software..."
           
+          # Detect OS and set package manager
+          if command -v apt &> /dev/null; then
+            PKG_MANAGER="apt"
+            UPDATE_CMD="sudo apt update -y"
+            INSTALL_CMD="sudo apt install -y"
+          elif command -v yum &> /dev/null; then
+            PKG_MANAGER="yum"
+            UPDATE_CMD="sudo yum update -y"
+            INSTALL_CMD="sudo yum install -y"
+          elif command -v dnf &> /dev/null; then
+            PKG_MANAGER="dnf"
+            UPDATE_CMD="sudo dnf update -y"
+            INSTALL_CMD="sudo dnf install -y"
+          else
+            echo "❌ Unsupported package manager. Please install Git and Docker manually."
+            exit 1
+          fi
+          
+          echo "📋 Detected package manager: $PKG_MANAGER"
+          
           # Update system
-          sudo apt update -y
+          echo "🔄 Updating system packages..."
+          $UPDATE_CMD
           
           # Install Git if not present
           if ! command -v git &> /dev/null; then
             echo "📦 Installing Git..."
-            sudo apt install git -y
+            $INSTALL_CMD git
+          else
+            echo "✅ Git is already installed"
           fi
           
           # Install Docker if not present
@@ -84,17 +107,38 @@ jobs:
             sh get-docker.sh
             sudo usermod -aG docker $USER
             rm get-docker.sh
+            echo "✅ Docker installed successfully"
+          else
+            echo "✅ Docker is already installed"
           fi
           
           # Install Docker Compose if not present
           if ! command -v docker-compose &> /dev/null; then
             echo "🔧 Installing Docker Compose..."
-            sudo apt install docker-compose -y
+            if [ "$PKG_MANAGER" = "apt" ]; then
+              $INSTALL_CMD docker-compose
+            else
+              # For RHEL/CentOS/Amazon Linux, install via pip or direct download
+              if command -v pip3 &> /dev/null; then
+                sudo pip3 install docker-compose
+              else
+                # Install pip first, then docker-compose
+                $INSTALL_CMD python3-pip
+                sudo pip3 install docker-compose
+              fi
+            fi
+            echo "✅ Docker Compose installed successfully"
+          else
+            echo "✅ Docker Compose is already installed"
           fi
           
           # Ensure Docker service is running
+          echo "🔄 Starting Docker service..."
           sudo systemctl start docker
           sudo systemctl enable docker
+          
+          # Add user to docker group (for future commands)
+          sudo usermod -aG docker $USER
           
           # Navigate to project directory
           cd /home/${{ secrets.EC2_USERNAME }}/adarsh-app || {
